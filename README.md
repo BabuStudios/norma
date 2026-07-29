@@ -31,6 +31,21 @@ npm run test:watch # re-run on change
 Node 20 or later. CI runs typecheck, lint, test and build on every pull request
 (`.github/workflows/ci.yml`), with lint held to zero warnings.
 
+## Deploying
+
+`vercel.json` configures the two things a Vite single-page app needs on Vercel:
+
+- a rewrite sending anything that is not a real file to `index.html`, so a deep
+  link like `/requirements/6.1.2` or `/suppliers/kemipartner-nordic` loads the
+  app instead of 404ing (Vercel checks the filesystem before applying rewrites,
+  so `/assets`, `/fonts` and `/favicon.svg` still serve directly);
+- immutable, year-long caching for the fingerprinted assets and the fonts.
+
+Vercel auto-detects Vite, so no build settings are needed — import the
+repository in the Vercel dashboard and it builds with `npm run build` and serves
+`dist`. Connecting the repository is preferable to a one-off upload: every push
+redeploys, and preview deployments come with each pull request.
+
 ## Stack
 
 React 19, TypeScript and Vite, with `react-router-dom` for routing. Styling is
