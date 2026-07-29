@@ -24,9 +24,12 @@ npm run build      # typecheck + production build
 npm run preview    # serve the production build
 npm run typecheck
 npm run lint
+npm test           # run the suite once
+npm run test:watch # re-run on change
 ```
 
-Node 20 or later.
+Node 20 or later. CI runs typecheck, lint, test and build on every pull request
+(`.github/workflows/ci.yml`), with lint held to zero warnings.
 
 ## Stack
 
@@ -90,6 +93,29 @@ bars and the tree status dots, live.
 
 The requirements catalogue itself is static and versioned per standard edition,
 so it ships with the app rather than coming from the API.
+
+## Tests
+
+Vitest and Testing Library, running in jsdom. Tests sit next to what they cover.
+
+The unit tests pin the logic that the screens read from: conformity scoring
+(a met clause counts one, one in progress a half), evidence classification, and
+supplier resolution with its overrides. Two suites guard the content itself —
+the catalogue's ids are unique and its step and evidence arrays stay parallel
+across languages, because `evidenceRows()` indexes the Swedish array while
+rendering the English one; and the dictionary has no empty strings and is not
+quietly the same text twice.
+
+The integration tests drive the real screens through the real store: opening and
+dismissing the dashboard dropdowns, clause status flowing into the tree and the
+evidence states, step ticking staying per clause rather than per position,
+search and filtering, the supplier column menu and the draft-then-commit edit
+flow including cancel and the effect of a non-numeric score. A parameterised
+suite renders every screen in both languages.
+
+What they deliberately do not cover: layout and the responsive breakpoints. jsdom
+has no CSS, so those were verified by driving the built app in Chromium — worth
+repeating by hand when the design changes.
 
 ## Compliance constraints
 

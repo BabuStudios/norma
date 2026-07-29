@@ -133,10 +133,10 @@ export function OverviewScreen() {
             </colgroup>
             <thead className="visuallyHidden">
               <tr>
-                <th scope="col">{t.lastChange}</th>
-                <th scope="col">{t.owner}</th>
-                <th scope="col">{t.trail}</th>
-                <th scope="col">{t.refs}</th>
+                <th scope="col">{t.logWhen}</th>
+                <th scope="col">{t.logWho}</th>
+                <th scope="col">{t.logWhat}</th>
+                <th scope="col">{t.logRef}</th>
               </tr>
             </thead>
             <tbody>

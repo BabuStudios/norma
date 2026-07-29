@@ -132,6 +132,12 @@ const sv = {
   permDenied: 'Nej',
   suppliersLabel: 'leverantörer',
   needAttention: 'kräver åtgärd',
+  // Column headers for the change log. Visually the table has no header row —
+  // the columns read for themselves — but assistive tech still needs them.
+  logWhen: 'Tidpunkt',
+  logWho: 'Användare',
+  logWhat: 'Åtgärd',
+  logRef: 'Referens',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -259,6 +265,10 @@ const en: Dictionary = {
   permDenied: 'No',
   suppliersLabel: 'suppliers',
   needAttention: 'need attention',
+  logWhen: 'Time',
+  logWho: 'User',
+  logWhat: 'Action',
+  logRef: 'Reference',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };
