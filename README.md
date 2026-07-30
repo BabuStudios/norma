@@ -15,6 +15,9 @@ Primary users are the quality and environment manager at a 10–50 person compan
 a small QHSE team, and consultants managing several client companies (hence the
 client switcher in the sidebar).
 
+This installation is set up for **Awimex International**, with every register
+empty — see *Company data vs. product content* below.
+
 ## Running it
 
 ```bash
@@ -114,19 +117,24 @@ so it ships with the app rather than coming from the API.
 Vitest and Testing Library, running in jsdom. Tests sit next to what they cover.
 
 The unit tests pin the logic that the screens read from: conformity scoring
-(a met clause counts one, one in progress a half), evidence classification, and
-supplier resolution with its overrides. Two suites guard the content itself —
-the catalogue's ids are unique and its step and evidence arrays stay parallel
-across languages, because `evidenceRows()` indexes the Swedish array while
-rendering the English one; and the dictionary has no empty strings and is not
-quietly the same text twice.
+(a met clause counts one, one in progress a half, an unassessed one nothing),
+evidence classification, and supplier resolution with its overrides. Two suites
+guard the content itself — the catalogue's ids are unique and its step and
+evidence arrays stay parallel across languages, because `evidenceRows()` indexes
+the Swedish array while rendering the English one; and the dictionary has no
+empty strings and is not quietly the same text twice.
+
+`src/data/emptyState.test.ts` holds the line described under *Company data vs.
+product content*: each company register ships empty, each piece of product
+content survives, and no clause arrives pre-assessed. It exists so nobody
+re-seeds demo data by accident.
 
 The integration tests drive the real screens through the real store: opening and
 dismissing the dashboard dropdowns, clause status flowing into the tree and the
 evidence states, step ticking staying per clause rather than per position,
-search and filtering, the supplier column menu and the draft-then-commit edit
-flow including cancel and the effect of a non-numeric score. A parameterised
-suite renders every screen in both languages.
+search and filtering, and the supplier column menu — including that the detail
+aside asks for a selection instead of crashing on an empty register. A
+parameterised suite renders every screen in both languages.
 
 What they deliberately do not cover: layout and the responsive breakpoints. jsdom
 has no CSS, so those were verified by driving the built app in Chromium — worth
@@ -176,10 +184,38 @@ copy, layout and interaction model, and adds what production needs:
 - **A live sidebar badge.** The badge slot carries the number of requirements not
   yet met. The prototype left it empty.
 
+## Company data vs. product content
+
+The installation is set up for one company, **Awimex International**, with
+nothing entered yet. Two kinds of content live in `src/data`, and the line
+between them matters when adding anything:
+
+**The company's, and therefore empty.** Documents, environmental aspects, the
+audit programme and its checklists, suppliers, the change log, the field walk
+and its tasks, the next external audit, the next review meeting. Every screen
+shows an empty state naming what the register is for and what the first step is,
+rather than a blank area or an empty table.
+
+**The product's, and therefore present.** The requirements catalogue, the
+document templates, the management review agenda and required outputs (both
+§9.3 asks for them), and the GDPR and permission model — which describes how
+this system handles personal data, not anything about the company.
+
+Nothing invents a fact about Awimex: no headcount, no industry, no named user.
+`CURRENT_USER` is null until authentication is wired up, because the change log
+and approvals are meant to carry a real identity.
+
+**No clause is pre-assessed.** A requirement starts with neither Pågår nor
+Uppfyllt selected, so a company that has just started reads 0% rather than the
+50% that seeding everything as "in progress" would produce. Scoring is
+unchanged otherwise: met counts one, in progress counts a half, unassessed
+counts nothing. The clause tree shows three dot states — filled for met, muted
+for in progress, hollow for unassessed.
+
 ## Not yet built
 
 These are visual affordances with no behavior behind them, as in the prototype:
 document upload, evidence attachment, "Skapa uppgift", "Starta från mall", "Ej
-tillämpligt", "Generera protokoll", "Exportera", and the document and audit rows.
-The client switcher cycles names only — sample data is one fictional company,
-Nordvik Industri AB.
+tillämpligt", "Generera protokoll" and "Exportera". The buttons offered by the
+empty states ("+ Lägg till leverantör" and the rest) are likewise affordances
+pointing at the flows still to be built.

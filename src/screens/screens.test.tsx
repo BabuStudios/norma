@@ -64,9 +64,9 @@ const SCREENS: {
   {
     name: 'suppliers',
     element: <SuppliersScreen />,
-    route: '/suppliers/kemipartner-nordic',
-    path: '/suppliers/:supplierId',
-    marker: { sv: 'Kopplade dokument', en: 'Linked documents' },
+    route: '/suppliers',
+    path: '/suppliers/:supplierId?',
+    marker: { sv: /Inga leverantörer registrerade/, en: /No suppliers registered/ },
   },
   {
     name: 'management review',
@@ -80,7 +80,7 @@ const SCREENS: {
     element: <FieldModeScreen />,
     route: '/field-mode',
     path: '/field-mode',
-    marker: { sv: /Signering sker med BankID/, en: /Signing uses BankID/ },
+    marker: { sv: /Ingen revisionsrunda pågår/, en: /No audit walk in progress/ },
   },
   {
     name: 'settings',
@@ -105,14 +105,21 @@ describe.each(['sv', 'en'] as const)('every screen in %s', (lang) => {
 describe('screens that present tabular data', () => {
   beforeEach(() => useLanguage('sv'));
 
-  it.each([
-    ['documents', <DocumentsScreen key="d" />, '/documents'],
-    ['aspects', <AspectsScreen key="a" />, '/aspects'],
-    ['settings', <SettingsScreen key="s" />, '/settings'],
-  ])('gives %s a real table with column headers', (_name, element, route) => {
-    renderScreen(element, { route, path: route });
-    const tables = screen.getAllByRole('table');
-    expect(tables.length).toBeGreaterThan(0);
+  // Only the GDPR screen still has rows, since its content describes the
+  // system rather than the company. The rest show their empty state.
+  it('gives the settings screen real tables with column headers', () => {
+    renderScreen(<SettingsScreen />, { route: '/settings', path: '/settings' });
+    expect(screen.getAllByRole('table').length).toBeGreaterThan(0);
     expect(screen.getAllByRole('columnheader').length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['documents', <DocumentsScreen key="d" />, '/documents', /Inga dokument ännu/],
+    ['aspects', <AspectsScreen key="a" />, '/aspects', /Miljöaspektregistret är tomt/],
+    ['audits', <AuditsScreen key="au" />, '/audits', /Inget revisionsprogram lagt/],
+  ])('shows an empty state on %s rather than an empty table', (_n, element, route, marker) => {
+    renderScreen(element, { route, path: route });
+    expect(screen.getByText(marker)).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 });

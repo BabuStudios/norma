@@ -49,9 +49,11 @@ export function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
           {t.export}
         </button>
 
-        <span className={styles.avatar} title={CURRENT_USER.name}>
-          {CURRENT_USER.initials}
-        </span>
+        {CURRENT_USER ? (
+          <span className={styles.avatar} title={CURRENT_USER.name}>
+            {CURRENT_USER.initials}
+          </span>
+        ) : null}
       </div>
     </header>
   );

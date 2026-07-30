@@ -18,7 +18,6 @@ function clause(id: string, over: Partial<Clause> = {}): Clause {
     number: id,
     chapter: '4',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '',
     sv: text,
     en: text,
@@ -27,29 +26,33 @@ function clause(id: string, over: Partial<Clause> = {}): Clause {
 }
 
 describe('statusOf', () => {
-  it('falls back to the seeded status', () => {
-    expect(statusOf(clause('4.1', { defaultStatus: 'met' }), {})).toBe('met');
+  it('is undefined until somebody assesses the clause', () => {
+    expect(statusOf(clause('4.1'), {})).toBeUndefined();
   });
 
-  it('prefers a user override', () => {
-    const statuses: StatusMap = { '4.1': 'prog' };
-    expect(statusOf(clause('4.1', { defaultStatus: 'met' }), statuses)).toBe('prog');
+  it('reads the assessed status', () => {
+    const statuses: StatusMap = { '4.1': 'met' };
+    expect(statusOf(clause('4.1'), statuses)).toBe('met');
   });
 });
 
 describe('conformity', () => {
   it('counts a met clause whole and one in progress a half', () => {
-    const list = [
-      clause('a', { defaultStatus: 'met' }),
-      clause('b', { defaultStatus: 'prog' }),
-    ];
-    expect(conformity(list, {})).toBe(75);
+    const list = [clause('a'), clause('b')];
+    expect(conformity(list, { a: 'met', b: 'prog' })).toBe(75);
   });
 
-  it('is 100 when everything is met and 50 when everything is in progress', () => {
+  it('counts an unassessed clause as nothing', () => {
+    // A company that has not started reads 0%, not 50%.
+    const list = [clause('a'), clause('b')];
+    expect(conformity(list, {})).toBe(0);
+    expect(conformity(list, { a: 'met' })).toBe(50);
+  });
+
+  it('is 100 only when everything is met', () => {
     const list = [clause('a'), clause('b')];
     expect(conformity(list, { a: 'met', b: 'met' })).toBe(100);
-    expect(conformity(list, { a: 'prog', b: 'prog' })).toBe(50);
+    expect(conformity(list, { a: 'met', b: 'prog' })).toBe(75);
   });
 
   it('rounds to whole percent', () => {
@@ -59,6 +62,10 @@ describe('conformity', () => {
 
   it('returns zero rather than dividing by zero on an empty list', () => {
     expect(conformity([], {})).toBe(0);
+  });
+
+  it('starts the whole catalogue at zero', () => {
+    expect(conformity(CLAUSES, {})).toBe(0);
   });
 });
 
@@ -84,9 +91,13 @@ describe('inStandard', () => {
 });
 
 describe('notMet', () => {
-  it('returns everything that is not met, including clauses in progress', () => {
+  it('counts both in-progress and unassessed clauses as not met', () => {
     const list = [clause('a'), clause('b'), clause('c')];
     expect(notMet(list, { a: 'met', b: 'prog' }).map((c) => c.id)).toEqual(['b', 'c']);
+  });
+
+  it('starts with every requirement outstanding', () => {
+    expect(notMet(CLAUSES, {})).toHaveLength(CLAUSES.length);
   });
 
   it('is empty once every clause is met', () => {
@@ -108,15 +119,19 @@ describe('chapterProgress', () => {
     ]);
   });
 
-  it('flags a chapter as behind only below half', () => {
-    const allProg = Object.fromEntries(CLAUSES.map((c) => [c.id, 'prog' as const]));
-    // Everything in progress is exactly 50%, which is not behind.
-    expect(chapterProgress(allProg).every((r) => r.percent === 50 && !r.behind)).toBe(true);
+  it('starts every chapter at zero and behind', () => {
+    for (const row of chapterProgress({})) {
+      expect(row.percent).toBe(0);
+      expect(row.behind).toBe(true);
+    }
   });
 
-  it('is behind when a chapter has nothing met and something below half', () => {
-    const rows = chapterProgress({});
-    for (const row of rows) expect(row.behind).toBe(row.percent < 50);
+  it('stops being behind at half', () => {
+    const allProg = Object.fromEntries(CLAUSES.map((c) => [c.id, 'prog' as const]));
+    for (const row of chapterProgress(allProg)) {
+      expect(row.percent).toBe(50);
+      expect(row.behind).toBe(false);
+    }
   });
 });
 

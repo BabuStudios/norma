@@ -1,3 +1,4 @@
+import { EmptyState } from '@/components/EmptyState';
 import { Pill } from '@/components/Pill';
 import { Tick } from '@/components/Tick';
 import { AUDIT_CHECKLIST, AUDIT_FINDINGS, AUDIT_PROGRAMME } from '@/data/audits';
@@ -22,36 +23,50 @@ export function AuditsScreen() {
             <h2>{t.auditPlan} 2026</h2>
             <span className="sectionHead__note">{t.auditPlanNote}</span>
           </div>
-          {AUDIT_PROGRAMME.map((audit) => (
-            <div key={audit.week} className={styles.auditRow}>
-              <span className={styles.week}>{audit.week}</span>
-              <span className={styles.auditText}>
-                <span className={styles.auditArea}>{audit.area[lang]}</span>
-                <span className={styles.auditMeta}>
-                  {audit.clauses} · {audit.auditor[lang]}
+          {AUDIT_PROGRAMME.length === 0 ? (
+            <EmptyState
+              action={
+                <button type="button" className="btn btn-secondary">
+                  + {t.planAudit}
+                </button>
+              }
+            >
+              {t.emptyAuditProgramme}
+            </EmptyState>
+          ) : (
+            AUDIT_PROGRAMME.map((audit) => (
+              <div key={audit.week} className={styles.auditRow}>
+                <span className={styles.week}>{audit.week}</span>
+                <span className={styles.auditText}>
+                  <span className={styles.auditArea}>{audit.area[lang]}</span>
+                  <span className={styles.auditMeta}>
+                    {audit.clauses} · {audit.auditor[lang]}
+                  </span>
                 </span>
-              </span>
-              <Pill kind={audit.kind}>{audit.state[lang]}</Pill>
-            </div>
-          ))}
+                <Pill kind={audit.kind}>{audit.state[lang]}</Pill>
+              </div>
+            ))
+          )}
         </section>
 
         <section>
           <div className="sectionHead">
-            <h2>
-              {t.checklist} — {t.production}
-            </h2>
+            <h2>{t.checklist}</h2>
           </div>
-          {AUDIT_CHECKLIST.map((question, index) => {
-            const checked = Boolean(state.auditChecks[index]);
-            return (
-              <label key={question.clause + question.question.en} className={styles.checkRow}>
-                <Tick checked={checked} onChange={() => toggleAuditCheck(index)} />
-                <span className={styles.checkClause}>§{question.clause}</span>
-                <span className={styles.checkQuestion}>{question.question[lang]}</span>
-              </label>
-            );
-          })}
+          {AUDIT_CHECKLIST.length === 0 ? (
+            <EmptyState>{t.emptyChecklist}</EmptyState>
+          ) : (
+            AUDIT_CHECKLIST.map((question, index) => {
+              const checked = Boolean(state.auditChecks[index]);
+              return (
+                <label key={question.clause + question.question.en} className={styles.checkRow}>
+                  <Tick checked={checked} onChange={() => toggleAuditCheck(index)} />
+                  <span className={styles.checkClause}>§{question.clause}</span>
+                  <span className={styles.checkQuestion}>{question.question[lang]}</span>
+                </label>
+              );
+            })
+          )}
 
           <section className={styles.findings}>
             <h3 className="microLabel">{t.findings}</h3>

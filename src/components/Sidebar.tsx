@@ -40,7 +40,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             </span>
             <span className="visuallyHidden">{t.switchClient}</span>
           </button>
-          <div className={styles.clientMeta}>{org.meta[state.lang]}</div>
+          {org.meta ? <div className={styles.clientMeta}>{org.meta[state.lang]}</div> : null}
         </div>
 
         <nav className={styles.nav} aria-label="NORMA">

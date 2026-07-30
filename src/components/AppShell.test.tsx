@@ -26,7 +26,7 @@ describe('the app shell', () => {
   it('titles the screen and breadcrumbs its group and client', () => {
     renderShell('/requirements');
     expect(screen.getByRole('heading', { level: 1, name: 'Kravgenomgång' })).toBeInTheDocument();
-    expect(screen.getByText(`Styrning · ${ORGANIZATIONS[0].name}`)).toBeInTheDocument();
+    expect(screen.getByText('Styrning · Awimex International')).toBeInTheDocument();
   });
 
   it('marks the current nav item and no other', () => {
@@ -72,21 +72,29 @@ describe('the app shell', () => {
     expect(screen.getByRole('button', { name: 'SV' })).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('cycles through the consultant’s clients and wraps around', async () => {
-    const { user } = renderShell();
-    const switcher = screen.getByRole('button', { name: /Byt kund/ });
-
-    for (const org of [...ORGANIZATIONS.slice(1), ORGANIZATIONS[0]]) {
-      await user.click(switcher);
-      expect(screen.getByText(org.name)).toBeInTheDocument();
-      expect(screen.getByText(org.meta.sv)).toBeInTheDocument();
-    }
+  it('names Awimex International as the client', () => {
+    renderShell();
+    expect(screen.getByText('Awimex International')).toBeInTheDocument();
   });
 
-  it('badges the requirements item with the number still open', () => {
+  it('stays on the one client when the switcher is used', async () => {
+    // The switcher cycles; with a single client it must land back on it rather
+    // than blanking out.
+    const { user } = renderShell();
+    expect(ORGANIZATIONS).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: /Byt kund/ }));
+    expect(screen.getByText('Awimex International')).toBeInTheDocument();
+  });
+
+  it('shows no avatar while no user is signed in', () => {
+    renderShell();
+    expect(screen.queryByTitle(/Karlsson/)).not.toBeInTheDocument();
+  });
+
+  it('badges the requirements item with every requirement still open', () => {
     renderShell();
     const link = screen.getByRole('link', { name: /Kravgenomgång/ });
-    expect(link.textContent).toMatch(/Kravgenomgång\d+/);
+    expect(link.textContent).toMatch(/Kravgenomgång30/);
   });
 
   it('offers a skip link to the content', () => {

@@ -138,6 +138,34 @@ const sv = {
   logWho: 'Användare',
   logWhat: 'Åtgärd',
   logRef: 'Referens',
+
+  // — empty states —
+  // Every register starts empty. Each message says what the thing is for and
+  // what the first step is, rather than just reporting that there is no data.
+  emptyChangeLog: 'Inga ändringar loggade ännu. Varje ändring i systemet hamnar här, med användare och tidpunkt.',
+  emptyDocuments: 'Inga dokument ännu. Börja från en mall ovan, eller lägg upp ett befintligt dokument.',
+  emptyAspects:
+    'Miljöaspektregistret är tomt. Kartlägg era aktiviteter och deras miljöpåverkan — det är grunden i ISO 14001.',
+  emptyAuditProgramme:
+    'Inget revisionsprogram lagt. Planera revisioner så att alla krav och processer täcks över tre år.',
+  emptyChecklist: 'Ingen checklista ännu. Skapa frågor per område när revisionsprogrammet är lagt.',
+  emptySuppliers:
+    'Inga leverantörer registrerade. Lägg till dem som kan påverka kvalitet eller miljö, och klassa dem efter påverkan.',
+  emptySupplierDetail: 'Välj en leverantör i listan.',
+  emptyFieldWalk: 'Ingen revisionsrunda pågår.',
+  emptyFieldTasks: 'Inga uppgifter tilldelade.',
+  emptyReviewInputs: 'Inga underlag att gå igenom ännu.',
+  noAuditBooked: 'Ingen bokad',
+  noReviewBooked: 'Inget möte bokat',
+  noOwner: 'Ingen ansvarig utsedd',
+  noChangesYet: 'Inga ändringar',
+  noEvidenceYet: 'Inga bevis uppladdade ännu.',
+  notAssessed: 'Ej bedömt',
+  addSupplier: 'Lägg till leverantör',
+  addDocument: 'Nytt dokument',
+  addAspect: 'Lägg till aspekt',
+  planAudit: 'Planera revision',
+  bookReview: 'Boka möte',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -269,6 +297,33 @@ const en: Dictionary = {
   logWho: 'User',
   logWhat: 'Action',
   logRef: 'Reference',
+
+  emptyChangeLog:
+    'No changes logged yet. Every change in the system lands here, with the user and the time.',
+  emptyDocuments:
+    'No documents yet. Start from a template above, or upload an existing document.',
+  emptyAspects:
+    'The environmental aspects register is empty. Map your activities and their environmental impacts — this is the foundation of ISO 14001.',
+  emptyAuditProgramme:
+    'No audit programme set. Plan audits so that all requirements and processes are covered across three years.',
+  emptyChecklist: 'No checklist yet. Add questions per area once the audit programme is set.',
+  emptySuppliers:
+    'No suppliers registered. Add the ones that can affect quality or environment, and classify them by impact.',
+  emptySupplierDetail: 'Choose a supplier from the list.',
+  emptyFieldWalk: 'No audit walk in progress.',
+  emptyFieldTasks: 'No tasks assigned.',
+  emptyReviewInputs: 'No inputs to review yet.',
+  noAuditBooked: 'None booked',
+  noReviewBooked: 'No meeting booked',
+  noOwner: 'No owner assigned',
+  noChangesYet: 'No changes',
+  noEvidenceYet: 'No evidence uploaded yet.',
+  notAssessed: 'Not assessed',
+  addSupplier: 'Add supplier',
+  addDocument: 'New document',
+  addAspect: 'Add aspect',
+  planAudit: 'Plan audit',
+  bookReview: 'Book meeting',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };

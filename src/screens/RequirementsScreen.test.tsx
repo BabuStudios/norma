@@ -36,6 +36,32 @@ describe('the requirement walkthrough', () => {
     expect(screen.getByText(/Standardens ordalydelse finns hos SIS/)).toBeInTheDocument();
   });
 
+  it('starts with no status chosen — nothing is pre-assessed', () => {
+    render('6.1.2');
+    expect(screen.getByRole('button', { name: 'Pågår' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'Uppfyllt' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('shows no evidence on file until the clause is met', () => {
+    render('6.1.2');
+    expect(screen.queryByText('Finns')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
+  });
+
+  it('says no owner is assigned rather than naming somebody', () => {
+    render('6.1.2');
+    expect(screen.getByText('Ingen ansvarig utsedd')).toBeInTheDocument();
+    expect(screen.getByText('Inga ändringar')).toBeInTheDocument();
+  });
+
+  it('says no documents are linked yet', () => {
+    render('6.1.2');
+    expect(screen.getByText('Inga dokument kopplade ännu.')).toBeInTheDocument();
+  });
+
   it('ticks a step and moves the counter', async () => {
     const { user } = render('6.1.2');
     const clause = findClause('6.1.2')!;
@@ -59,7 +85,7 @@ describe('the requirement walkthrough', () => {
     expect(screen.getAllByRole('checkbox')[0]).not.toBeChecked();
   });
 
-  it('changes the clause status and reflects it in the tree', async () => {
+  it('changes the clause status', async () => {
     const { user } = render('6.1.2');
     const met = screen.getByRole('button', { name: 'Uppfyllt' });
     expect(met).toHaveAttribute('aria-pressed', 'false');
@@ -72,13 +98,13 @@ describe('the requirement walkthrough', () => {
     expect(screen.getByRole('button', { name: 'Pågår' })).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('updates the evidence state when the clause becomes met', async () => {
+  it('flips every evidence row to on file when the clause becomes met', async () => {
     const { user } = render('6.1.2');
-    // In progress: the first artifact is on file, the rest are missing.
     expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
 
     await user.click(screen.getByRole('button', { name: 'Uppfyllt' }));
     expect(screen.queryByText('Saknas')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Finns').length).toBeGreaterThan(0);
   });
 
   it('filters the tree to one standard', async () => {

@@ -70,14 +70,18 @@ export interface EvidenceRow {
 }
 
 /**
- * Whether an artifact is on file is sample data in this build: a met clause has
- * everything, a clause in progress has its first item only. In production this
- * comes from the document store.
+ * Whether an artifact is on file stands in for the document store, which is
+ * empty: nothing is on file until the company uploads it. A met clause is the
+ * one case where the artifacts must exist, since that is what "met" asserts.
  */
-export function evidenceRows(clause: Clause, status: ClauseStatus, lang: Lang): EvidenceRow[] {
+export function evidenceRows(
+  clause: Clause,
+  status: ClauseStatus | undefined,
+  lang: Lang,
+): EvidenceRow[] {
   return clause[lang].evidence.map((name, index) => {
     const kind = evidenceKind(clause.sv.evidence[index] ?? name);
-    const onFile = status === 'met' || index === 0;
+    const onFile = status === 'met';
     return {
       kind,
       kindLabel: KIND_LABEL[kind][lang],

@@ -1,4 +1,4 @@
-import type { Bilingual, ChapterId, ClauseStatus, Standard } from './types';
+import type { Bilingual, ChapterId, Standard } from './types';
 
 /**
  * The requirements catalogue: chapters 4–10 of ISO 9001 and ISO 14001.
@@ -48,8 +48,6 @@ export interface Clause {
   number: string;
   chapter: ChapterId;
   standard: Standard;
-  /** Seeded status for the demo organization; user changes override it. */
-  defaultStatus: ClauseStatus;
   /** Clause references, cited by number only. */
   refs: string;
   sv: ClauseText;
@@ -62,7 +60,6 @@ export const CLAUSES: Clause[] = [
     number: '4.1',
     chapter: '4',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §4.1 · 14001 §4.1',
     sv: {
       title: 'Organisationens sammanhang',
@@ -92,7 +89,6 @@ export const CLAUSES: Clause[] = [
     number: '4.2',
     chapter: '4',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §4.2 · 14001 §4.2',
     sv: {
       title: 'Intressenter och deras krav',
@@ -122,7 +118,6 @@ export const CLAUSES: Clause[] = [
     number: '4.3',
     chapter: '4',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §4.3 · 14001 §4.3',
     sv: {
       title: 'Ledningssystemets omfattning',
@@ -152,7 +147,6 @@ export const CLAUSES: Clause[] = [
     number: '4.4',
     chapter: '4',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §4.4 · 14001 §4.4',
     sv: {
       title: 'Processer och deras samspel',
@@ -182,7 +176,6 @@ export const CLAUSES: Clause[] = [
     number: '5.1',
     chapter: '5',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §5.1 · 14001 §5.1',
     sv: {
       title: 'Ledarskap och åtagande',
@@ -212,7 +205,6 @@ export const CLAUSES: Clause[] = [
     number: '5.2',
     chapter: '5',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §5.2 · 14001 §5.2',
     sv: {
       title: 'Kvalitets- och miljöpolicy',
@@ -242,7 +234,6 @@ export const CLAUSES: Clause[] = [
     number: '5.3',
     chapter: '5',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §5.3 · 14001 §5.3',
     sv: {
       title: 'Roller, ansvar och befogenheter',
@@ -272,7 +263,6 @@ export const CLAUSES: Clause[] = [
     number: '6.1',
     chapter: '6',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §6.1 · 14001 §6.1.1',
     sv: {
       title: 'Risker och möjligheter',
@@ -302,7 +292,6 @@ export const CLAUSES: Clause[] = [
     number: '6.1.2',
     chapter: '6',
     standard: '14001',
-    defaultStatus: 'prog',
     refs: '14001 §6.1.2',
     sv: {
       title: 'Miljöaspekter och påverkan',
@@ -332,7 +321,6 @@ export const CLAUSES: Clause[] = [
     number: '6.1.3',
     chapter: '6',
     standard: '14001',
-    defaultStatus: 'prog',
     refs: '14001 §6.1.3',
     sv: {
       title: 'Bindande krav och lagefterlevnad',
@@ -362,7 +350,6 @@ export const CLAUSES: Clause[] = [
     number: '6.2',
     chapter: '6',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §6.2 · 14001 §6.2',
     sv: {
       title: 'Mål och handlingsplaner',
@@ -392,7 +379,6 @@ export const CLAUSES: Clause[] = [
     number: '6.3',
     chapter: '6',
     standard: '9001',
-    defaultStatus: 'prog',
     refs: '9001 §6.3',
     sv: {
       title: 'Planering av ändringar',
@@ -422,7 +408,6 @@ export const CLAUSES: Clause[] = [
     number: '7.1',
     chapter: '7',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §7.1 · 14001 §7.1',
     sv: {
       title: 'Resurser och utrustning',
@@ -452,7 +437,6 @@ export const CLAUSES: Clause[] = [
     number: '7.2',
     chapter: '7',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §7.2 · 14001 §7.2',
     sv: {
       title: 'Kompetens',
@@ -482,7 +466,6 @@ export const CLAUSES: Clause[] = [
     number: '7.3',
     chapter: '7',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §7.3 · 14001 §7.3',
     sv: {
       title: 'Medvetenhet',
@@ -512,7 +495,6 @@ export const CLAUSES: Clause[] = [
     number: '7.4',
     chapter: '7',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §7.4 · 14001 §7.4',
     sv: {
       title: 'Kommunikation',
@@ -542,7 +524,6 @@ export const CLAUSES: Clause[] = [
     number: '7.5',
     chapter: '7',
     standard: 'both',
-    defaultStatus: 'met',
     refs: '9001 §7.5 · 14001 §7.5',
     sv: {
       title: 'Dokumenterad information',
@@ -572,7 +553,6 @@ export const CLAUSES: Clause[] = [
     number: '8.1',
     chapter: '8',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §8.1 · 14001 §8.1',
     sv: {
       title: 'Planering och styrning av verksamheten',
@@ -602,7 +582,6 @@ export const CLAUSES: Clause[] = [
     number: '8.2',
     chapter: '8',
     standard: '9001',
-    defaultStatus: 'met',
     refs: '9001 §8.2',
     sv: {
       title: 'Kundkrav och kundkommunikation',
@@ -632,7 +611,6 @@ export const CLAUSES: Clause[] = [
     number: '8.2',
     chapter: '8',
     standard: '14001',
-    defaultStatus: 'prog',
     refs: '14001 §8.2',
     sv: {
       title: 'Nödläge och beredskap',
@@ -662,7 +640,6 @@ export const CLAUSES: Clause[] = [
     number: '8.4',
     chapter: '8',
     standard: '9001',
-    defaultStatus: 'prog',
     refs: '9001 §8.4',
     sv: {
       title: 'Externa leverantörer',
@@ -692,7 +669,6 @@ export const CLAUSES: Clause[] = [
     number: '8.5',
     chapter: '8',
     standard: '9001',
-    defaultStatus: 'met',
     refs: '9001 §8.5',
     sv: {
       title: 'Produktion och tjänsteleverans',
@@ -722,7 +698,6 @@ export const CLAUSES: Clause[] = [
     number: '8.7',
     chapter: '8',
     standard: '9001',
-    defaultStatus: 'prog',
     refs: '9001 §8.7',
     sv: {
       title: 'Avvikande produkter och tjänster',
@@ -752,7 +727,6 @@ export const CLAUSES: Clause[] = [
     number: '9.1',
     chapter: '9',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §9.1 · 14001 §9.1',
     sv: {
       title: 'Övervakning och mätning',
@@ -782,7 +756,6 @@ export const CLAUSES: Clause[] = [
     number: '9.1.2',
     chapter: '9',
     standard: '9001',
-    defaultStatus: 'prog',
     refs: '9001 §9.1.2',
     sv: {
       title: 'Kundtillfredsställelse',
@@ -812,7 +785,6 @@ export const CLAUSES: Clause[] = [
     number: '9.1.2',
     chapter: '9',
     standard: '14001',
-    defaultStatus: 'prog',
     refs: '14001 §9.1.2',
     sv: {
       title: 'Utvärdering av lagefterlevnad',
@@ -842,7 +814,6 @@ export const CLAUSES: Clause[] = [
     number: '9.2',
     chapter: '9',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §9.2 · 14001 §9.2',
     sv: {
       title: 'Internrevision',
@@ -872,7 +843,6 @@ export const CLAUSES: Clause[] = [
     number: '9.3',
     chapter: '9',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §9.3 · 14001 §9.3',
     sv: {
       title: 'Ledningens genomgång',
@@ -902,7 +872,6 @@ export const CLAUSES: Clause[] = [
     number: '10.2',
     chapter: '10',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §10.2 · 14001 §10.2',
     sv: {
       title: 'Avvikelser och korrigerande åtgärder',
@@ -932,7 +901,6 @@ export const CLAUSES: Clause[] = [
     number: '10.3',
     chapter: '10',
     standard: 'both',
-    defaultStatus: 'prog',
     refs: '9001 §10.3 · 14001 §10.3',
     sv: {
       title: 'Fortlöpande förbättring',

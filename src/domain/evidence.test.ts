@@ -54,15 +54,22 @@ describe('evidenceRows', () => {
   });
 
   it('marks everything on file once the clause is met', () => {
+    // "Met" asserts the artifacts exist, so this is the one state where they do.
     const rows = evidenceRows(clause, 'met', 'sv');
     expect(rows.every((r) => r.onFile)).toBe(true);
     expect(rows.every((r) => r.stateLabel === 'Finns')).toBe(true);
   });
 
-  it('marks only the first item on file while the clause is in progress', () => {
+  it('marks nothing on file while the clause is only in progress', () => {
     const rows = evidenceRows(clause, 'prog', 'en');
-    expect(rows[0].onFile).toBe(true);
-    expect(rows.slice(1).every((r) => !r.onFile)).toBe(true);
-    expect(rows[1]?.stateLabel).toBe('Missing');
+    expect(rows.every((r) => !r.onFile)).toBe(true);
+    expect(rows.every((r) => r.stateLabel === 'Missing')).toBe(true);
+  });
+
+  it('marks nothing on file for an unassessed clause', () => {
+    const rows = evidenceRows(clause, undefined, 'sv');
+    expect(rows).toHaveLength(clause.sv.evidence.length);
+    expect(rows.every((r) => !r.onFile)).toBe(true);
+    expect(rows.every((r) => r.stateLabel === 'Saknas')).toBe(true);
   });
 });

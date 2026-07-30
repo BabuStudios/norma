@@ -13,8 +13,11 @@ import styles from './RequirementsScreen.module.css';
 
 type Filter = 'all' | '9001' | '14001';
 
-/** Last edit to the requirement. Server-held in production. */
-const LAST_CHANGED = '2026-07-14 · MK';
+/**
+ * Last edit to this requirement. Null until something is changed — in
+ * production this comes from the server-held change log, not from the client.
+ */
+const lastChanged: string | null = null;
 
 export function RequirementsScreen() {
   const { state, t, setStatus, toggleStep } = useApp();
@@ -96,7 +99,7 @@ export function RequirementsScreen() {
                 <ClauseRow
                   key={item.id}
                   clause={item}
-                  met={statusOf(item, state.statuses) === 'met'}
+                  status={statusOf(item, state.statuses)}
                   active={item.id === clause.id}
                   onSelect={() => navigate(`/requirements/${item.id}`)}
                   lang={lang}
@@ -221,21 +224,33 @@ export function RequirementsScreen() {
 
                 <section>
                   <h3 className="microLabel">{t.owner}</h3>
-                  <div className={styles.railName}>{CURRENT_USER.name}</div>
-                  <div className={styles.railRole}>{t.qhseManager}</div>
+                  {CURRENT_USER ? (
+                    <>
+                      <div className={styles.railName}>{CURRENT_USER.name}</div>
+                      <div className={styles.railRole}>{t.qhseManager}</div>
+                    </>
+                  ) : (
+                    <div className={styles.railEmpty}>{t.noOwner}</div>
+                  )}
                   <div className={styles.railRule} />
                   <h3 className="microLabel">{t.lastChange}</h3>
-                  <div className={styles.railDate}>{LAST_CHANGED}</div>
+                  <div className={lastChanged ? styles.railDate : styles.railEmpty}>
+                    {lastChanged ?? t.noChangesYet}
+                  </div>
                 </section>
 
                 <section>
                   <h3 className="microLabel">{t.linked}</h3>
-                  {CLAUSE_LINKED_DOCUMENTS.map((document) => (
-                    <Link key={document.id} className={styles.railDoc} to="/documents">
-                      <span className={styles.railDocId}>{document.id}</span>
-                      <span>{document.name[lang]}</span>
-                    </Link>
-                  ))}
+                  {CLAUSE_LINKED_DOCUMENTS.length === 0 ? (
+                    <div className={styles.railEmpty}>{t.noDocs}</div>
+                  ) : (
+                    CLAUSE_LINKED_DOCUMENTS.map((document) => (
+                      <Link key={document.id} className={styles.railDoc} to="/documents">
+                        <span className={styles.railDocId}>{document.id}</span>
+                        <span>{document.name[lang]}</span>
+                      </Link>
+                    ))
+                  )}
                 </section>
               </div>
 
@@ -253,20 +268,20 @@ export function RequirementsScreen() {
 
 function ClauseRow({
   clause,
-  met,
+  status,
   active,
   onSelect,
   lang,
 }: {
   clause: Clause;
-  met: boolean;
+  status: ClauseStatus | undefined;
   active: boolean;
   onSelect: () => void;
   lang: 'sv' | 'en';
 }) {
   return (
     <button type="button" className={styles.clauseRow} aria-current={active} onClick={onSelect}>
-      <span className={styles.dot} data-met={met} aria-hidden="true" />
+      <span className={styles.dot} data-status={status ?? 'none'} aria-hidden="true" />
       <span className={styles.clauseId}>{clause.number}</span>
       <span className={styles.clauseTitle}>{clause[lang].title}</span>
       {clause.standard !== 'both' ? (

@@ -1,5 +1,9 @@
 import type { Bilingual, PillKind } from './types';
 
+/**
+ * Document templates ship with the product — they are starting points, not
+ * company data, so they stay when the registers are empty.
+ */
 export interface DocumentTemplate {
   kicker: Bilingual;
   name: Bilingual;
@@ -43,84 +47,8 @@ export interface ManagedDocument {
 /** A review lands "due soon" — and prints in accent — before this date. */
 export const REVIEW_DUE_BEFORE = '2026-09-01';
 
-export const DOCUMENTS: ManagedDocument[] = [
-  {
-    id: 'D-001',
-    name: { sv: 'Kvalitets- och miljöpolicy', en: 'Quality & environmental policy' },
-    version: '3.0',
-    owner: 'Maja Karlsson',
-    nextReview: '2027-02-01',
-    kind: 'met',
-    state: { sv: 'Gällande', en: 'Current' },
-  },
-  {
-    id: 'D-004',
-    name: { sv: 'Processkarta', en: 'Process map' },
-    version: '2.1',
-    owner: 'Erik Lund',
-    nextReview: '2026-11-15',
-    kind: 'met',
-    state: { sv: 'Gällande', en: 'Current' },
-  },
-  {
-    id: 'D-007',
-    name: { sv: 'Rutin dokumentstyrning', en: 'Document control procedure' },
-    version: '1.4',
-    owner: 'Maja Karlsson',
-    nextReview: '2026-09-30',
-    kind: 'met',
-    state: { sv: 'Gällande', en: 'Current' },
-  },
-  {
-    id: 'D-011',
-    name: { sv: 'Miljöaspektregister', en: 'Environmental aspects register' },
-    version: '0.3',
-    owner: 'Sara Nyberg',
-    nextReview: '2026-08-15',
-    kind: 'gap',
-    state: { sv: 'Utkast', en: 'Draft' },
-  },
-  {
-    id: 'D-014',
-    name: { sv: 'Nödlägesrutin & åtgärdskort', en: 'Emergency routine & action cards' },
-    version: '1.2',
-    owner: 'Anders Persson',
-    nextReview: '2026-10-01',
-    kind: 'soft',
-    state: { sv: 'Granskas', en: 'In review' },
-  },
-  {
-    id: 'D-019',
-    name: { sv: 'Kommunikationsplan', en: 'Communication plan' },
-    version: '—',
-    owner: 'Maja Karlsson',
-    nextReview: '2026-08-31',
-    kind: 'gap',
-    state: { sv: 'Saknas', en: 'Missing' },
-  },
-  {
-    id: 'D-022',
-    name: { sv: 'Kompetensmatris', en: 'Competence matrix' },
-    version: '4.2',
-    owner: 'Lena Ek',
-    nextReview: '2026-12-01',
-    kind: 'met',
-    state: { sv: 'Gällande', en: 'Current' },
-  },
-  {
-    id: 'D-028',
-    name: { sv: 'Leverantörsbedömning', en: 'Supplier evaluation' },
-    version: '2.0',
-    owner: 'Erik Lund',
-    nextReview: '2026-09-15',
-    kind: 'soft',
-    state: { sv: 'Granskas', en: 'In review' },
-  },
-];
+/** The company's document register. Empty until documents are created. */
+export const DOCUMENTS: ManagedDocument[] = [];
 
-/** Documents linked from the requirement detail rail. */
-export const CLAUSE_LINKED_DOCUMENTS: { id: string; name: Bilingual }[] = [
-  { id: 'D-001', name: { sv: 'Policy', en: 'Policy' } },
-  { id: 'D-004', name: { sv: 'Processkarta', en: 'Process map' } },
-  { id: 'D-011', name: { sv: 'Aspektregister', en: 'Aspects register' } },
-];
+/** Documents linked from a requirement's detail rail. Empty until linked. */
+export const CLAUSE_LINKED_DOCUMENTS: { id: string; name: Bilingual }[] = [];

@@ -1,16 +1,20 @@
 import { CHAPTERS, CLAUSES, type Chapter, type Clause } from '@/data/clauses';
 import type { ClauseStatus, Standard } from '@/data/types';
 
-/** Per-clause status overrides, keyed by clause id. */
+/**
+ * Per-clause status overrides, keyed by clause id. A clause absent from the
+ * map has not been assessed yet — which is where every requirement starts.
+ */
 export type StatusMap = Record<string, ClauseStatus>;
 
-export function statusOf(clause: Clause, statuses: StatusMap): ClauseStatus {
-  return statuses[clause.id] ?? clause.defaultStatus;
+export function statusOf(clause: Clause, statuses: StatusMap): ClauseStatus | undefined {
+  return statuses[clause.id];
 }
 
 /**
  * Conformity as a percentage: a met clause counts one, a clause in progress
- * counts a half. Used for the chapter bars and the two headline figures.
+ * counts a half, and one nobody has looked at counts nothing. So a company
+ * starting out reads 0%, not 50%.
  */
 export function conformity(clauses: Clause[], statuses: StatusMap): number {
   if (clauses.length === 0) return 0;
@@ -27,6 +31,7 @@ export function inStandard(standard: '9001' | '14001', clauses = CLAUSES): Claus
   return clauses.filter((clause) => clause.standard !== excluded);
 }
 
+/** Everything not yet met — both in progress and not yet assessed. */
 export function notMet(clauses: Clause[], statuses: StatusMap): Clause[] {
   return clauses.filter((clause) => statusOf(clause, statuses) !== 'met');
 }

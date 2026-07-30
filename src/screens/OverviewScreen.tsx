@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EmptyState } from '@/components/EmptyState';
 import { CHANGE_LOG } from '@/data/changeLog';
 import type { Clause } from '@/data/clauses';
 import { NEXT_EXTERNAL_AUDIT } from '@/data/organizations';
@@ -85,10 +86,16 @@ export function OverviewScreen() {
         {renderCell('14001', t.notYetMet14, open14001, clauses14001.length)}
         <div className={styles.cell}>
           <div className="microLabel microLabel--wide">{t.nextAudit}</div>
-          <div className={styles.auditDate}>{NEXT_EXTERNAL_AUDIT.date}</div>
-          <div className={styles.auditMeta}>
-            {t.certAudit} · {NEXT_EXTERNAL_AUDIT.body}
-          </div>
+          {NEXT_EXTERNAL_AUDIT ? (
+            <>
+              <div className={styles.auditDate}>{NEXT_EXTERNAL_AUDIT.date}</div>
+              <div className={styles.auditMeta}>
+                {t.certAudit} · {NEXT_EXTERNAL_AUDIT.body}
+              </div>
+            </>
+          ) : (
+            <div className={`${styles.auditDate} ${styles.auditDateEmpty}`}>{t.noAuditBooked}</div>
+          )}
         </div>
       </div>
 
@@ -123,34 +130,38 @@ export function OverviewScreen() {
         <div className="sectionHead">
           <h2>{t.trail}</h2>
         </div>
-        <div className="tableScroll">
-          <table className={`dataTable ${styles.trailTable}`}>
-            <colgroup>
-              <col style={{ width: '156px' }} />
-              <col style={{ width: '136px' }} />
-              <col />
-              <col style={{ width: '160px' }} />
-            </colgroup>
-            <thead className="visuallyHidden">
-              <tr>
-                <th scope="col">{t.logWhen}</th>
-                <th scope="col">{t.logWho}</th>
-                <th scope="col">{t.logWhat}</th>
-                <th scope="col">{t.logRef}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {CHANGE_LOG.map((entry) => (
-                <tr key={`${entry.when}-${entry.ref}`}>
-                  <td className={`num ${styles.trailWhen}`}>{entry.when}</td>
-                  <td className={styles.trailWho}>{entry.who}</td>
-                  <td>{entry.what[state.lang]}</td>
-                  <td className={styles.trailRef}>{entry.ref}</td>
+        {CHANGE_LOG.length === 0 ? (
+          <EmptyState>{t.emptyChangeLog}</EmptyState>
+        ) : (
+          <div className="tableScroll">
+            <table className={`dataTable ${styles.trailTable}`}>
+              <colgroup>
+                <col style={{ width: '156px' }} />
+                <col style={{ width: '136px' }} />
+                <col />
+                <col style={{ width: '160px' }} />
+              </colgroup>
+              <thead className="visuallyHidden">
+                <tr>
+                  <th scope="col">{t.logWhen}</th>
+                  <th scope="col">{t.logWho}</th>
+                  <th scope="col">{t.logWhat}</th>
+                  <th scope="col">{t.logRef}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {CHANGE_LOG.map((entry) => (
+                  <tr key={`${entry.when}-${entry.ref}`}>
+                    <td className={`num ${styles.trailWhen}`}>{entry.when}</td>
+                    <td className={styles.trailWho}>{entry.who}</td>
+                    <td>{entry.what[state.lang]}</td>
+                    <td className={styles.trailRef}>{entry.ref}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );
