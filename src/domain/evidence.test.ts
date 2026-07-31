@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { CLAUSES } from '@/data/clauses';
 import { findClause } from './conformity';
-import { evidenceKind, evidenceRows, KIND_LABEL } from './evidence';
+import { evidenceKind, evidenceRows, KIND_LABEL, uploadsForClause, type UploadedFile } from './evidence';
+
+const file = (name: string): UploadedFile => ({
+  id: name,
+  name,
+  size: 1024,
+  uploadedAt: '2026-01-01T00:00:00.000Z',
+});
 
 describe('evidenceKind', () => {
   it('classifies from the Swedish label', () => {
@@ -71,5 +78,49 @@ describe('evidenceRows', () => {
     expect(rows).toHaveLength(clause.sv.evidence.length);
     expect(rows.every((r) => !r.onFile)).toBe(true);
     expect(rows.every((r) => r.stateLabel === 'Saknas')).toBe(true);
+  });
+
+  it('marks an evidence item on file once a file is attached, regardless of clause status', () => {
+    const rows = evidenceRows(clause, undefined, 'sv', { 0: [file('policy.pdf')] });
+    expect(rows[0].onFile).toBe(true);
+    expect(rows[0].stateLabel).toBe('Finns');
+    expect(rows[0].files).toEqual([file('policy.pdf')]);
+  });
+
+  it('leaves evidence items with no attachment untouched', () => {
+    const rows = evidenceRows(clause, undefined, 'sv', { 0: [file('policy.pdf')] });
+    for (const row of rows.slice(1)) {
+      expect(row.onFile).toBe(false);
+      expect(row.files).toEqual([]);
+    }
+  });
+});
+
+describe('uploadsForClause', () => {
+  it('narrows the global upload map to one clause, re-keyed by evidence index', () => {
+    const uploads = {
+      '4.1:0': [file('a.pdf')],
+      '4.1:2': [file('b.pdf'), file('c.pdf')],
+      '4.2:0': [file('other-clause.pdf')],
+    };
+    expect(uploadsForClause(uploads, '4.1')).toEqual({
+      0: [file('a.pdf')],
+      2: [file('b.pdf'), file('c.pdf')],
+    });
+  });
+
+  it('does not confuse a clause id that is a prefix of another', () => {
+    // "6.1" must not pick up files stored under "6.1.2".
+    const uploads = { '6.1.2:0': [file('aspects.pdf')] };
+    expect(uploadsForClause(uploads, '6.1')).toEqual({});
+    expect(uploadsForClause(uploads, '6.1.2')).toEqual({ 0: [file('aspects.pdf')] });
+  });
+
+  it('is empty for a clause with nothing uploaded', () => {
+    expect(uploadsForClause({}, '4.1')).toEqual({});
+  });
+
+  it('drops an entry that has been emptied out rather than keeping an empty array', () => {
+    expect(uploadsForClause({ '4.1:0': [] }, '4.1')).toEqual({});
   });
 });

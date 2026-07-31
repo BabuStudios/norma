@@ -7,7 +7,8 @@ import { CLAUSE_LINKED_DOCUMENTS } from '@/data/documents';
 import { CURRENT_USER } from '@/data/organizations';
 import type { ClauseStatus } from '@/data/types';
 import { findClause, standardLabel, statusOf } from '@/domain/conformity';
-import { evidenceRows } from '@/domain/evidence';
+import { evidenceRows, uploadsForClause } from '@/domain/evidence';
+import { formatFileSize } from '@/domain/format';
 import { useApp } from '@/state/store';
 import styles from './RequirementsScreen.module.css';
 
@@ -20,7 +21,7 @@ type Filter = 'all' | '9001' | '14001';
 const lastChanged: string | null = null;
 
 export function RequirementsScreen() {
-  const { state, t, setStatus, toggleStep } = useApp();
+  const { state, t, setStatus, toggleStep, addEvidenceFiles, removeEvidenceFile } = useApp();
   const navigate = useNavigate();
   const { clauseId } = useParams();
 
@@ -55,7 +56,8 @@ export function RequirementsScreen() {
     { key: 'met', label: t.stMet },
   ];
 
-  const evidence = evidenceRows(clause, status, lang);
+  const uploads = uploadsForClause(state.evidenceUploads, clause.id);
+  const evidence = evidenceRows(clause, status, lang, uploads);
   const doneSteps = text.steps.filter((_, i) => state.steps[`${clause.id}:${i}`]).length;
 
   return (
@@ -184,19 +186,53 @@ export function RequirementsScreen() {
                   <h3>{t.evidence}</h3>
                 </div>
                 <p className={styles.evidenceHelp}>{t.evidenceHelp}</p>
-                {evidence.map((row) => (
+                {evidence.map((row, index) => (
                   <div key={row.name} className={styles.evidenceRow}>
                     <span className={`tag tag-neutral ${styles.evidenceKind}`}>{row.kindLabel}</span>
                     <span className={styles.evidenceText}>
                       <span className={styles.evidenceName}>{row.name}</span>
                       <span className={styles.evidenceAsk}>{row.description}</span>
+                      {row.files.length > 0 ? (
+                        <ul className={styles.evidenceFiles}>
+                          {row.files.map((file) => (
+                            <li key={file.id} className={styles.evidenceFile}>
+                              <span className={styles.evidenceFileName}>{file.name}</span>
+                              <span className={styles.evidenceFileSize}>
+                                {formatFileSize(file.size)}
+                              </span>
+                              <button
+                                type="button"
+                                className={styles.evidenceFileRemove}
+                                onClick={() => removeEvidenceFile(clause.id, index, file.id)}
+                              >
+                                <span aria-hidden="true">×</span>
+                                <span className="visuallyHidden">
+                                  {t.removeFile} {file.name}
+                                </span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
                     </span>
                     <span className={styles.evidencePill}>
                       <Pill kind={row.onFile ? 'met' : 'gap'}>{row.stateLabel}</Pill>
                     </span>
-                    <button type="button" className={`btn btn-secondary ${styles.evidenceAction}`}>
+                    <label className={`btn btn-secondary ${styles.evidenceAction}`}>
                       {row.actionLabel}
-                    </button>
+                      <input
+                        type="file"
+                        multiple
+                        className="visuallyHidden"
+                        onChange={(event) => {
+                          const files = event.target.files;
+                          if (files && files.length > 0) {
+                            addEvidenceFiles(clause.id, index, Array.from(files));
+                          }
+                          event.target.value = '';
+                        }}
+                      />
+                    </label>
                   </div>
                 ))}
               </section>
