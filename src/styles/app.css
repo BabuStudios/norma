@@ -1,0 +1,366 @@
+/* NORMA application layer.
+   Sits on top of the Modernist token sheet and holds the patterns that repeat
+   across screens: micro labels, section headers, data tables, pills, tick
+   boxes and the row washes. Screen-specific layout lives in CSS modules. */
+
+:root {
+  /* Row washes and muted text are all the same ink at different strengths.
+     Naming them once keeps color-mix() out of the component files. */
+  --ink-3-5: color-mix(in srgb, var(--color-text) 3.5%, transparent);
+  --ink-4: color-mix(in srgb, var(--color-text) 4%, transparent);
+  --ink-5: color-mix(in srgb, var(--color-text) 5%, transparent);
+  --ink-6: color-mix(in srgb, var(--color-text) 6%, transparent);
+  --ink-7: color-mix(in srgb, var(--color-text) 7%, transparent);
+  --ink-10: color-mix(in srgb, var(--color-text) 10%, transparent);
+  --ink-12: color-mix(in srgb, var(--color-text) 12%, transparent);
+  --ink-14: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --ink-15: color-mix(in srgb, var(--color-text) 15%, transparent);
+  --ink-18: color-mix(in srgb, var(--color-text) 18%, transparent);
+  --ink-20: color-mix(in srgb, var(--color-text) 20%, transparent);
+  --ink-28: color-mix(in srgb, var(--color-text) 28%, transparent);
+  --ink-30: color-mix(in srgb, var(--color-text) 30%, transparent);
+  --ink-45: color-mix(in srgb, var(--color-text) 45%, transparent);
+  --ink-50: color-mix(in srgb, var(--color-text) 50%, transparent);
+  --ink-55: color-mix(in srgb, var(--color-text) 55%, transparent);
+  --ink-60: color-mix(in srgb, var(--color-text) 60%, transparent);
+  --ink-65: color-mix(in srgb, var(--color-text) 65%, transparent);
+  --ink-70: color-mix(in srgb, var(--color-text) 70%, transparent);
+  --ink-75: color-mix(in srgb, var(--color-text) 75%, transparent);
+  --ink-80: color-mix(in srgb, var(--color-text) 80%, transparent);
+
+  --rule-strong: 2px solid var(--color-divider);
+  --rule-hair: 1px solid var(--ink-15);
+
+  /* The two-pane screens fold into list → detail below this width. */
+  --bp-panes: 1100px;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-accent-700);
+  text-underline-offset: 3px;
+}
+a:hover {
+  color: var(--color-accent);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-28);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Buttons that carry no chrome of their own — used for rows, cells and other
+   surfaces that need to be operable without looking like a control. */
+.plainButton {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* — micro label: the 10px caps that title every block — */
+.microLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+.microLabel--wide {
+  letter-spacing: 0.14em;
+}
+
+/* — section header: 15px/800 title over a 2px rule, optional right-hand note — */
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: var(--rule-strong);
+  padding-bottom: 8px;
+}
+.sectionHead h2,
+.sectionHead h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.sectionHead__note {
+  font-size: 11px;
+  color: var(--ink-55);
+  font-variant-numeric: tabular-nums;
+}
+
+/* — data tables —
+   Real table markup on a fixed layout, so the column widths from the design
+   survive while the semantics (headers, scope, row order) come for free.
+   Column widths are declared per screen through a <colgroup>. */
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13.5px;
+}
+.dataTable thead th {
+  text-align: left;
+  vertical-align: bottom;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+  padding: 0 14px 8px 0;
+  border-bottom: var(--rule-strong);
+}
+.dataTable td,
+/* Row headers are ordinary first cells that happen to name the row. */
+.dataTable tbody th {
+  text-align: left;
+  vertical-align: top;
+  font-weight: inherit;
+  padding: 13px 14px 13px 0;
+  border-bottom: var(--rule-hair);
+  line-height: 1.45;
+}
+.dataTable th:last-child,
+.dataTable td:last-child {
+  padding-right: 0;
+}
+.dataTable tbody tr:hover {
+  background: var(--ink-4);
+}
+.dataTable--rowLinks tbody tr {
+  cursor: pointer;
+}
+.dataTable--rowLinks tbody tr:hover {
+  background: var(--ink-5);
+}
+.dataTable tbody tr[aria-selected='true'] {
+  background: var(--ink-7);
+}
+.dataTable tbody tr[aria-selected='true']:hover {
+  background: var(--ink-7);
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* — status pill —
+   Four kinds, in the order the system reads them: met (ink), gap (accent),
+   soft (a tint) and plain. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.pill--met {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+.pill--gap {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+.pill--soft {
+  background: var(--ink-12);
+  color: var(--color-text);
+}
+.pill--plain {
+  background: transparent;
+  color: var(--color-text);
+}
+
+/* — tick box —
+   A real checkbox input, visually replaced by the square the design calls for.
+   Sizes: 20px in the requirement steps and checklists, 18px on the phone
+   frames, 16px in the column menu. */
+.tick {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-text);
+  background: transparent;
+  color: var(--color-bg);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+.tick--on {
+  background: var(--color-text);
+}
+.tick--sm {
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+}
+.tick--xs {
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+}
+.tick input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.tick:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* — segmented control —
+   Two or three options; the active one fills with ink (or accent where the
+   design asks for it) and reverses its label to the ground colour. */
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--color-divider);
+}
+.segmented__opt {
+  position: relative;
+  margin: 0;
+  padding: 6px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.segmented__opt + .segmented__opt {
+  border-left: 1px solid var(--color-divider);
+}
+.segmented__opt:hover {
+  background: var(--ink-7);
+}
+.segmented__opt[aria-pressed='true'],
+.segmented__opt[aria-checked='true'] {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+.segmented--caps .segmented__opt {
+  padding: 6px 11px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* — filter chip: a bordered button that inverts when active — */
+.chip {
+  padding: 5px 10px;
+  border: 1px solid var(--color-divider);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.chip:hover {
+  background: var(--ink-7);
+}
+.chip[aria-pressed='true'] {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-text);
+}
+
+/* — stacked bordered boxes: the requirement right rail — */
+.boxStack > * {
+  border: var(--rule-strong);
+  padding: 14px 16px;
+}
+.boxStack > * + * {
+  border-top: 0;
+}
+
+/* — dropdown panel: ink-bordered, shadowed, above the page — */
+.dropdown {
+  background: var(--color-bg);
+  border: 2px solid var(--color-text);
+  box-shadow: 0 8px 18px var(--ink-18);
+}
+
+.hintBox {
+  background: var(--color-surface);
+  padding: 14px 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-75);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Below the pane breakpoint the fixed-width tables would force the page to
+   scroll sideways; give each one its own scroll container instead. */
+.tableScroll {
+  overflow-x: auto;
+}
+@media (max-width: 1100px) {
+  .tableScroll > .dataTable {
+    min-width: 860px;
+  }
+}

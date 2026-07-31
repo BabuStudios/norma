@@ -1,0 +1,152 @@
+.sidebar {
+  width: 252px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-bg);
+  border-right: var(--rule-strong);
+}
+
+.brand {
+  padding: 18px 20px 14px;
+  border-bottom: var(--rule-strong);
+}
+.brandMark {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.brandStandards {
+  margin-top: 6px;
+}
+
+.client {
+  padding: 12px 20px;
+  border-bottom: var(--rule-strong);
+}
+.clientButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.clientButton:hover .clientName {
+  color: var(--color-accent-700);
+}
+.clientName {
+  font-size: 14px;
+  font-weight: 700;
+}
+.clientCaret {
+  font-size: 11px;
+  color: var(--ink-55);
+}
+.clientMeta {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--ink-55);
+}
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0 24px;
+}
+.groupLabel {
+  padding: 12px 20px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+}
+.item:hover {
+  background: var(--ink-5);
+  color: inherit;
+}
+/* Active: a 3px accent bar flush left, over a 7% ink wash. */
+.item[aria-current='page'] {
+  background: var(--ink-7);
+}
+.item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-accent);
+}
+.itemLabel {
+  position: relative;
+}
+.badge {
+  position: relative;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-50);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Below the pane breakpoint the sidebar leaves the flow and slides in over
+   the page from the header's menu button. */
+@media (max-width: 1100px) {
+  .sidebar {
+    position: fixed;
+    z-index: 40;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    /* Hidden rather than merely off-screen: a closed drawer must stay out of
+       the tab order and out of the accessibility tree. */
+    visibility: hidden;
+    transition:
+      transform 160ms ease,
+      visibility 160ms;
+    box-shadow: none;
+  }
+  .sidebar[data-open='true'] {
+    transform: none;
+    visibility: visible;
+    box-shadow: var(--shadow-lg);
+  }
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    border: 0;
+    padding: 0;
+    background: color-mix(in srgb, var(--color-neutral-900) 35%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}

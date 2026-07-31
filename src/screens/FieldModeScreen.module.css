@@ -1,0 +1,130 @@
+.screen {
+  padding: 24px 28px 48px;
+}
+.intro {
+  max-width: 640px;
+  margin: 0 0 24px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-70);
+}
+
+.phones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+.phone {
+  width: 360px;
+  max-width: 100%;
+  border: 2px solid var(--color-text);
+  background: var(--color-bg);
+}
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--ink-20);
+  font-size: 11px;
+  font-weight: 700;
+}
+.phoneBody {
+  padding: 16px 16px 20px;
+}
+.phoneTitle {
+  margin: 6px 0 0;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.track {
+  flex: 1;
+  height: 6px;
+  background: var(--ink-15);
+}
+.fill {
+  display: block;
+  height: 6px;
+  background: var(--color-text);
+}
+.progressCount {
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkRow {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ink-15);
+}
+.checkText {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.phoneActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+.phoneAction {
+  flex: 1;
+  padding: 12px;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+.phoneActionOutline {
+  border: 1px solid var(--color-divider);
+}
+.phoneActionFilled {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.task {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--ink-15);
+}
+.taskHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.taskClause {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-55);
+}
+.taskDue {
+  padding: 2px 7px;
+}
+.taskTitle {
+  margin-top: 5px;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.signNote {
+  margin-top: 16px;
+  padding: 12px 14px;
+}
+
+@media (max-width: 720px) {
+  .screen {
+    padding: 20px;
+  }
+}

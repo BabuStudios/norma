@@ -1,0 +1,42 @@
+.shell {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* The two-pane screens manage their own scrolling, so they need the content
+   area to hand them a fixed height rather than growing with them. */
+.content[data-panes='true'] {
+  overflow: hidden;
+}
+
+.skipLink {
+  position: absolute;
+  left: -9999px;
+  z-index: 50;
+  padding: 10px 16px;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.skipLink:focus {
+  left: 0;
+  top: 0;
+  color: var(--color-bg);
+}

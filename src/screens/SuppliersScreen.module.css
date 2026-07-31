@@ -1,0 +1,253 @@
+.panes {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+.list {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  padding: 24px 28px 48px;
+}
+
+.toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.summary {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-60);
+}
+.addColumn {
+  margin-left: auto;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.columnMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  width: 280px;
+}
+.columnMenuHead {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-divider);
+}
+.columnOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ink-12);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.columnOption:hover {
+  background: var(--ink-5);
+}
+.columnOption:last-child {
+  border-bottom: 0;
+}
+
+.supplierName {
+  font-weight: 700;
+}
+.category {
+  color: var(--ink-75);
+}
+.certs {
+  font-size: 12px;
+}
+.scoreCell {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.extra {
+  font-size: 12.5px;
+  color: var(--ink-75);
+}
+
+/* ── detail aside ────────────────────────────────────────────────────── */
+
+.detail {
+  width: 400px;
+  flex: none;
+  overflow-y: auto;
+  border-left: var(--rule-strong);
+}
+.detailInner {
+  padding: 22px 24px 40px;
+}
+
+.backLink {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent-700);
+  cursor: pointer;
+}
+
+.detailHeader {
+  padding-bottom: 14px;
+  border-bottom: var(--rule-strong);
+}
+.detailName {
+  margin: 8px 0 0;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.detailMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.detailMetaText {
+  font-size: 12px;
+  color: var(--ink-60);
+}
+
+.facts {
+  margin: 0;
+}
+.fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--ink-15);
+  font-size: 13px;
+}
+.factLabel {
+  margin: 0;
+  color: var(--ink-60);
+}
+.factValue {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.editButton {
+  margin-top: 14px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+.field {
+  margin-top: 12px;
+}
+.field > label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+}
+.formActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+.formActions > button {
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+
+.docs {
+  margin-top: 24px;
+}
+.docRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--ink-15);
+}
+.docId {
+  flex: none;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-55);
+}
+.docText {
+  flex: 1;
+  min-width: 0;
+}
+.docName {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.docMeta {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--ink-55);
+}
+.docOpen {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-accent-700);
+  cursor: pointer;
+}
+.docsEmpty {
+  padding: 14px 0;
+  font-size: 13px;
+  color: var(--ink-60);
+}
+.docActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.docActions > button {
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+
+@media (max-width: 1100px) {
+  .detail {
+    width: 100%;
+    border-left: 0;
+  }
+  .panes[data-view='detail'] .list {
+    display: none;
+  }
+  .panes[data-view='list'] .detail {
+    display: none;
+  }
+  .backLink {
+    display: flex;
+  }
+}
+
+@media (max-width: 720px) {
+  .list,
+  .detailInner {
+    padding: 20px;
+  }
+}
