@@ -166,6 +166,7 @@ const sv = {
   addAspect: 'Lägg till aspekt',
   planAudit: 'Planera revision',
   bookReview: 'Boka möte',
+  removeFile: 'Ta bort',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -324,6 +325,7 @@ const en: Dictionary = {
   addAspect: 'Add aspect',
   planAudit: 'Plan audit',
   bookReview: 'Book meeting',
+  removeFile: 'Remove',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };

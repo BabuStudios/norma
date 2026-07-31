@@ -5,6 +5,7 @@ import type { SupplierFields, SupplierOverrides } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
 import { DICTIONARY, type Dictionary } from '@/i18n/dictionary';
 import type { StatusMap } from '@/domain/conformity';
+import type { UploadedFile } from '@/domain/evidence';
 
 /**
  * Application state.
@@ -12,8 +13,9 @@ import type { StatusMap } from '@/domain/conformity';
  * Everything here is client-side in this build. In production the slices split
  * three ways:
  *   - `lang` and `supplierColumns` are user preferences,
- *   - `statuses`, `steps`, `auditChecks` and `reviewChecks` are per-organization
- *     data behind the API, each write landing in the append-only change log,
+ *   - `statuses`, `steps`, `auditChecks`, `reviewChecks` and `evidenceUploads`
+ *     are per-organization data behind the API, each write landing in the
+ *     append-only change log,
  *   - `supplierOverrides` disappears entirely — saving a supplier posts to the
  *     API and the table re-reads the record.
  */
@@ -28,6 +30,12 @@ export interface AppState {
   reviewChecks: Record<number, boolean>;
   supplierColumns: Record<string, boolean>;
   supplierOverrides: SupplierOverrides;
+  /**
+   * Files attached to a requirement's evidence rows, keyed
+   * `${clauseId}:${evidenceIndex}`. Metadata only — in production the actual
+   * bytes go to the document store and this becomes the link to that record.
+   */
+  evidenceUploads: Record<string, UploadedFile[]>;
 }
 
 export interface AppActions {
@@ -39,6 +47,8 @@ export interface AppActions {
   toggleReviewCheck: (index: number) => void;
   toggleSupplierColumn: (key: string) => void;
   saveSupplier: (supplierId: string, fields: Partial<SupplierFields>) => void;
+  addEvidenceFiles: (clauseId: string, evidenceIndex: number, files: File[]) => void;
+  removeEvidenceFile: (clauseId: string, evidenceIndex: number, fileId: string) => void;
 }
 
 export const INITIAL_STATE: AppState = {
@@ -50,6 +60,7 @@ export const INITIAL_STATE: AppState = {
   reviewChecks: Object.fromEntries(REVIEW_INPUTS.map((r, i) => [i, r.defaultChecked])),
   supplierColumns: { nextEvaluation: true },
   supplierOverrides: {},
+  evidenceUploads: {},
 };
 
 export interface AppContextValue extends AppActions {

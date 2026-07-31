@@ -151,3 +151,71 @@ describe('the requirement walkthrough', () => {
     expect(screen.getByText('Krav 6.1.2')).toBeInTheDocument();
   });
 });
+
+describe('attaching evidence files', () => {
+  it('flips an evidence item from Saknas to Finns and shows the file', async () => {
+    const { user } = render('6.1.2');
+    expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
+
+    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
+    const file = new File(['content'], 'aspektregister.pdf', { type: 'application/pdf' });
+    await user.upload(input, file);
+
+    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
+    expect(screen.getAllByText('Finns').length).toBeGreaterThan(0);
+  });
+
+  it('shows a human-readable file size', async () => {
+    const { user } = render('6.1.2');
+    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
+    const file = new File(['x'.repeat(2048)], 'a.pdf');
+    await user.upload(input, file);
+
+    expect(screen.getByText('2.0 KB')).toBeInTheDocument();
+  });
+
+  it('supports attaching more than one file to the same evidence item', async () => {
+    const { user } = render('6.1.2');
+    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
+    const a = new File(['a'], 'a.pdf');
+    const b = new File(['b'], 'b.pdf');
+    await user.upload(input, [a, b]);
+
+    expect(screen.getByText('a.pdf')).toBeInTheDocument();
+    expect(screen.getByText('b.pdf')).toBeInTheDocument();
+  });
+
+  it('removes an attached file and reverts to Saknas', async () => {
+    const { user } = render('6.1.2');
+    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
+    const file = new File(['content'], 'aspektregister.pdf');
+    await user.upload(input, file);
+    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Ta bort aspektregister.pdf' }));
+    expect(screen.queryByText('aspektregister.pdf')).not.toBeInTheDocument();
+  });
+
+  it('keeps uploads scoped to the clause they were attached to', async () => {
+    const { user } = render('6.1.2');
+    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
+    await user.upload(input, new File(['content'], 'aspektregister.pdf'));
+
+    await user.click(screen.getByRole('button', { name: /Kompetens/ }));
+    expect(screen.queryByText('aspektregister.pdf')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Miljöaspekter och påverkan/ }));
+    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
+  });
+
+  it('works the same way in English — the file name is not localized copy', async () => {
+    window.localStorage.setItem('norma.state.v1', JSON.stringify({ lang: 'en' }));
+    const { user } = render('6.1.2');
+
+    const [input] = screen.getAllByLabelText('Upload') as HTMLInputElement[];
+    await user.upload(input, new File(['content'], 'aspektregister.pdf'));
+
+    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
+    expect(screen.getAllByText('On file').length).toBeGreaterThan(0);
+  });
+});

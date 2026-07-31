@@ -294,14 +294,65 @@
   line-height: 1.5;
   color: var(--ink-65);
 }
+
+/* — attached files: a plain list under the evidence description — */
+.evidenceFiles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.evidenceFile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+.evidenceFileName {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.evidenceFileSize {
+  flex: none;
+  color: var(--ink-55);
+  font-variant-numeric: tabular-nums;
+}
+.evidenceFileRemove {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-55);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+.evidenceFileRemove:hover {
+  color: var(--color-accent-700);
+}
+
 .evidencePill,
 .evidenceAction {
   flex: none;
   margin-top: 1px;
 }
 .evidenceAction {
+  position: relative;
   padding: 5px 10px;
   font-size: 12px;
+  cursor: pointer;
+}
+/* The real file input is visually hidden inside the label (app.css
+   .visuallyHidden); mirror it into view on keyboard focus, same as .tick. */
+.evidenceAction:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .actions {
