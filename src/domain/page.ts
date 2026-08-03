@@ -10,12 +10,22 @@ export interface TextBlock {
   body: string;
 }
 
+/**
+ * The classic Visio flowchart stencil, narrowed to the four shapes that cover
+ * almost every process diagram: process, decision, terminator (start/end)
+ * and data (input/output).
+ */
+export type DiagramShape = 'process' | 'decision' | 'terminator' | 'data';
+
+export const DIAGRAM_SHAPES: DiagramShape[] = ['process', 'decision', 'terminator', 'data'];
+
 export interface DiagramNode {
   id: string;
   /** Canvas-local pixel position, top-left corner. */
   x: number;
   y: number;
   label: string;
+  shape: DiagramShape;
 }
 
 export interface DiagramEdge {
@@ -57,12 +67,13 @@ function newDiagramBlock(title: string): DiagramBlock {
   return { id: genId('diagram'), type: 'diagram', title, nodes: [], edges: [] };
 }
 
-function newDiagramNode(label: string, index: number): DiagramNode {
+function newDiagramNode(label: string, shape: DiagramShape, index: number): DiagramNode {
   // Cascades new boxes across a 4-column grid instead of stacking them on
   // top of each other at a fixed origin.
   return {
     id: genId('node'),
     label,
+    shape,
     x: 24 + (index % 4) * 180,
     y: 24 + Math.floor(index / 4) * 110,
   };
@@ -115,10 +126,15 @@ function mapDiagram(
   );
 }
 
-export function addDiagramNode(blocks: PageBlock[], blockId: string, label: string): PageBlock[] {
+export function addDiagramNode(
+  blocks: PageBlock[],
+  blockId: string,
+  label: string,
+  shape: DiagramShape,
+): PageBlock[] {
   return mapDiagram(blocks, blockId, (block) => ({
     ...block,
-    nodes: [...block.nodes, newDiagramNode(label, block.nodes.length)],
+    nodes: [...block.nodes, newDiagramNode(label, shape, block.nodes.length)],
   }));
 }
 

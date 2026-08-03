@@ -49,18 +49,25 @@ describe('diagram blocks', () => {
   it('renames a diagram title without touching its nodes', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'Box');
+    blocks = addDiagramNode(blocks, id, 'Box', 'process');
     blocks = updateDiagramTitle(blocks, id, 'New title');
     const diagram = blocks[0] as DiagramBlock;
     expect(diagram.title).toBe('New title');
     expect(diagram.nodes).toHaveLength(1);
   });
 
+  it('stamps a new node with the requested shape', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'Decide', 'decision');
+    expect((blocks[0] as DiagramBlock).nodes[0].shape).toBe('decision');
+  });
+
   it('cascades new node positions instead of stacking them', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
-    blocks = addDiagramNode(blocks, id, 'B');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
     expect(a.x).not.toBe(b.x);
   });
@@ -68,7 +75,7 @@ describe('diagram blocks', () => {
   it('moves a node to the given position', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
     const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
     blocks = moveDiagramNode(blocks, id, nodeId, 300, 150);
     expect((blocks[0] as DiagramBlock).nodes[0]).toMatchObject({ x: 300, y: 150 });
@@ -77,7 +84,7 @@ describe('diagram blocks', () => {
   it('relabels a node', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
     const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
     blocks = updateDiagramNodeLabel(blocks, id, nodeId, 'Renamed');
     expect((blocks[0] as DiagramBlock).nodes[0].label).toBe('Renamed');
@@ -86,8 +93,8 @@ describe('diagram blocks', () => {
   it('connects two nodes with an edge', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
-    blocks = addDiagramNode(blocks, id, 'B');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
     blocks = addDiagramEdge(blocks, id, a.id, b.id);
     expect((blocks[0] as DiagramBlock).edges).toEqual([
@@ -98,7 +105,7 @@ describe('diagram blocks', () => {
   it('refuses a self-loop', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
     const [a] = (blocks[0] as DiagramBlock).nodes;
     blocks = addDiagramEdge(blocks, id, a.id, a.id);
     expect((blocks[0] as DiagramBlock).edges).toHaveLength(0);
@@ -107,8 +114,8 @@ describe('diagram blocks', () => {
   it('does not duplicate an edge in either direction', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
-    blocks = addDiagramNode(blocks, id, 'B');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
     blocks = addDiagramEdge(blocks, id, a.id, b.id);
     blocks = addDiagramEdge(blocks, id, b.id, a.id);
@@ -118,8 +125,8 @@ describe('diagram blocks', () => {
   it('removing a node also removes the edges touching it', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
-    blocks = addDiagramNode(blocks, id, 'B');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
     blocks = addDiagramEdge(blocks, id, a.id, b.id);
     blocks = removeDiagramNode(blocks, id, a.id);
@@ -131,8 +138,8 @@ describe('diagram blocks', () => {
   it('removes a single edge without touching its nodes', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
-    blocks = addDiagramNode(blocks, id, 'A');
-    blocks = addDiagramNode(blocks, id, 'B');
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
     blocks = addDiagramEdge(blocks, id, a.id, b.id);
     const edgeId = (blocks[0] as DiagramBlock).edges[0].id;

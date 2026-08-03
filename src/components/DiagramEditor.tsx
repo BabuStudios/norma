@@ -3,11 +3,20 @@ import {
   boxEdgePoint,
   DIAGRAM_NODE_HEIGHT,
   DIAGRAM_NODE_WIDTH,
+  DIAGRAM_SHAPES,
   type DiagramBlock,
   type DiagramNode,
+  type DiagramShape,
 } from '@/domain/page';
 import type { Dictionary } from '@/i18n/dictionary';
 import styles from './DiagramEditor.module.css';
+
+const SHAPE_LABEL: Record<DiagramShape, keyof Dictionary> = {
+  process: 'shapeProcess',
+  decision: 'shapeDecision',
+  terminator: 'shapeTerminator',
+  data: 'shapeData',
+};
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 420;
@@ -60,7 +69,7 @@ export function DiagramEditor({
   editing: boolean;
   t: Dictionary;
   onTitleChange: (title: string) => void;
-  onAddNode: () => void;
+  onAddNode: (shape: DiagramShape) => void;
   onMoveNode: (nodeId: string, x: number, y: number) => void;
   onLabelChange: (nodeId: string, label: string) => void;
   onRemoveNode: (nodeId: string) => void;
@@ -137,9 +146,19 @@ export function DiagramEditor({
 
       {editing ? (
         <div className={styles.toolbar}>
-          <button type="button" className="btn btn-secondary" onClick={onAddNode}>
-            {t.addBox}
-          </button>
+          <div className={styles.shapePalette} role="group" aria-label={t.addBox}>
+            {DIAGRAM_SHAPES.map((shape) => (
+              <button
+                key={shape}
+                type="button"
+                className={styles.shapeButton}
+                onClick={() => onAddNode(shape)}
+              >
+                <span className={styles.shapeSwatch} data-shape={shape} aria-hidden="true" />
+                {t[SHAPE_LABEL[shape]]}
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             className="chip"
@@ -223,24 +242,34 @@ export function DiagramEditor({
           </svg>
 
           {block.nodes.map((node) => (
-            <div key={node.id} className={styles.node} style={{ left: node.x, top: node.y }}>
+            <div
+              key={node.id}
+              className={styles.node}
+              data-shape={node.shape}
+              style={{
+                left: node.x,
+                top: node.y,
+                cursor:
+                  editing && mode === 'select'
+                    ? drag?.nodeId === node.id
+                      ? 'grabbing'
+                      : 'grab'
+                    : undefined,
+              }}
+              onPointerDown={(event) => startDrag(event, node)}
+              onPointerMove={onDragMove}
+              onPointerUp={endDrag}
+              onPointerCancel={endDrag}
+            >
+              <span className={styles.nodeShape} aria-hidden="true" />
               {editing && mode === 'select' ? (
-                <>
-                  <div
-                    className={styles.nodeHandle}
-                    onPointerDown={(event) => startDrag(event, node)}
-                    onPointerMove={onDragMove}
-                    onPointerUp={endDrag}
-                    onPointerCancel={endDrag}
-                    aria-hidden="true"
-                  />
-                  <input
-                    className={styles.nodeInput}
-                    value={node.label}
-                    onChange={(event) => onLabelChange(node.id, event.target.value)}
-                    aria-label={t.boxLabel}
-                  />
-                </>
+                <input
+                  className={styles.nodeInput}
+                  value={node.label}
+                  onChange={(event) => onLabelChange(node.id, event.target.value)}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  aria-label={t.boxLabel}
+                />
               ) : editing ? (
                 <button
                   type="button"

@@ -106,8 +106,8 @@ describe('the process diagram tool', () => {
     const { user } = render();
     await addDiagram(user);
 
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
 
     const boxes = screen.getAllByLabelText('Låda') as HTMLInputElement[];
     expect(boxes).toHaveLength(2);
@@ -118,11 +118,26 @@ describe('the process diagram tool', () => {
     expect(boxes[0]).toHaveValue('Beställning');
   });
 
+  it('offers the four Visio-style flowchart shapes, each stamped on its box', async () => {
+    const { user } = render();
+    await addDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Beslut' }));
+    await user.click(screen.getByRole('button', { name: 'Start/Slut' }));
+    await user.click(screen.getByRole('button', { name: 'Data' }));
+
+    const shapes = Array.from(document.querySelectorAll('[data-shape]')).map((el) =>
+      el.getAttribute('data-shape'),
+    );
+    expect(shapes).toEqual(expect.arrayContaining(['process', 'decision', 'terminator', 'data']));
+  });
+
   it('connects two boxes with an arrow', async () => {
     const { user } = render();
     await addDiagram(user);
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
 
     await user.click(screen.getByRole('button', { name: 'Koppla' }));
     const nodeButtons = screen.getAllByRole('button', { name: 'Ny låda' });
@@ -136,7 +151,7 @@ describe('the process diagram tool', () => {
   it('does not connect a box to itself', async () => {
     const { user } = render();
     await addDiagram(user);
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
 
     await user.click(screen.getByRole('button', { name: 'Koppla' }));
     const [node] = screen.getAllByRole('button', { name: 'Ny låda' });
@@ -148,8 +163,8 @@ describe('the process diagram tool', () => {
   it('deletes a box, taking its edge with it', async () => {
     const { user } = render();
     await addDiagram(user);
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
     await user.click(screen.getByRole('button', { name: 'Koppla' }));
     const [first, second] = screen.getAllByRole('button', { name: 'Ny låda' });
     await user.click(first);
@@ -168,7 +183,7 @@ describe('the process diagram tool', () => {
   it('shows the diagram read-only once editing ends', async () => {
     const { user } = render();
     await addDiagram(user);
-    await user.click(screen.getByRole('button', { name: 'Lägg till låda' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
 
     await user.click(screen.getByRole('button', { name: 'Klar' }));
     expect(screen.queryByLabelText('Låda')).not.toBeInTheDocument();

@@ -149,9 +149,9 @@ export function OverviewScreen() {
                         updateDiagramTitle(prev, block.id, title),
                       )
                     }
-                    onAddNode={() =>
+                    onAddNode={(shape) =>
                       updateManagementSystemBlocks((prev) =>
-                        addDiagramNode(prev, block.id, t.newBoxLabel),
+                        addDiagramNode(prev, block.id, t.newBoxLabel, shape),
                       )
                     }
                     onMoveNode={(nodeId, x, y) =>
