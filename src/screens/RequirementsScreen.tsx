@@ -4,7 +4,7 @@ import { Pill } from '@/components/Pill';
 import { Tick } from '@/components/Tick';
 import { CHAPTERS, CLAUSES, DEFAULT_CLAUSE_ID, type Clause } from '@/data/clauses';
 import { CLAUSE_LINKED_DOCUMENTS } from '@/data/documents';
-import { CURRENT_USER } from '@/data/organizations';
+import { CURRENT_USER, NEXT_EXTERNAL_AUDIT } from '@/data/organizations';
 import type { ClauseStatus } from '@/data/types';
 import {
   chapterProgress,
@@ -144,6 +144,19 @@ export function RequirementsScreen() {
       <div className={styles.notMetBand} ref={notMetBandRef}>
         {renderNotMetCell('9001', t.notYetMet9, open9001, clauses9001.length)}
         {renderNotMetCell('14001', t.notYetMet14, open14001, clauses14001.length)}
+        <div className={styles.notMetCell}>
+          <div className="microLabel microLabel--wide">{t.nextAudit}</div>
+          {NEXT_EXTERNAL_AUDIT ? (
+            <>
+              <div className={styles.auditDate}>{NEXT_EXTERNAL_AUDIT.date}</div>
+              <div className={styles.auditMeta}>
+                {t.certAudit} · {NEXT_EXTERNAL_AUDIT.body}
+              </div>
+            </>
+          ) : (
+            <div className={`${styles.auditDate} ${styles.auditDateEmpty}`}>{t.noAuditBooked}</div>
+          )}
+        </div>
       </div>
 
       <section className={styles.chapterPanel}>

@@ -197,6 +197,12 @@ describe('the chapter conformity panel', () => {
 });
 
 describe('the not-met band', () => {
+  it('says no external audit is booked rather than inventing a date', () => {
+    render();
+    expect(screen.getByText('Ingen bokad')).toBeInTheDocument();
+    expect(screen.queryByText(/Certifieringsrevision/)).not.toBeInTheDocument();
+  });
+
   it('reports every requirement as not met', () => {
     render();
     expect(toggleFor('9001')).toHaveTextContent(String(inStandard('9001').length));

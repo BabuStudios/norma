@@ -2,32 +2,9 @@
   padding: 0 0 48px;
 }
 
-/* — next external audit — */
-.auditPanel {
-  padding: 26px 28px;
-  border-bottom: var(--rule-strong);
-}
-.auditDate {
-  margin-top: 10px;
-  font-size: 30px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-.auditMeta {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--ink-55);
-}
-/* No audit booked: same slot, held back so it does not read as a fact. */
-.auditDateEmpty {
-  color: var(--ink-45);
-}
-
 /* — change log — */
 .trail {
-  margin-top: 32px;
-  padding: 0 28px;
+  padding: 28px 28px 0;
 }
 .trailTable {
   font-size: 13px;
@@ -47,9 +24,6 @@
 }
 
 @media (max-width: 720px) {
-  .auditPanel {
-    padding: 20px;
-  }
   .trail {
     padding-inline: 20px;
   }

@@ -1,6 +1,5 @@
 import { EmptyState } from '@/components/EmptyState';
 import { CHANGE_LOG } from '@/data/changeLog';
-import { NEXT_EXTERNAL_AUDIT } from '@/data/organizations';
 import { useApp } from '@/state/store';
 import styles from './OverviewScreen.module.css';
 
@@ -9,20 +8,6 @@ export function OverviewScreen() {
 
   return (
     <div className={styles.screen}>
-      <section className={styles.auditPanel}>
-        <div className="microLabel microLabel--wide">{t.nextAudit}</div>
-        {NEXT_EXTERNAL_AUDIT ? (
-          <>
-            <div className={styles.auditDate}>{NEXT_EXTERNAL_AUDIT.date}</div>
-            <div className={styles.auditMeta}>
-              {t.certAudit} · {NEXT_EXTERNAL_AUDIT.body}
-            </div>
-          </>
-        ) : (
-          <div className={`${styles.auditDate} ${styles.auditDateEmpty}`}>{t.noAuditBooked}</div>
-        )}
-      </section>
-
       <section className={styles.trail}>
         <div className="sectionHead">
           <h2>{t.trail}</h2>

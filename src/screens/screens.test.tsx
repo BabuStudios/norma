@@ -31,7 +31,7 @@ const SCREENS: {
     element: <OverviewScreen />,
     route: '/overview',
     path: '/overview',
-    marker: { sv: 'Nästa externa revision', en: 'Next external audit' },
+    marker: { sv: 'Ändringslogg (spårbar)', en: 'Change log (traceable)' },
   },
   {
     name: 'requirements',
