@@ -10,11 +10,15 @@ import {
   removeBlock,
   removeDiagramEdge,
   removeDiagramNode,
+  resizeDiagramNode,
+  snapNodePosition,
+  snapToGrid,
   updateDiagramTitle,
   updateDiagramNodeLabel,
   updateTextBlock,
   type DiagramBlock,
   type PageBlock,
+  type SnapBox,
 } from './page';
 
 describe('text blocks', () => {
@@ -79,6 +83,33 @@ describe('diagram blocks', () => {
     const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
     blocks = moveDiagramNode(blocks, id, nodeId, 300, 150);
     expect((blocks[0] as DiagramBlock).nodes[0]).toMatchObject({ x: 300, y: 150 });
+  });
+
+  it('starts every node at the default size', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    expect((blocks[0] as DiagramBlock).nodes[0]).toMatchObject({ width: 150, height: 56 });
+  });
+
+  it('resizes a node', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
+    blocks = resizeDiagramNode(blocks, id, nodeId, 240, 90);
+    expect((blocks[0] as DiagramBlock).nodes[0]).toMatchObject({ width: 240, height: 90 });
+  });
+
+  it('will not resize a node smaller than the minimum', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
+    blocks = resizeDiagramNode(blocks, id, nodeId, 10, 5);
+    const node = (blocks[0] as DiagramBlock).nodes[0];
+    expect(node.width).toBeGreaterThanOrEqual(80);
+    expect(node.height).toBeGreaterThanOrEqual(40);
   });
 
   it('relabels a node', () => {
@@ -171,6 +202,82 @@ describe('block ordering and removal', () => {
     const blocks = addTextBlock(addTextBlock([], 'A'), 'B');
     expect(moveBlock(blocks, blocks[0].id, 'up')).toEqual(blocks);
     expect(moveBlock(blocks, blocks[1].id, 'down')).toEqual(blocks);
+  });
+});
+
+describe('snapToGrid', () => {
+  it('rounds to the nearest grid line', () => {
+    expect(snapToGrid(7)).toBe(0);
+    expect(snapToGrid(11)).toBe(20);
+    expect(snapToGrid(29)).toBe(20);
+    expect(snapToGrid(31)).toBe(40);
+  });
+});
+
+describe('snapNodePosition', () => {
+  const box = (x: number, y: number, width = 100, height = 60): SnapBox => ({
+    x,
+    y,
+    width,
+    height,
+  });
+
+  it('falls back to the grid when nothing else is near', () => {
+    const result = snapNodePosition(box(103, 207), []);
+    expect(result).toEqual({ x: 100, y: 200, guides: [] });
+  });
+
+  it("snaps a left edge to another box's left edge and reports a guide", () => {
+    const other = box(300, 500);
+    const moving = box(304, 40);
+    const result = snapNodePosition(moving, [other]);
+    expect(result.x).toBe(300);
+    expect(result.guides).toContainEqual({ orientation: 'vertical', position: 300 });
+  });
+
+  it("snaps a center to another box's center", () => {
+    const other = box(0, 0, 200, 60); // center x = 100
+    const moving = box(54, 400, 100, 60); // center x = 104, within threshold of 100
+    const result = snapNodePosition(moving, [other]);
+    expect(result.x).toBe(50); // shifts so its own center lands on 100
+    expect(result.guides).toContainEqual({ orientation: 'vertical', position: 100 });
+  });
+
+  it('does not snap when nothing is within the threshold', () => {
+    const other = box(0, 0);
+    const moving = box(400, 400);
+    const result = snapNodePosition(moving, [other]);
+    expect(result.guides.length).toBe(0);
+  });
+
+  it('splits the gap evenly between a left and right neighbor', () => {
+    const left = box(0, 100, 100, 60); // right edge at 100
+    const right = box(300, 100, 100, 60); // left edge at 300
+    // Ideal x centers a 100-wide box in the 200px gap: x = 150.
+    const moving = box(154, 104, 100, 60);
+    const result = snapNodePosition(moving, [left, right]);
+    expect(result.x).toBe(150);
+    expect(result.guides).toContainEqual({ orientation: 'vertical', position: 100 });
+    expect(result.guides).toContainEqual({ orientation: 'vertical', position: 300 });
+  });
+
+  it('splits the gap evenly between a box above and below', () => {
+    const above = box(100, 0, 60, 100); // bottom edge at 100
+    const below = box(100, 300, 60, 100); // top edge at 300
+    const moving = box(104, 154, 60, 100);
+    const result = snapNodePosition(moving, [above, below]);
+    expect(result.y).toBe(150);
+    expect(result.guides).toContainEqual({ orientation: 'horizontal', position: 100 });
+    expect(result.guides).toContainEqual({ orientation: 'horizontal', position: 300 });
+  });
+
+  it('ignores a left/right pair that does not share a row', () => {
+    const left = box(0, 0, 100, 60);
+    const right = box(300, 500, 100, 60); // far below — not the same row
+    const moving = box(154, 400, 100, 60);
+    const result = snapNodePosition(moving, [left, right]);
+    // No equal-gap match; only the grid applies.
+    expect(result.x).toBe(snapToGrid(154));
   });
 });
 

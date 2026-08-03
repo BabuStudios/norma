@@ -92,18 +92,23 @@
   pointer-events: stroke;
 }
 
-/* — a node: fixed 150×56, matching DIAGRAM_NODE_WIDTH/HEIGHT in domain/page.ts.
-   The shape (process/decision/terminator/data) is a separate layer behind the
-   content so text stays in a plain readable rectangle regardless of how
-   pointed or rounded the box outline is. — */
-/* Content (input/button/label) is inset from the bounding box rather than
-   filling it, so a frame around it stays part of `.node` itself — that frame
-   is what makes the box draggable from any shape without fighting the text
-   field for pointer events. */
+/* — alignment guides: shown only while dragging a box near another one — */
+.guide {
+  stroke: var(--color-accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+/* — a node: sized per-box (DiagramNode.width/height), resizable from its
+   corner handle. The shape (process/decision/terminator/data) is a separate
+   layer behind the content so text stays in a plain readable rectangle
+   regardless of how pointed or rounded the box outline is. Content
+   (input/button/label) is inset from the bounding box rather than filling
+   it, so a frame around it stays part of `.node` itself — that frame is
+   what makes the box draggable from any shape without fighting the text
+   field for pointer events. — */
 .node {
   position: absolute;
-  width: 150px;
-  min-height: 56px;
   touch-action: none;
 }
 .nodeShape {
@@ -183,4 +188,17 @@
   background: var(--ink-10);
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;
+}
+
+.resizeHandle {
+  position: absolute;
+  z-index: 2;
+  right: -3px;
+  bottom: -3px;
+  width: 11px;
+  height: 11px;
+  background: var(--color-text);
+  border: 1.5px solid var(--color-bg);
+  cursor: nwse-resize;
+  touch-action: none;
 }

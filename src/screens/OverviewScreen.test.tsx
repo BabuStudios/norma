@@ -133,6 +133,18 @@ describe('the process diagram tool', () => {
     expect(shapes).toEqual(expect.arrayContaining(['process', 'decision', 'terminator', 'data']));
   });
 
+  it('gives every new box the default size and a resize handle', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+
+    const [box] = screen.getAllByLabelText('Låda');
+    const node = box.closest('[data-shape]') as HTMLElement;
+    expect(node.style.width).toBe('150px');
+    expect(node.style.height).toBe('56px');
+    expect(node.querySelector('[class*="resizeHandle"]')).toBeInTheDocument();
+  });
+
   it('connects two boxes with an arrow', async () => {
     const { user } = render();
     await addDiagram(user);

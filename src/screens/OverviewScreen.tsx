@@ -12,6 +12,7 @@ import {
   removeBlock,
   removeDiagramEdge,
   removeDiagramNode,
+  resizeDiagramNode,
   updateDiagramNodeLabel,
   updateDiagramTitle,
   updateTextBlock,
@@ -157,6 +158,11 @@ export function OverviewScreen() {
                     onMoveNode={(nodeId, x, y) =>
                       updateManagementSystemBlocks((prev) =>
                         moveDiagramNode(prev, block.id, nodeId, x, y),
+                      )
+                    }
+                    onResizeNode={(nodeId, width, height) =>
+                      updateManagementSystemBlocks((prev) =>
+                        resizeDiagramNode(prev, block.id, nodeId, width, height),
                       )
                     }
                     onLabelChange={(nodeId, label) =>
