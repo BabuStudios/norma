@@ -43,8 +43,36 @@ describe('the requirements catalogue', () => {
         expect(clause[lang].steps.length).toBeGreaterThan(0);
         expect(clause[lang].evidence.length).toBeGreaterThan(0);
         for (const step of clause[lang].steps) expect(step.trim()).not.toBe('');
-        for (const item of clause[lang].evidence) expect(item.trim()).not.toBe('');
+        for (const item of clause[lang].evidence) {
+          expect(item.label.trim()).not.toBe('');
+          expect(item.ask.trim()).not.toBe('');
+        }
       }
+    }
+  });
+
+  it('writes a real, item-specific description for every evidence item', () => {
+    // A generic per-type template would repeat the same sentence shape across
+    // unrelated evidence — guard against that regressing back in.
+    for (const clause of CLAUSES) {
+      for (const lang of ['sv', 'en'] as const) {
+        for (const item of clause[lang].evidence) {
+          expect(item.ask).not.toBe(item.label);
+          expect(item.ask.length).toBeGreaterThan(item.label.length);
+        }
+      }
+    }
+  });
+
+  it('gives every evidence item its own description, not a shared template', () => {
+    // This is the property a generic per-type template would violate: every
+    // "document"-kind item once read identically apart from the interpolated
+    // name. Substring-checking the label against the description doesn't work
+    // as a check here — Swedish definite forms can reorder letters inside a
+    // word (register -> registret), so uniqueness is the reliable signal.
+    for (const lang of ['sv', 'en'] as const) {
+      const asks = CLAUSES.flatMap((c) => c[lang].evidence.map((e) => e.ask));
+      expect(new Set(asks).size).toBe(asks.length);
     }
   });
 

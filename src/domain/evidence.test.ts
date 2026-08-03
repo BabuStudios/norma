@@ -37,17 +37,24 @@ describe('evidenceKind', () => {
 describe('evidenceRows', () => {
   const clause = findClause('4.1')!;
 
-  it('renders one row per evidence item with a localized name and chip', () => {
+  it('renders one row per evidence item with a localized name, chip and description', () => {
     const sv = evidenceRows(clause, 'prog', 'sv');
     expect(sv).toHaveLength(clause.sv.evidence.length);
-    expect(sv[0].name).toBe(clause.sv.evidence[0]);
+    expect(sv[0].name).toBe(clause.sv.evidence[0].label);
+    expect(sv[0].description).toBe(clause.sv.evidence[0].ask);
     expect(sv[0].kindLabel).toBe(KIND_LABEL[sv[0].kind].sv);
   });
 
-  it('interpolates the evidence name into its description', () => {
-    const [row] = evidenceRows(clause, 'prog', 'sv');
-    expect(row.description).toContain(row.name);
-    expect(row.description).not.toContain('{name}');
+  it('carries the hand-authored description straight through, not a generated one', () => {
+    // Each evidence item's description is authored in the catalogue
+    // (EvidenceItem.ask), not built from a template — there is no
+    // interpolation step left for evidenceRows to get wrong.
+    for (const c of CLAUSES) {
+      for (const lang of ['sv', 'en'] as const) {
+        const rows = evidenceRows(c, 'prog', lang);
+        expect(rows.map((r) => r.description)).toEqual(c[lang].evidence.map((e) => e.ask));
+      }
+    }
   });
 
   it('gives the same type chip in both languages for every clause', () => {

@@ -29,6 +29,19 @@ export const CHAPTERS: Chapter[] = [
   { id: '10', label: { sv: 'Förbättring', en: 'Improvement' } },
 ];
 
+/** An artifact an auditor will ask to see. */
+export interface EvidenceItem {
+  /** What the artifact is called. */
+  label: string;
+  /**
+   * What the artifact specifically has to be to count — authored per item,
+   * not a generic per-type template. "Process map" alone tells nobody what to
+   * actually bring, and a template covering only half of a compound name like
+   * "Revisionsprogram och revisionsrapporter" is worse than no description.
+   */
+  ask: string;
+}
+
 export interface ClauseText {
   /** Requirement title. */
   title: string;
@@ -37,7 +50,7 @@ export interface ClauseText {
   /** Numbered things to do, each independently tickable. */
   steps: string[];
   /** Artifacts an auditor will ask to see. */
-  evidence: string[];
+  evidence: EvidenceItem[];
 }
 
 export interface Clause {
@@ -70,7 +83,10 @@ export const CLAUSES: Clause[] = [
         'Skriv en rad per faktor om hur den påverkar kvalitet respektive miljö.',
         'Ta upp listan på ledningens genomgång minst en gång per år och datera revideringen.',
       ],
-      evidence: ['Omvärldsanalys (SWOT eller PESTLE)', 'Protokoll där analysen behandlats'],
+      evidence: [
+        { label: 'Omvärldsanalys (SWOT eller PESTLE)', ask: 'Omvärldsanalys (SWOT eller PESTLE) är själva listan över externa och interna faktorer och hur de påverkar kvalitet och miljö — inte bara en rubrik i ett dokument.' },
+        { label: 'Protokoll där analysen behandlats', ask: 'Protokoll där analysen behandlats visar att ni faktiskt tog upp listan på ett möte och daterade revideringen — inte bara att den finns någonstans på disken.' },
+      ],
     },
     en: {
       title: 'Context of the organization',
@@ -81,7 +97,10 @@ export const CLAUSES: Clause[] = [
         'Write one line per factor on how it affects quality and environment respectively.',
         'Review the list in management review at least yearly and date the revision.',
       ],
-      evidence: ['Context analysis (SWOT or PESTLE)', 'Minutes where the analysis was reviewed'],
+      evidence: [
+        { label: 'Context analysis (SWOT or PESTLE)', ask: 'Context analysis (SWOT or PESTLE) is the actual list of external and internal factors and how each affects quality and environment — not just a heading in a document.' },
+        { label: 'Minutes where the analysis was reviewed', ask: 'Minutes where the analysis was reviewed show you actually brought the list to a meeting and dated the revision — not just that it exists somewhere on a drive.' },
+      ],
     },
   },
   {
@@ -99,7 +118,10 @@ export const CLAUSES: Clause[] = [
         'Koppla varje bindande krav till en ansvarig och en uppföljningsrutin.',
         'Uppdatera listan när ni får nya kunder, avtal eller regler.',
       ],
-      evidence: ['Intressentanalys med bindande krav', 'Kopplingar till lagkravsregistret'],
+      evidence: [
+        { label: 'Intressentanalys med bindande krav', ask: 'Intressentanalysen är listan över vilka som förväntar sig något av er och vilka av de förväntningarna som är krav ni faktiskt bundit er till.' },
+        { label: 'Kopplingar till lagkravsregistret', ask: 'Kopplingar till lagkravsregistret visar var varje bindande krav går att hitta i registret — inte bara att ett register finns.' },
+      ],
     },
     en: {
       title: 'Interested parties and their requirements',
@@ -110,7 +132,10 @@ export const CLAUSES: Clause[] = [
         'Link every binding requirement to an owner and a follow-up routine.',
         'Update the list when you take on new customers, contracts or rules.',
       ],
-      evidence: ['Interested party analysis with binding requirements', 'Links to the legal register'],
+      evidence: [
+        { label: 'Interested party analysis with binding requirements', ask: 'The interested party analysis is the list of who expects something from you and which of those expectations are requirements you have actually committed to.' },
+        { label: 'Links to the legal register', ask: 'Links to the legal register show where each binding requirement can be found in the register — not just that a register exists.' },
+      ],
     },
   },
   {
@@ -128,7 +153,9 @@ export const CLAUSES: Clause[] = [
         'Gör omfattningen tillgänglig för intressenter, till exempel på webbplatsen.',
         'Kontrollera vid varje förändring av verksamheten att omfattningen fortfarande stämmer.',
       ],
-      evidence: ['Omfattningsdokument, godkänt av ledningen'],
+      evidence: [
+        { label: 'Omfattningsdokument, godkänt av ledningen', ask: 'Omfattningsdokumentet skriver ut platserna, processerna, produkterna och tjänsterna som omfattas — och en motivering för allt som lämnats utanför — godkänt och daterat av ledningen.' },
+      ],
     },
     en: {
       title: 'Scope of the management system',
@@ -139,7 +166,9 @@ export const CLAUSES: Clause[] = [
         'Make the scope available to interested parties, for example on your website.',
         'Whenever the business changes, check that the scope still holds.',
       ],
-      evidence: ['Scope statement, approved by management'],
+      evidence: [
+        { label: 'Scope statement, approved by management', ask: 'The scope statement writes out the sites, processes, products and services covered — and a justification for anything left out — approved and dated by management.' },
+      ],
     },
   },
   {
@@ -157,7 +186,10 @@ export const CLAUSES: Clause[] = [
         'Beskriv gränssnitten — var lämnas jobbet över och vad ska följa med?',
         'Koppla ihop varje process med de risker och mål som gäller för den.',
       ],
-      evidence: ['Processkarta', 'Processbeskrivningar med ägare och mått'],
+      evidence: [
+        { label: 'Processkarta', ask: 'Processkartan är den visuella bilden av kund-, stöd- och ledningsprocesserna och hur de hänger ihop — en sida, inte en rapport.' },
+        { label: 'Processbeskrivningar med ägare och mått', ask: 'Processbeskrivningarna anger för varje process syfte, ägare, in- och utdata och vilket mått som visar om den fungerar.' },
+      ],
     },
     en: {
       title: 'Processes and their interaction',
@@ -168,7 +200,10 @@ export const CLAUSES: Clause[] = [
         'Describe the interfaces — where is work handed over and what must travel with it?',
         'Connect each process to the risks and objectives that apply to it.',
       ],
-      evidence: ['Process map', 'Process descriptions with owner and measures'],
+      evidence: [
+        { label: 'Process map', ask: 'The process map is the visual picture of customer, support and management processes and how they connect — one page, not a report.' },
+        { label: 'Process descriptions with owner and measures', ask: 'The process descriptions state, for each process, purpose, owner, inputs and outputs and the measure that shows whether it works.' },
+      ],
     },
   },
   {
@@ -186,7 +221,10 @@ export const CLAUSES: Clause[] = [
         'Låt vd kommunicera policy och mål till alla medarbetare minst en gång per år.',
         'Dokumentera besluten — protokollen är ert bevis.',
       ],
-      evidence: ['Protokoll från ledningsgruppen', 'Budget för kvalitets- och miljöarbete'],
+      evidence: [
+        { label: 'Protokoll från ledningsgruppen', ask: 'Protokoll från ledningsgruppen visar att ledningssystemet är en stående punkt på agendan, med beslut som går att spåra till en person och ett datum.' },
+        { label: 'Budget för kvalitets- och miljöarbete', ask: 'Budgeten för kvalitets- och miljöarbete visar att internrevision, utbildning och mätutrustning faktiskt fått pengar avsatta — inte bara ett löfte.' },
+      ],
     },
     en: {
       title: 'Leadership and commitment',
@@ -197,7 +235,10 @@ export const CLAUSES: Clause[] = [
         'Have the CEO communicate policy and objectives to all staff at least yearly.',
         'Document the decisions — the minutes are your evidence.',
       ],
-      evidence: ['Leadership team minutes', 'Budget for quality and environmental work'],
+      evidence: [
+        { label: 'Leadership team minutes', ask: 'Leadership team minutes show the management system is a standing agenda item, with decisions traceable to a person and a date.' },
+        { label: 'Budget for quality and environmental work', ask: 'The budget for quality and environmental work shows that internal audit, training and measuring equipment have actually been allocated money — not just a promise.' },
+      ],
     },
   },
   {
@@ -215,7 +256,10 @@ export const CLAUSES: Clause[] = [
         'Låt vd datera och signera.',
         'Publicera internt och externt, och gå igenom den vid introduktion av nyanställda.',
       ],
-      evidence: ['Signerad policy', 'Bevis på kommunikation (intranät, anslag, introduktion)'],
+      evidence: [
+        { label: 'Signerad policy', ask: 'Den signerade policyn är dokumentet i sin helhet — daterat och undertecknat av vd, med åtagandena om lagefterlevnad, förbättring och miljöskydd med i texten.' },
+        { label: 'Bevis på kommunikation (intranät, anslag, introduktion)', ask: 'Bevis på kommunikation är till exempel en skärmdump från intranätet, ett anslag eller introduktionsmaterialet — något som visar att policyn faktiskt nått medarbetarna, inte bara publicerats.' },
+      ],
     },
     en: {
       title: 'Quality and environmental policy',
@@ -226,7 +270,10 @@ export const CLAUSES: Clause[] = [
         'Have the CEO date and sign it.',
         'Publish it internally and externally, and cover it in onboarding.',
       ],
-      evidence: ['Signed policy', 'Evidence of communication (intranet, notice board, onboarding)'],
+      evidence: [
+        { label: 'Signed policy', ask: 'The signed policy is the document in full — dated and signed by the CEO, with the commitments to compliance, improvement and environmental protection actually in the text.' },
+        { label: 'Evidence of communication (intranet, notice board, onboarding)', ask: 'Evidence of communication is, for example, a screenshot from the intranet, a notice board photo, or the onboarding material — something showing the policy actually reached staff, not just that it was published.' },
+      ],
     },
   },
   {
@@ -244,7 +291,10 @@ export const CLAUSES: Clause[] = [
         'Skriv in ansvaren i befattningsbeskrivningar eller i processbeskrivningarna.',
         'Bekräfta att var och en känner till sitt ansvar, till exempel via signering.',
       ],
-      evidence: ['Ansvarsmatris', 'Befattningsbeskrivningar'],
+      evidence: [
+        { label: 'Ansvarsmatris', ask: 'Ansvarsmatrisen listar kvalitets- och miljöuppgifterna och vem som är ansvarig för var och en, inklusive vem som får stoppa en leverans eller ett utsläpp.' },
+        { label: 'Befattningsbeskrivningar', ask: 'Befattningsbeskrivningarna är dokumenten där ansvaret faktiskt står inskrivet per roll — inte bara att en separat ansvarsmatris finns.' },
+      ],
     },
     en: {
       title: 'Roles, responsibilities and authorities',
@@ -255,7 +305,10 @@ export const CLAUSES: Clause[] = [
         'Write the responsibilities into job descriptions or process descriptions.',
         'Confirm that each person knows their responsibility, for example by signature.',
       ],
-      evidence: ['Responsibility matrix', 'Job descriptions'],
+      evidence: [
+        { label: 'Responsibility matrix', ask: 'The responsibility matrix lists the quality and environmental duties and who is responsible for each one, including who may stop a delivery or a discharge.' },
+        { label: 'Job descriptions', ask: 'The job descriptions are the documents where the responsibility is actually written in per role — not just that a separate responsibility matrix exists.' },
+      ],
     },
   },
   {
@@ -273,7 +326,10 @@ export const CLAUSES: Clause[] = [
         'Bestäm åtgärd, ansvarig och datum för de högsta.',
         'Följ upp om åtgärderna gav effekt vid ledningens genomgång.',
       ],
-      evidence: ['Risk- och möjlighetsregister med åtgärder', 'Uppföljning av effekt'],
+      evidence: [
+        { label: 'Risk- och möjlighetsregister med åtgärder', ask: 'Risk- och möjlighetsregistret listar vad som identifierats per process, hur det bedömts, och vilken åtgärd, ansvarig och datum som satts för de högst rankade.' },
+        { label: 'Uppföljning av effekt', ask: 'Uppföljningen av effekt visar att åtgärderna faktiskt kontrollerades vid ledningens genomgång — inte bara att de bockades av som klara.' },
+      ],
     },
     en: {
       title: 'Risks and opportunities',
@@ -284,7 +340,10 @@ export const CLAUSES: Clause[] = [
         'Decide action, owner and date for the highest ones.',
         'Check whether the actions worked at management review.',
       ],
-      evidence: ['Risk and opportunity register with actions', 'Follow-up of effectiveness'],
+      evidence: [
+        { label: 'Risk and opportunity register with actions', ask: 'The risk and opportunity register lists what was identified per process, how it was scored, and the action, owner and date set for the highest-ranked ones.' },
+        { label: 'Follow-up of effectiveness', ask: 'The follow-up of effectiveness shows the actions were actually checked at management review — not just ticked off as done.' },
+      ],
     },
   },
   {
@@ -302,7 +361,10 @@ export const CLAUSES: Clause[] = [
         'Sätt kriterier för betydande aspekt (omfattning, allvar, lagkrav, intressentkrav) och betygsätt.',
         'Styr de betydande aspekterna med rutin, mål eller mätning — och håll registret uppdaterat.',
       ],
-      evidence: ['Miljöaspektregister med bedömningskriterier', 'Beslut om betydande aspekter'],
+      evidence: [
+        { label: 'Miljöaspektregister med bedömningskriterier', ask: 'Miljöaspektregistret listar aktiviteter, produkter och tjänster med aspekt och påverkan för var och en, plus kriterierna ni satt för att avgöra vad som är betydande.' },
+        { label: 'Beslut om betydande aspekter', ask: 'Beslutet om betydande aspekter visar vilka aspekter som bedömts betydande utifrån kriterierna, och att de styrs med rutin, mål eller mätning.' },
+      ],
     },
     en: {
       title: 'Environmental aspects and impacts',
@@ -313,7 +375,10 @@ export const CLAUSES: Clause[] = [
         'Set criteria for significance (scale, severity, legal requirement, stakeholder concern) and score them.',
         'Control the significant aspects with a routine, objective or measurement — and keep the register current.',
       ],
-      evidence: ['Environmental aspects register with scoring criteria', 'Decision on significant aspects'],
+      evidence: [
+        { label: 'Environmental aspects register with scoring criteria', ask: 'The environmental aspects register lists activities, products and services with the aspect and impact for each, plus the criteria you set for deciding what counts as significant.' },
+        { label: 'Decision on significant aspects', ask: 'The decision on significant aspects shows which aspects were scored significant against the criteria, and that they are controlled with a routine, objective or measurement.' },
+      ],
     },
   },
   {
@@ -331,7 +396,10 @@ export const CLAUSES: Clause[] = [
         'Sätt ansvarig och intervall för efterlevnadskontroll.',
         'Bevaka ändringar, till exempel via en lagbevakningstjänst, och dokumentera kontrollerna.',
       ],
-      evidence: ['Lagkravsregister', 'Genomförda efterlevnadskontroller med datum'],
+      evidence: [
+        { label: 'Lagkravsregister', ask: 'Lagkravsregistret listar de lagar och andra krav som gäller era miljöaspekter, och vad varje krav innebär för er konkret — inte bara en hänvisning till lagtexten.' },
+        { label: 'Genomförda efterlevnadskontroller med datum', ask: 'Genomförda efterlevnadskontroller med datum visar att ni faktiskt kontrollerat efterlevnaden mot verkligheten, med resultat och datum per krav.' },
+      ],
     },
     en: {
       title: 'Compliance obligations',
@@ -342,7 +410,10 @@ export const CLAUSES: Clause[] = [
         'Set an owner and an interval for compliance evaluation.',
         'Monitor changes, for example via a legal monitoring service, and document the checks.',
       ],
-      evidence: ['Legal and other requirements register', 'Completed compliance evaluations with dates'],
+      evidence: [
+        { label: 'Legal and other requirements register', ask: 'The legal register lists the laws and other requirements that apply to your environmental aspects, and what each requirement means for you in practice — not just a reference to the statute.' },
+        { label: 'Completed compliance evaluations with dates', ask: 'Completed compliance evaluations with dates show you actually checked compliance against reality, with a result and a date per requirement.' },
+      ],
     },
   },
   {
@@ -360,7 +431,10 @@ export const CLAUSES: Clause[] = [
         'Bryt ner till aktiviteter med ansvarig och datum.',
         'Följ upp minst kvartalsvis och ändra plan när trenden pekar fel.',
       ],
-      evidence: ['Målplan med nyckeltal', 'Uppföljning per kvartal'],
+      evidence: [
+        { label: 'Målplan med nyckeltal', ask: 'Målplanen anger nuläge, målvärde och mätmetod för varje mål, nedbrutet till aktiviteter med ansvarig och datum.' },
+        { label: 'Uppföljning per kvartal', ask: 'Uppföljningen per kvartal visar hur nyckeltalen faktiskt utvecklats, och att planen justerats när trenden pekat fel.' },
+      ],
     },
     en: {
       title: 'Objectives and action plans',
@@ -371,7 +445,10 @@ export const CLAUSES: Clause[] = [
         'Break them down into activities with owner and date.',
         'Follow up at least quarterly and change the plan when the trend goes wrong.',
       ],
-      evidence: ['Objectives plan with KPIs', 'Quarterly follow-up'],
+      evidence: [
+        { label: 'Objectives plan with KPIs', ask: 'The objectives plan states baseline, target and measurement method for each objective, broken down into activities with an owner and a date.' },
+        { label: 'Quarterly follow-up', ask: 'The quarterly follow-up shows how the KPIs actually developed, and that the plan was adjusted when the trend went wrong.' },
+      ],
     },
   },
   {
@@ -389,7 +466,9 @@ export const CLAUSES: Clause[] = [
         'Besluta i ledningsgruppen och informera berörda.',
         'Utvärdera efter genomförandet att ändringen gav önskad effekt.',
       ],
-      evidence: ['Ändringsbeslut med konsekvensbedömning'],
+      evidence: [
+        { label: 'Ändringsbeslut med konsekvensbedömning', ask: 'Ändringsbeslutet med konsekvensbedömning är det ifyllda underlaget — vad, varför, konsekvens, resurser, ansvarig — beslutat i ledningsgruppen, inte bara en muntlig överenskommelse.' },
+      ],
     },
     en: {
       title: 'Planning of changes',
@@ -400,7 +479,9 @@ export const CLAUSES: Clause[] = [
         'Decide it in the leadership team and inform those affected.',
         'After implementation, evaluate whether the change had the intended effect.',
       ],
-      evidence: ['Change decision with impact assessment'],
+      evidence: [
+        { label: 'Change decision with impact assessment', ask: 'The change decision with impact assessment is the filled-in form — what, why, consequence, resources, owner — decided in the leadership team, not just a verbal agreement.' },
+      ],
     },
   },
   {
@@ -418,7 +499,9 @@ export const CLAUSES: Clause[] = [
         'Kalibrera mot spårbar standard och märk utrustningen med status.',
         'Bestäm vad ni gör med tidigare resultat om utrustning visar sig felaktig.',
       ],
-      evidence: ['Utrustningsregister med kalibreringsintyg'],
+      evidence: [
+        { label: 'Utrustningsregister med kalibreringsintyg', ask: 'Utrustningsregistret listar mät- och kontrollutrustningen med kalibreringsintervall, och kalibreringsintygen visar att den faktiskt kalibrerats mot en spårbar standard.' },
+      ],
     },
     en: {
       title: 'Resources and equipment',
@@ -429,7 +512,9 @@ export const CLAUSES: Clause[] = [
         'Calibrate against traceable standards and label equipment with its status.',
         'Decide what you do with earlier results if equipment turns out to be faulty.',
       ],
-      evidence: ['Equipment register with calibration certificates'],
+      evidence: [
+        { label: 'Equipment register with calibration certificates', ask: 'The equipment register lists the measuring and monitoring equipment with calibration intervals, and the calibration certificates show it was actually calibrated against a traceable standard.' },
+      ],
     },
   },
   {
@@ -447,7 +532,10 @@ export const CLAUSES: Clause[] = [
         'Planera utbildning eller upplärning med datum och ansvarig.',
         'Spara intyg och utvärdera om utbildningen gav effekt.',
       ],
-      evidence: ['Kompetensmatris', 'Utbildningsintyg och utvärderingar'],
+      evidence: [
+        { label: 'Kompetensmatris', ask: 'Kompetensmatrisen jämför kompetenskraven per roll med vem som faktiskt har vad, så att luckorna syns direkt — uppdaterad, inte ett engångsdokument.' },
+        { label: 'Utbildningsintyg och utvärderingar', ask: 'Utbildningsintyg och utvärderingar är både de sparade kursintygen och en bedömning av om utbildningen faktiskt gav den kompetens som saknades.' },
+      ],
     },
     en: {
       title: 'Competence',
@@ -458,7 +546,10 @@ export const CLAUSES: Clause[] = [
         'Plan training or coaching with dates and an owner.',
         'Keep certificates and evaluate whether the training was effective.',
       ],
-      evidence: ['Competence matrix', 'Training certificates and evaluations'],
+      evidence: [
+        { label: 'Competence matrix', ask: 'The competence matrix compares the competence requirements per role with who actually has what, so the gaps are visible at a glance — kept current, not a one-off document.' },
+        { label: 'Training certificates and evaluations', ask: 'Training certificates and evaluations are both the kept course certificates and an assessment of whether the training actually closed the gap it was meant to close.' },
+      ],
     },
   },
   {
@@ -476,7 +567,10 @@ export const CLAUSES: Clause[] = [
         'Beskriv konsekvenser av att inte följa rutiner — för kund, miljö och företag.',
         'Repetera vid introduktion och när något ändras.',
       ],
-      evidence: ['Närvarolistor', 'Introduktionsmaterial'],
+      evidence: [
+        { label: 'Närvarolistor', ask: 'Närvarolistorna visar vilka som deltog i genomgången av policy och mål — inte bara att en genomgång planerades.' },
+        { label: 'Introduktionsmaterial', ask: 'Introduktionsmaterialet är det som faktiskt visas för nyanställda om policy, betydande miljöaspekter och konsekvenser av att inte följa rutiner.' },
+      ],
     },
     en: {
       title: 'Awareness',
@@ -487,7 +581,10 @@ export const CLAUSES: Clause[] = [
         'Describe the consequences of not following routines — for customer, environment and company.',
         'Repeat at onboarding and whenever something changes.',
       ],
-      evidence: ['Attendance lists', 'Onboarding material'],
+      evidence: [
+        { label: 'Attendance lists', ask: 'The attendance lists show who took part in the briefing on policy and objectives — not just that a briefing was planned.' },
+        { label: 'Onboarding material', ask: 'The onboarding material is what is actually shown to new hires about the policy, significant environmental aspects and the consequences of not following routines.' },
+      ],
     },
   },
   {
@@ -505,7 +602,10 @@ export const CLAUSES: Clause[] = [
         'Bestäm hur ni svarar på frågor och klagomål utifrån, till exempel från grannar eller myndigheter.',
         'Spara det ni skickat ut som bevis.',
       ],
-      evidence: ['Kommunikationsplan', 'Exempel på utskick och svar'],
+      evidence: [
+        { label: 'Kommunikationsplan', ask: 'Kommunikationsplanen anger budskap, mottagare, kanal, frekvens och ansvarig — och hur ni svarar på frågor och klagomål utifrån.' },
+        { label: 'Exempel på utskick och svar', ask: 'Exempel på utskick och svar är faktiska kopior av det ni skickat och svarat — bevis att planen används, inte bara att den finns.' },
+      ],
     },
     en: {
       title: 'Communication',
@@ -516,7 +616,10 @@ export const CLAUSES: Clause[] = [
         'Decide how you answer external questions and complaints, for example from neighbours or authorities.',
         'Keep what you sent out as evidence.',
       ],
-      evidence: ['Communication plan', 'Examples of communications and replies'],
+      evidence: [
+        { label: 'Communication plan', ask: 'The communication plan states message, audience, channel, frequency and owner — and how you respond to external questions and complaints.' },
+        { label: 'Examples of communications and replies', ask: 'Examples of communications and replies are actual copies of what you sent and answered — proof the plan is used, not just that it exists.' },
+      ],
     },
   },
   {
@@ -534,7 +637,10 @@ export const CLAUSES: Clause[] = [
         'Bestäm var det publiceras och hur gamla versioner arkiveras.',
         'Sätt granskningsintervall och lagringstid, även för digitala loggar.',
       ],
-      evidence: ['Dokumentförteckning med versioner', 'Rutin för dokumentstyrning'],
+      evidence: [
+        { label: 'Dokumentförteckning med versioner', ask: 'Dokumentförteckningen listar varje styrande dokument med ID, version, ägare och godkännandedatum — den samlade bilden av vad som gäller just nu.' },
+        { label: 'Rutin för dokumentstyrning', ask: 'Rutinen för dokumentstyrning beskriver var dokument publiceras, hur gamla versioner arkiveras och vilka gransknings- och lagringstider som gäller.' },
+      ],
     },
     en: {
       title: 'Documented information',
@@ -545,7 +651,10 @@ export const CLAUSES: Clause[] = [
         'Decide where it is published and how old versions are archived.',
         'Set review intervals and retention times, including for digital logs.',
       ],
-      evidence: ['Document index with versions', 'Document control procedure'],
+      evidence: [
+        { label: 'Document index with versions', ask: 'The document index lists every governing document with its ID, version, owner and approval date — the single view of what currently applies.' },
+        { label: 'Document control procedure', ask: 'The document control procedure describes where documents are published, how old versions are archived, and what review and retention intervals apply.' },
+      ],
     },
   },
   {
@@ -563,7 +672,10 @@ export const CLAUSES: Clause[] = [
         'Ställ krav på entreprenörer och leverantörer som utför arbete hos er.',
         'Bestäm vilken dokumentation som ska sparas per order eller sats.',
       ],
-      evidence: ['Arbets- och skötselinstruktioner', 'Krav i entreprenörsavtal'],
+      evidence: [
+        { label: 'Arbets- och skötselinstruktioner', ask: 'Arbets- och skötselinstruktionerna är de konkreta rutinerna för processerna där fel kostar mest, med tydliga acceptanskriterier för vad som är godkänt.' },
+        { label: 'Krav i entreprenörsavtal', ask: 'Krav i entreprenörsavtal visar att era krav på entreprenörer och leverantörer som arbetar hos er faktiskt är skrivna in i avtalen — inte bara sagda muntligt.' },
+      ],
     },
     en: {
       title: 'Operational planning and control',
@@ -574,7 +686,10 @@ export const CLAUSES: Clause[] = [
         'Place requirements on contractors and suppliers working on your site.',
         'Decide what documentation is kept per order or batch.',
       ],
-      evidence: ['Work and maintenance instructions', 'Requirements in contractor agreements'],
+      evidence: [
+        { label: 'Work and maintenance instructions', ask: 'The work and maintenance instructions are the concrete routines for the processes where errors cost most, with clear acceptance criteria for what passes.' },
+        { label: 'Requirements in contractor agreements', ask: 'Requirements in contractor agreements show your requirements for contractors and suppliers working on your site are actually written into the contracts — not just said out loud.' },
+      ],
     },
   },
   {
@@ -592,7 +707,10 @@ export const CLAUSES: Clause[] = [
         'Dokumentera muntliga överenskommelser i orderbekräftelsen.',
         'Ha en rutin för orderändringar som når alla berörda.',
       ],
-      evidence: ['Orderbekräftelser med granskningsspår', 'Rutin för orderändring'],
+      evidence: [
+        { label: 'Orderbekräftelser med granskningsspår', ask: 'Orderbekräftelser med granskningsspår visar att varje order granskats mot kapacitet, kompetens och lagkrav innan den bekräftades — inklusive muntliga överenskommelser i skrift.' },
+        { label: 'Rutin för orderändring', ask: 'Rutinen för orderändring beskriver hur en ändring i en order fångas upp och når fram till produktionen, till alla som berörs.' },
+      ],
     },
     en: {
       title: 'Customer requirements and communication',
@@ -603,7 +721,10 @@ export const CLAUSES: Clause[] = [
         'Document verbal agreements in the order confirmation.',
         'Have a routine for order changes that reaches everyone affected.',
       ],
-      evidence: ['Order confirmations with review trail', 'Order change routine'],
+      evidence: [
+        { label: 'Order confirmations with review trail', ask: 'Order confirmations with a review trail show every order was checked against capacity, competence and legal requirements before it was confirmed — including verbal agreements in writing.' },
+        { label: 'Order change routine', ask: 'The order change routine describes how a change to an order is captured and reaches production, and everyone affected.' },
+      ],
     },
   },
   {
@@ -621,7 +742,10 @@ export const CLAUSES: Clause[] = [
         'Placera utrustning (absorbenter, invallning, spillkit) där risken finns.',
         'Öva minst en gång per år och dokumentera erfarenheterna.',
       ],
-      evidence: ['Nödlägesrutiner och åtgärdskort', 'Övningsprotokoll'],
+      evidence: [
+        { label: 'Nödlägesrutiner och åtgärdskort', ask: 'Nödlägesrutinerna och åtgärdskorten är de korta, konkreta instruktionerna för varje identifierat nödläge: larma, begränsa, sanera, rapportera.' },
+        { label: 'Övningsprotokoll', ask: 'Övningsprotokollet dokumenterar att ni faktiskt övat på ett nödläge minst en gång per år, och vilka erfarenheter övningen gav.' },
+      ],
     },
     en: {
       title: 'Emergency preparedness and response',
@@ -632,7 +756,10 @@ export const CLAUSES: Clause[] = [
         'Place equipment (absorbents, bunding, spill kits) where the risk is.',
         'Practise at least yearly and document the lessons learned.',
       ],
-      evidence: ['Emergency procedures and action cards', 'Drill records'],
+      evidence: [
+        { label: 'Emergency procedures and action cards', ask: 'The emergency procedures and action cards are the short, concrete instructions for each identified emergency: alert, contain, clean up, report.' },
+        { label: 'Drill records', ask: 'The drill record documents that you actually practised an emergency at least once a year, and what the drill taught you.' },
+      ],
     },
   },
   {
@@ -650,7 +777,10 @@ export const CLAUSES: Clause[] = [
         'Skriv in era krav i beställning eller avtal, inklusive miljökrav.',
         'Utvärdera regelbundet och agera på det som inte håller.',
       ],
-      evidence: ['Godkänd leverantörslista', 'Utvärderingar med åtgärder'],
+      evidence: [
+        { label: 'Godkänd leverantörslista', ask: 'Den godkända leverantörslistan visar hur leverantörerna klassats efter påverkan på kvalitet och miljö, och vilka kriterier som avgjort godkännandet.' },
+        { label: 'Utvärderingar med åtgärder', ask: 'Utvärderingar med åtgärder visar att leverantörerna faktiskt följts upp regelbundet, och vad som gjorts när en leverantör inte höll måttet.' },
+      ],
     },
     en: {
       title: 'Externally provided processes and suppliers',
@@ -661,7 +791,10 @@ export const CLAUSES: Clause[] = [
         'Write your requirements into the order or contract, including environmental ones.',
         'Evaluate regularly and act on what falls short.',
       ],
-      evidence: ['Approved supplier list', 'Evaluations with actions'],
+      evidence: [
+        { label: 'Approved supplier list', ask: 'The approved supplier list shows how suppliers were classified by their impact on quality and environment, and the criteria that decided approval.' },
+        { label: 'Evaluations with actions', ask: 'Evaluations with actions show suppliers were actually followed up regularly, and what was done when one fell short.' },
+      ],
     },
   },
   {
@@ -679,7 +812,10 @@ export const CLAUSES: Clause[] = [
         'Skydda och redovisa material som kunden äger.',
         'Dokumentera ändringar som görs under pågående leverans.',
       ],
-      evidence: ['Tillverkningsunderlag med spårbarhet', 'Ändringsloggar'],
+      evidence: [
+        { label: 'Tillverkningsunderlag med spårbarhet', ask: 'Tillverkningsunderlaget med spårbarhet visar vilken instruktion som gällde, vad som märktes och spårades, och hur långt bakåt — per order eller sats.' },
+        { label: 'Ändringsloggar', ask: 'Ändringsloggarna dokumenterar de ändringar som gjordes under en pågående leverans — vad som ändrades, av vem och varför.' },
+      ],
     },
     en: {
       title: 'Production and service provision',
@@ -690,7 +826,10 @@ export const CLAUSES: Clause[] = [
         'Protect and account for material owned by the customer.',
         'Document changes made during ongoing delivery.',
       ],
-      evidence: ['Production records with traceability', 'Change logs'],
+      evidence: [
+        { label: 'Production records with traceability', ask: 'Production records with traceability show which instruction applied, what was marked and traced, and how far back — per order or batch.' },
+        { label: 'Change logs', ask: 'The change logs document the changes made during an ongoing delivery — what changed, by whom and why.' },
+      ],
     },
   },
   {
@@ -708,7 +847,9 @@ export const CLAUSES: Clause[] = [
         'Informera kunden när det krävs enligt avtal eller lag.',
         'Registrera varje fall så att mönster syns över tid.',
       ],
-      evidence: ['Register över avvikande utfall med beslut'],
+      evidence: [
+        { label: 'Register över avvikande utfall med beslut', ask: 'Registret listar varje avvikande produkt eller tjänst med beslutet som togs — kassation, omarbetning eller dispens — och om kunden informerades.' },
+      ],
     },
     en: {
       title: 'Nonconforming outputs',
@@ -719,7 +860,9 @@ export const CLAUSES: Clause[] = [
         'Inform the customer when contract or law requires it.',
         'Record every case so patterns become visible over time.',
       ],
-      evidence: ['Register of nonconforming outputs with decisions'],
+      evidence: [
+        { label: 'Register of nonconforming outputs with decisions', ask: 'The register lists every nonconforming product or service with the decision taken — scrap, rework or concession — and whether the customer was informed.' },
+      ],
     },
   },
   {
@@ -737,7 +880,10 @@ export const CLAUSES: Clause[] = [
         'Analysera trender, inte enskilda värden.',
         'Rapportera resultaten till ledningen och besluta om åtgärder.',
       ],
-      evidence: ['Mätplan', 'Analyser och trendrapporter'],
+      evidence: [
+        { label: 'Mätplan', ask: 'Mätplanen anger vilka nyckeltal som mäts per process, med metod, ansvarig och frekvens — kopplade till mål och betydande aspekter.' },
+        { label: 'Analyser och trendrapporter', ask: 'Analyser och trendrapporter visar hur nyckeltalen utvecklats över tid, inte bara enstaka mätvärden, och vilka beslut analysen ledde till.' },
+      ],
     },
     en: {
       title: 'Monitoring and measurement',
@@ -748,7 +894,10 @@ export const CLAUSES: Clause[] = [
         'Analyse trends, not single values.',
         'Report results to management and decide on actions.',
       ],
-      evidence: ['Measurement plan', 'Analyses and trend reports'],
+      evidence: [
+        { label: 'Measurement plan', ask: 'The measurement plan states which KPIs are measured per process, with method, owner and frequency — tied to objectives and significant aspects.' },
+        { label: 'Analyses and trend reports', ask: 'Analyses and trend reports show how the KPIs developed over time, not just single readings, and what decisions the analysis led to.' },
+      ],
     },
   },
   {
@@ -766,7 +915,10 @@ export const CLAUSES: Clause[] = [
         'Analysera resultatet och jämför över tid.',
         'Ta med slutsatserna till ledningens genomgång och koppla till förbättringar.',
       ],
-      evidence: ['Sammanställd kundnöjdhetsdata', 'Åtgärder från analysen'],
+      evidence: [
+        { label: 'Sammanställd kundnöjdhetsdata', ask: 'Sammanställd kundnöjdhetsdata slår ihop era valda källor — enkät, klagomål, leveransprecision — till en bild som går att jämföra över tid.' },
+        { label: 'Åtgärder från analysen', ask: 'Åtgärder från analysen visar vad slutsatserna faktiskt ledde till — kopplat till ledningens genomgång, inte bara noterat och glömt.' },
+      ],
     },
     en: {
       title: 'Customer satisfaction',
@@ -777,7 +929,10 @@ export const CLAUSES: Clause[] = [
         'Analyse the result and compare over time.',
         'Take the conclusions into management review and link them to improvements.',
       ],
-      evidence: ['Compiled customer satisfaction data', 'Actions arising from the analysis'],
+      evidence: [
+        { label: 'Compiled customer satisfaction data', ask: 'Compiled customer satisfaction data pulls your chosen sources — survey, complaints, delivery precision — into a picture you can compare over time.' },
+        { label: 'Actions arising from the analysis', ask: 'Actions arising from the analysis show what the conclusions actually led to — linked to management review, not just noted and forgotten.' },
+      ],
     },
   },
   {
@@ -795,7 +950,10 @@ export const CLAUSES: Clause[] = [
         'Dokumentera resultat, avvikelser och åtgärder med datum.',
         'Rapportera efterlevnadsläget till ledningen.',
       ],
-      evidence: ['Efterlevnadskontroller per krav', 'Åtgärder vid brister'],
+      evidence: [
+        { label: 'Efterlevnadskontroller per krav', ask: 'Efterlevnadskontrollerna visar, krav för krav, att ni kontrollerat mot verkligheten — mätvärden, journaler, kvitton, tillståndsvillkor — med datum.' },
+        { label: 'Åtgärder vid brister', ask: 'Åtgärder vid brister dokumenterar vad som gjordes när en kontroll visade att ett krav inte var uppfyllt, och att ledningen fick veta.' },
+      ],
     },
     en: {
       title: 'Evaluation of compliance',
@@ -806,7 +964,10 @@ export const CLAUSES: Clause[] = [
         'Document result, deviations and actions with dates.',
         'Report the compliance status to management.',
       ],
-      evidence: ['Compliance evaluations per requirement', 'Actions on shortfalls'],
+      evidence: [
+        { label: 'Compliance evaluations per requirement', ask: 'The compliance evaluations show, requirement by requirement, that you checked against reality — readings, logs, receipts, permit conditions — with dates.' },
+        { label: 'Actions on shortfalls', ask: 'Actions on shortfalls document what was done when a check showed a requirement was not met, and that management was informed.' },
+      ],
     },
   },
   {
@@ -824,7 +985,10 @@ export const CLAUSES: Clause[] = [
         'Revidera mot checklista, samla objektiva bevis, skriv rapport.',
         'Registrera avvikelser i avvikelsehanteringen och följ upp effekten.',
       ],
-      evidence: ['Revisionsprogram och revisionsrapporter', 'Avvikelser med korrigerande åtgärder'],
+      evidence: [
+        { label: 'Revisionsprogram och revisionsrapporter', ask: 'Revisionsprogrammet är planen som täcker alla krav och processer över tre år; revisionsrapporterna är de faktiskt genomförda revisionerna, med objektiva bevis och skriftlig rapport per tillfälle.' },
+        { label: 'Avvikelser med korrigerande åtgärder', ask: 'Avvikelser med korrigerande åtgärder visar att fynden från revisionerna registrerats i avvikelsehanteringen och följts upp — inte bara noterade i rapporten.' },
+      ],
     },
     en: {
       title: 'Internal audit',
@@ -835,7 +999,10 @@ export const CLAUSES: Clause[] = [
         'Audit against a checklist, gather objective evidence, write a report.',
         'Register findings in deviation handling and follow up effectiveness.',
       ],
-      evidence: ['Audit programme and audit reports', 'Findings with corrective actions'],
+      evidence: [
+        { label: 'Audit programme and audit reports', ask: 'The audit programme is the plan covering all requirements and processes across three years; the audit reports are the audits actually carried out, with objective evidence and a written report each time.' },
+        { label: 'Findings with corrective actions', ask: 'Findings with corrective actions show the audit findings were registered in deviation handling and followed up — not just noted in the report.' },
+      ],
     },
   },
   {
@@ -853,7 +1020,9 @@ export const CLAUSES: Clause[] = [
         'Dokumentera beslut med ansvarig och datum.',
         'Följ upp besluten vid nästa genomgång.',
       ],
-      evidence: ['Protokoll från ledningens genomgång med beslutslista'],
+      evidence: [
+        { label: 'Protokoll från ledningens genomgång med beslutslista', ask: 'Protokollet är mötesanteckningarna från ledningens genomgång själva — datum, deltagare, vad som gicks igenom enligt agendan, och besluten med ansvarig och datum.' },
+      ],
     },
     en: {
       title: 'Management review',
@@ -864,7 +1033,9 @@ export const CLAUSES: Clause[] = [
         'Document decisions with owner and date.',
         'Follow up the decisions at the next review.',
       ],
-      evidence: ['Management review minutes with a decision list'],
+      evidence: [
+        { label: 'Management review minutes with a decision list', ask: 'The minutes are the management review meeting record itself — date, attendees, what was covered against the agenda, and the decisions with an owner and a date.' },
+      ],
     },
   },
   {
@@ -882,7 +1053,9 @@ export const CLAUSES: Clause[] = [
         'Sök grundorsak, till exempel med fem varför.',
         'Besluta korrigerande åtgärd, sätt datum, och verifiera effekten innan ärendet stängs.',
       ],
-      evidence: ['Avvikelseregister med grundorsak och effektkontroll'],
+      evidence: [
+        { label: 'Avvikelseregister med grundorsak och effektkontroll', ask: 'Avvikelseregistret dokumenterar varje avvikelse från vad som hände till grundorsak, beslutad åtgärd och att effekten verifierades innan ärendet stängdes.' },
+      ],
     },
     en: {
       title: 'Nonconformity and corrective action',
@@ -893,7 +1066,9 @@ export const CLAUSES: Clause[] = [
         'Find the root cause, for example with five whys.',
         'Decide the corrective action, set a date, and verify effectiveness before closing.',
       ],
-      evidence: ['Deviation register with root cause and effectiveness check'],
+      evidence: [
+        { label: 'Deviation register with root cause and effectiveness check', ask: 'The deviation register documents each nonconformity from what happened to the root cause, the decided action, and that the effect was verified before the case was closed.' },
+      ],
     },
   },
   {
@@ -911,7 +1086,9 @@ export const CLAUSES: Clause[] = [
         'Genomför och mät före och efter.',
         'Visa utvecklingen över flera år vid ledningens genomgång.',
       ],
-      evidence: ['Förbättringslogg med mätt effekt'],
+      evidence: [
+        { label: 'Förbättringslogg med mätt effekt', ask: 'Förbättringsloggen listar genomförda förbättringar med mätning före och efter — beviset att systemet faktiskt blivit bättre, inte bara att förslag kom in.' },
+      ],
     },
     en: {
       title: 'Continual improvement',
@@ -922,7 +1099,9 @@ export const CLAUSES: Clause[] = [
         'Implement and measure before and after.',
         'Show the development across several years at management review.',
       ],
-      evidence: ['Improvement log with measured effect'],
+      evidence: [
+        { label: 'Improvement log with measured effect', ask: 'The improvement log lists completed improvements with measurements before and after — the proof the system actually got better, not just that suggestions came in.' },
+      ],
     },
   },
 ];
