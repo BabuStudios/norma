@@ -45,6 +45,27 @@
   color: var(--color-accent-700);
 }
 
+/* — new document form — */
+.newDocForm {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: end;
+  margin: 16px 0 20px;
+  padding: 16px 18px;
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-text);
+}
+.field {
+  margin-top: 0;
+}
+.formActions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .docTable td,
 .docTable th {
   padding-right: 16px;
@@ -75,6 +96,9 @@
   .template:nth-child(-n + 2) {
     border-bottom: 1px solid var(--ink-20);
   }
+  .newDocForm {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 720px) {
@@ -90,5 +114,9 @@
   }
   .template:last-child {
     border-bottom: 0;
+  }
+  .newDocForm {
+    grid-template-columns: 1fr;
+    padding: 16px;
   }
 }

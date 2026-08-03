@@ -202,6 +202,10 @@ const sv = {
   nodeMenuLinkDocument: 'Koppla dokument',
   nodeMenuLinkForward: 'Länka vidare',
   nodeMenuBack: 'Tillbaka',
+
+  // — new document form —
+  docNameLabel: 'Dokumentnamn',
+  saveDocument: 'Spara dokument',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -391,6 +395,9 @@ const en: Dictionary = {
   nodeMenuLinkDocument: 'Link document',
   nodeMenuLinkForward: 'Link onward',
   nodeMenuBack: 'Back',
+
+  docNameLabel: 'Document name',
+  saveDocument: 'Save document',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };

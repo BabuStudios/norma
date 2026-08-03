@@ -52,3 +52,28 @@ export const DOCUMENTS: ManagedDocument[] = [];
 
 /** Documents linked from a requirement's detail rail. Empty until linked. */
 export const CLAUSE_LINKED_DOCUMENTS: { id: string; name: Bilingual }[] = [];
+
+/** What the "Nytt dokument" form collects — one language, since this is the
+ *  company's own record, not authored catalogue content. */
+export interface NewDocumentFields {
+  name: string;
+  version: string;
+  owner: string;
+  nextReview: string;
+}
+
+/**
+ * Turns a filled-in form into a register row. `index` is the register's
+ * current length, so ids run D001, D002, … as documents are added.
+ */
+export function createDocument(fields: NewDocumentFields, index: number): ManagedDocument {
+  return {
+    id: `D${String(index + 1).padStart(3, '0')}`,
+    name: { sv: fields.name, en: fields.name },
+    version: fields.version,
+    owner: fields.owner,
+    nextReview: fields.nextReview,
+    kind: 'soft',
+    state: { sv: 'Utkast', en: 'Draft' },
+  };
+}

@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { AUDIT_CHECKLIST } from '@/data/audits';
+import { DOCUMENTS, type ManagedDocument, type NewDocumentFields } from '@/data/documents';
 import { REVIEW_INPUTS } from '@/data/managementReview';
 import type { SupplierFields, SupplierOverrides } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
@@ -39,6 +40,9 @@ export interface AppState {
   evidenceUploads: Record<string, UploadedFile[]>;
   /** Editable content on Ledningssystem: text blocks and process diagrams. */
   managementSystemBlocks: PageBlock[];
+  /** The document register — starts from the (empty) seed and grows as the
+   *  company adds documents. */
+  documents: ManagedDocument[];
 }
 
 export interface AppActions {
@@ -54,6 +58,7 @@ export interface AppActions {
   removeEvidenceFile: (clauseId: string, evidenceIndex: number, fileId: string) => void;
   /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
   updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
+  addDocument: (fields: NewDocumentFields) => void;
 }
 
 export const INITIAL_STATE: AppState = {
@@ -67,6 +72,7 @@ export const INITIAL_STATE: AppState = {
   supplierOverrides: {},
   evidenceUploads: {},
   managementSystemBlocks: [],
+  documents: DOCUMENTS,
 };
 
 export interface AppContextValue extends AppActions {

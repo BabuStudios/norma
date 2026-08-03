@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createDocument, type NewDocumentFields } from '@/data/documents';
 import { ORGANIZATIONS } from '@/data/organizations';
 import type { SupplierFields } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
@@ -139,6 +140,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const addDocument = useCallback((fields: NewDocumentFields) => {
+    setState((prev) => ({
+      ...prev,
+      documents: [...prev.documents, createDocument(fields, prev.documents.length)],
+    }));
+  }, []);
+
   const value = useMemo(
     () => ({
       state,
@@ -154,6 +162,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addEvidenceFiles,
       removeEvidenceFile,
       updateManagementSystemBlocks,
+      addDocument,
     }),
     [
       state,
@@ -168,6 +177,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addEvidenceFiles,
       removeEvidenceFile,
       updateManagementSystemBlocks,
+      addDocument,
     ],
   );
 
