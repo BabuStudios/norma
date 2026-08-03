@@ -6,6 +6,7 @@ import type { ClauseStatus, Lang } from '@/data/types';
 import { DICTIONARY, type Dictionary } from '@/i18n/dictionary';
 import type { StatusMap } from '@/domain/conformity';
 import type { UploadedFile } from '@/domain/evidence';
+import type { PageBlock } from '@/domain/page';
 
 /**
  * Application state.
@@ -36,6 +37,8 @@ export interface AppState {
    * bytes go to the document store and this becomes the link to that record.
    */
   evidenceUploads: Record<string, UploadedFile[]>;
+  /** Editable content on Ledningssystem: text blocks and process diagrams. */
+  managementSystemBlocks: PageBlock[];
 }
 
 export interface AppActions {
@@ -49,6 +52,8 @@ export interface AppActions {
   saveSupplier: (supplierId: string, fields: Partial<SupplierFields>) => void;
   addEvidenceFiles: (clauseId: string, evidenceIndex: number, files: File[]) => void;
   removeEvidenceFile: (clauseId: string, evidenceIndex: number, fileId: string) => void;
+  /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
+  updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
 }
 
 export const INITIAL_STATE: AppState = {
@@ -61,6 +66,7 @@ export const INITIAL_STATE: AppState = {
   supplierColumns: { nextEvaluation: true },
   supplierOverrides: {},
   evidenceUploads: {},
+  managementSystemBlocks: [],
 };
 
 export interface AppContextValue extends AppActions {

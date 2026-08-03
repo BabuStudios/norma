@@ -3,6 +3,7 @@ import { ORGANIZATIONS } from '@/data/organizations';
 import type { SupplierFields } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
 import type { UploadedFile } from '@/domain/evidence';
+import type { PageBlock } from '@/domain/page';
 import { AppContext, INITIAL_STATE, dictionaryFor, type AppState } from './store';
 
 const STORAGE_KEY = 'norma.state.v1';
@@ -90,29 +91,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const addEvidenceFiles = useCallback(
-    (clauseId: string, evidenceIndex: number, files: File[]) => {
-      if (files.length === 0) return;
-      const key = `${clauseId}:${evidenceIndex}`;
-      const uploadedAt = new Date().toISOString();
-      // Not crypto.randomUUID(): this only has to be unique within one evidence
-      // row's list, and the app already runs without other UUID needs.
-      const added: UploadedFile[] = files.map((file, index) => ({
-        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
-        name: file.name,
-        size: file.size,
-        uploadedAt,
-      }));
-      setState((prev) => ({
-        ...prev,
-        evidenceUploads: {
-          ...prev.evidenceUploads,
-          [key]: [...(prev.evidenceUploads[key] ?? []), ...added],
-        },
-      }));
-    },
-    [],
-  );
+  const addEvidenceFiles = useCallback((clauseId: string, evidenceIndex: number, files: File[]) => {
+    if (files.length === 0) return;
+    const key = `${clauseId}:${evidenceIndex}`;
+    const uploadedAt = new Date().toISOString();
+    // Not crypto.randomUUID(): this only has to be unique within one evidence
+    // row's list, and the app already runs without other UUID needs.
+    const added: UploadedFile[] = files.map((file, index) => ({
+      id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
+      name: file.name,
+      size: file.size,
+      uploadedAt,
+    }));
+    setState((prev) => ({
+      ...prev,
+      evidenceUploads: {
+        ...prev.evidenceUploads,
+        [key]: [...(prev.evidenceUploads[key] ?? []), ...added],
+      },
+    }));
+  }, []);
 
   const removeEvidenceFile = useCallback(
     (clauseId: string, evidenceIndex: number, fileId: string) => {
@@ -131,6 +129,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateManagementSystemBlocks = useCallback(
+    (updater: (blocks: PageBlock[]) => PageBlock[]) => {
+      setState((prev) => ({
+        ...prev,
+        managementSystemBlocks: updater(prev.managementSystemBlocks),
+      }));
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({
       state,
@@ -145,6 +153,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveSupplier,
       addEvidenceFiles,
       removeEvidenceFile,
+      updateManagementSystemBlocks,
     }),
     [
       state,
@@ -158,6 +167,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveSupplier,
       addEvidenceFiles,
       removeEvidenceFile,
+      updateManagementSystemBlocks,
     ],
   );
 

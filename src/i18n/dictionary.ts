@@ -55,8 +55,7 @@ const sv = {
   majorNc: 'Större avvikelser',
   minorNc: 'Mindre avvikelser',
   observations: 'Observationer',
-  findingsNote:
-    'Varje avvikelse skapar automatiskt ett ärende med grundorsak och effektkontroll.',
+  findingsNote: 'Varje avvikelse skapar automatiskt ett ärende med grundorsak och effektkontroll.',
   aspectNote: 'Livscykelperspektiv: inköp, drift, transport och avfall bedöms.',
   activity: 'Aktivitet',
   aspect: 'Miljöaspekt',
@@ -142,8 +141,10 @@ const sv = {
   // — empty states —
   // Every register starts empty. Each message says what the thing is for and
   // what the first step is, rather than just reporting that there is no data.
-  emptyChangeLog: 'Inga ändringar loggade ännu. Varje ändring i systemet hamnar här, med användare och tidpunkt.',
-  emptyDocuments: 'Inga dokument ännu. Börja från en mall ovan, eller lägg upp ett befintligt dokument.',
+  emptyChangeLog:
+    'Inga ändringar loggade ännu. Varje ändring i systemet hamnar här, med användare och tidpunkt.',
+  emptyDocuments:
+    'Inga dokument ännu. Börja från en mall ovan, eller lägg upp ett befintligt dokument.',
   emptyAspects:
     'Miljöaspektregistret är tomt. Kartlägg era aktiviteter och deras miljöpåverkan — det är grunden i ISO 14001.',
   emptyAuditProgramme:
@@ -167,6 +168,29 @@ const sv = {
   planAudit: 'Planera revision',
   bookReview: 'Boka möte',
   removeFile: 'Ta bort',
+
+  // — Ledningssystem: editable text blocks and process diagrams —
+  pageContent: 'Innehåll',
+  edit: 'Redigera',
+  doneEditing: 'Klar',
+  addTextBlock: 'Lägg till textblock',
+  addDiagramBlock: 'Lägg till processbild',
+  textBlockHeadingLabel: 'Rubrik',
+  textBlockBodyLabel: 'Brödtext',
+  diagramTitleLabel: 'Titel',
+  addBox: 'Lägg till låda',
+  connectBoxes: 'Koppla',
+  deleteMode: 'Ta bort',
+  removeBlock: 'Ta bort block',
+  moveUp: 'Flytta upp',
+  moveDown: 'Flytta ned',
+  newBoxLabel: 'Ny låda',
+  newTextHeading: 'Ny rubrik',
+  newDiagramTitle: 'Ny processbild',
+  boxLabel: 'Låda',
+  emptyDiagram: 'Ingen låda tillagd ännu.',
+  emptyManagementSystem:
+    'Inget innehåll tillagt än. Klicka på Redigera för att lägga till text eller rita en processbild.',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -301,8 +325,7 @@ const en: Dictionary = {
 
   emptyChangeLog:
     'No changes logged yet. Every change in the system lands here, with the user and the time.',
-  emptyDocuments:
-    'No documents yet. Start from a template above, or upload an existing document.',
+  emptyDocuments: 'No documents yet. Start from a template above, or upload an existing document.',
   emptyAspects:
     'The environmental aspects register is empty. Map your activities and their environmental impacts — this is the foundation of ISO 14001.',
   emptyAuditProgramme:
@@ -326,6 +349,27 @@ const en: Dictionary = {
   planAudit: 'Plan audit',
   bookReview: 'Book meeting',
   removeFile: 'Remove',
+
+  pageContent: 'Content',
+  edit: 'Edit',
+  doneEditing: 'Done',
+  addTextBlock: 'Add text block',
+  addDiagramBlock: 'Add process image',
+  textBlockHeadingLabel: 'Heading',
+  textBlockBodyLabel: 'Body text',
+  diagramTitleLabel: 'Title',
+  addBox: 'Add box',
+  connectBoxes: 'Connect',
+  deleteMode: 'Delete',
+  removeBlock: 'Remove block',
+  moveUp: 'Move up',
+  moveDown: 'Move down',
+  newBoxLabel: 'New box',
+  newTextHeading: 'New heading',
+  newDiagramTitle: 'New process image',
+  boxLabel: 'Box',
+  emptyDiagram: 'No box added yet.',
+  emptyManagementSystem: 'No content added yet. Click Edit to add text or draw a process image.',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };

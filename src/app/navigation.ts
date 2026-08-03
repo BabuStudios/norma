@@ -27,7 +27,7 @@ export const NAV: NavGroup[] = [
   {
     label: { sv: 'Styrning', en: 'Steering' },
     items: [
-      { id: 'dash', path: '/overview', label: { sv: 'Översikt', en: 'Overview' } },
+      { id: 'dash', path: '/overview', label: { sv: 'Ledningssystem', en: 'Management system' } },
       { id: 'req', path: '/requirements', label: { sv: 'Kravgenomgång', en: 'Requirements' } },
       { id: 'docs', path: '/documents', label: { sv: 'Dokument', en: 'Documents' } },
     ],
@@ -57,7 +57,11 @@ export const NAV: NavGroup[] = [
   {
     label: { sv: 'System', en: 'System' },
     items: [
-      { id: 'field', path: '/field-mode', label: { sv: 'Fältläge (mobil)', en: 'Field mode (mobile)' } },
+      {
+        id: 'field',
+        path: '/field-mode',
+        label: { sv: 'Fältläge (mobil)', en: 'Field mode (mobile)' },
+      },
       {
         id: 'settings',
         path: '/settings',
