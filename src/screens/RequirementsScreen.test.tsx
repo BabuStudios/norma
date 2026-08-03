@@ -152,13 +152,55 @@ describe('the requirement walkthrough', () => {
   });
 });
 
+describe('the chapter conformity panel', () => {
+  it('is expanded by default, showing every chapter at zero', () => {
+    render();
+    const rows = screen.getAllByRole('button', { name: /%/ });
+    expect(rows).toHaveLength(7);
+    for (const row of rows) {
+      expect(row).toHaveTextContent('0');
+      expect(row).toHaveAttribute('data-behind', 'true');
+    }
+  });
+
+  it('collapses and expands on its own toggle', async () => {
+    const { user } = render();
+    const toggle = screen.getByRole('button', {
+      name: /Uppfyllnad per kapitel/,
+    });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getAllByRole('button', { name: /%/ }).length).toBeGreaterThan(0);
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryAllByRole('button', { name: /%/ })).toHaveLength(0);
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getAllByRole('button', { name: /%/ }).length).toBeGreaterThan(0);
+  });
+
+  it('opens the first requirement of the chosen chapter', async () => {
+    const { user } = render();
+    const chapters = [...new Set(CLAUSES.map((c) => c.chapter))];
+    const rows = screen.getAllByRole('button', { name: /%/ });
+    expect(rows).toHaveLength(chapters.length);
+
+    await user.click(rows[0]);
+    const firstOfChapter = CLAUSES.find((c) => c.chapter === chapters[0])!;
+    expect(screen.getByTestId('pathname')).toHaveTextContent(`/requirements/${firstOfChapter.id}`);
+  });
+});
+
 describe('attaching evidence files', () => {
   it('flips an evidence item from Saknas to Finns and shows the file', async () => {
     const { user } = render('6.1.2');
     expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
 
     const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    const file = new File(['content'], 'aspektregister.pdf', { type: 'application/pdf' });
+    const file = new File(['content'], 'aspektregister.pdf', {
+      type: 'application/pdf',
+    });
     await user.upload(input, file);
 
     expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();

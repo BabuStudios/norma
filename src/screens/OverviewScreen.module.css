@@ -116,72 +116,6 @@
   color: var(--ink-60);
 }
 
-/* — conformity by chapter — */
-.chapters {
-  padding: 24px 28px 0;
-}
-.chapterRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 14px 0;
-  border: 0;
-  border-bottom: 1px solid var(--ink-15);
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-/* Alternating stripe, counting the chapter rows only — the section heading
-   above them is not a row. */
-.chapterRow:nth-of-type(even) {
-  background: var(--ink-3-5);
-}
-.chapterRow:hover {
-  background: var(--ink-6);
-}
-.chapterNumber {
-  width: 52px;
-  flex: none;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-.chapterRow[data-behind='true'] .chapterNumber {
-  color: var(--color-accent);
-}
-.chapterLabel {
-  flex: 1;
-  min-width: 0;
-  font-size: 14px;
-  font-weight: 700;
-}
-.track {
-  flex: none;
-  width: 280px;
-  height: 8px;
-  background: var(--ink-12);
-}
-.fill {
-  display: block;
-  height: 8px;
-  background: var(--color-text);
-}
-.chapterRow[data-behind='true'] .fill {
-  background: var(--color-accent);
-}
-.chapterPercent {
-  width: 48px;
-  flex: none;
-  text-align: right;
-  font-size: 15px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
 /* — change log — */
 .trail {
   margin-top: 32px;
@@ -212,9 +146,6 @@
     border-left: 0;
     border-top: var(--rule-strong);
   }
-  .track {
-    width: 140px;
-  }
 }
 
 @media (max-width: 720px) {
@@ -225,11 +156,7 @@
     left: 20px;
     right: 20px;
   }
-  .chapters,
   .trail {
     padding-inline: 20px;
-  }
-  .track {
-    display: none;
   }
 }

@@ -1,6 +1,5 @@
 import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { CLAUSES } from '@/data/clauses';
 import { inStandard } from '@/domain/conformity';
 import { renderScreen } from '@/test/render';
 import { OverviewScreen } from './OverviewScreen';
@@ -16,16 +15,6 @@ describe('the overview, starting from nothing', () => {
     render();
     expect(toggleFor('9001')).toHaveTextContent(String(inStandard('9001').length));
     expect(toggleFor('14001')).toHaveTextContent(String(inStandard('14001').length));
-  });
-
-  it('shows every chapter at zero', () => {
-    render();
-    const rows = screen.getAllByRole('button', { name: /%/ });
-    expect(rows).toHaveLength(7);
-    for (const row of rows) {
-      expect(row).toHaveTextContent('0');
-      expect(row).toHaveAttribute('data-behind', 'true');
-    }
   });
 
   it('says no external audit is booked rather than inventing a date', () => {
@@ -89,17 +78,5 @@ describe('the overview dropdowns', () => {
     // carry an `e` suffix the number does not.
     expect(path.replace('/requirements/', '')).toMatch(new RegExp(`^${clauseNumber}e?$`));
     expect(document.getElementById('not-met-9001')).not.toBeInTheDocument();
-  });
-});
-
-describe('the chapter rows', () => {
-  it('links into the requirements walkthrough', async () => {
-    const { user } = render();
-    const chapters = [...new Set(CLAUSES.map((c) => c.chapter))];
-    const rows = screen.getAllByRole('button', { name: /%/ });
-    expect(rows).toHaveLength(chapters.length);
-
-    await user.click(rows[0]);
-    expect(screen.getByTestId('pathname')).toHaveTextContent('/requirements');
   });
 });

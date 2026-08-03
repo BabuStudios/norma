@@ -4,7 +4,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { CHANGE_LOG } from '@/data/changeLog';
 import type { Clause } from '@/data/clauses';
 import { NEXT_EXTERNAL_AUDIT } from '@/data/organizations';
-import { chapterProgress, inStandard, notMet } from '@/domain/conformity';
+import { inStandard, notMet } from '@/domain/conformity';
 import { useDismissable } from '@/hooks/useDismissable';
 import { useApp } from '@/state/store';
 import styles from './OverviewScreen.module.css';
@@ -98,33 +98,6 @@ export function OverviewScreen() {
           )}
         </div>
       </div>
-
-      <section className={styles.chapters}>
-        <div className="sectionHead">
-          <h2>{t.byChapter}</h2>
-          <span className="sectionHead__note">{t.integrated}</span>
-        </div>
-        {chapterProgress(state.statuses).map(({ chapter, percent, behind }) => (
-          <button
-            key={chapter.id}
-            type="button"
-            className={styles.chapterRow}
-            data-behind={behind}
-            onClick={() => navigate('/requirements')}
-          >
-            <span className={styles.chapterNumber}>{chapter.id}</span>
-            <span className={styles.chapterLabel}>{chapter.label[state.lang]}</span>
-            <span className={styles.track} aria-hidden="true">
-              <span className={styles.fill} style={{ width: `${percent}%` }} />
-            </span>
-            <span className={styles.chapterPercent}>
-              {percent}
-              <span aria-hidden="true">%</span>
-              <span className="visuallyHidden"> % {t.requirementProgress}</span>
-            </span>
-          </button>
-        ))}
-      </section>
 
       <section className={styles.trail}>
         <div className="sectionHead">

@@ -1,7 +1,111 @@
-.panes {
+.screen {
   display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
+}
+
+.panes {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── chapter conformity panel ────────────────────────────────────────── */
+
+.chapterPanel {
+  flex: none;
+  border-bottom: var(--rule-strong);
+}
+
+.chapterPanelToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 28px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.chapterPanelToggle:hover {
+  background: var(--ink-4);
+}
+.chapterPanelHeading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.chapterPanelTitle {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.chapterPanelBody {
+  padding: 0 28px 20px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.chapterRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--ink-15);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.chapterRow:hover {
+  background: var(--ink-6);
+}
+.chapterNumber {
+  width: 44px;
+  flex: none;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.chapterRow[data-behind="true"] .chapterNumber {
+  color: var(--color-accent);
+}
+.chapterLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.track {
+  flex: none;
+  width: 200px;
+  height: 8px;
+  background: var(--ink-12);
+}
+.fill {
+  display: block;
+  height: 8px;
+  background: var(--color-text);
+}
+.chapterRow[data-behind="true"] .fill {
+  background: var(--color-accent);
+}
+.chapterPercent {
+  width: 48px;
+  flex: none;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── clause tree ─────────────────────────────────────────────────────── */
@@ -62,11 +166,11 @@
 .clauseRow:hover {
   background: var(--ink-5);
 }
-.clauseRow[aria-current='true'] {
+.clauseRow[aria-current="true"] {
   background: var(--ink-7);
 }
-.clauseRow[aria-current='true']::before {
-  content: '';
+.clauseRow[aria-current="true"]::before {
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -85,10 +189,10 @@
   border: 1px solid var(--color-divider);
   background: transparent;
 }
-.dot[data-status='prog'] {
+.dot[data-status="prog"] {
   background: var(--ink-30);
 }
-.dot[data-status='met'] {
+.dot[data-status="met"] {
   background: var(--color-text);
 }
 .clauseId {
@@ -247,7 +351,7 @@
   line-height: 1.55;
   text-wrap: pretty;
 }
-.step[data-done='true'] .stepText {
+.step[data-done="true"] .stepText {
   color: var(--ink-50);
   text-decoration: line-through;
 }
@@ -448,10 +552,10 @@
     width: 100%;
     border-right: 0;
   }
-  .panes[data-view='detail'] .tree {
+  .panes[data-view="detail"] .tree {
     display: none;
   }
-  .panes[data-view='list'] .detailPane {
+  .panes[data-view="list"] .detailPane {
     display: none;
   }
   .backLink {
@@ -475,5 +579,14 @@
   }
   .evidenceText {
     flex-basis: calc(100% - 90px);
+  }
+  .chapterPanelToggle {
+    padding: 14px 20px;
+  }
+  .chapterPanelBody {
+    padding: 0 20px 16px;
+  }
+  .track {
+    display: none;
   }
 }

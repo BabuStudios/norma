@@ -31,14 +31,17 @@ const SCREENS: {
     element: <OverviewScreen />,
     route: '/overview',
     path: '/overview',
-    marker: { sv: 'Uppfyllnad per kapitel', en: 'Conformity by chapter' },
+    marker: { sv: 'Nästa externa revision', en: 'Next external audit' },
   },
   {
     name: 'requirements',
     element: <RequirementsScreen />,
     route: '/requirements/6.1.2',
     path: '/requirements/:clauseId',
-    marker: { sv: 'Bevis som revisorn vill se', en: 'Evidence the auditor wants' },
+    marker: {
+      sv: 'Bevis som revisorn vill se',
+      en: 'Evidence the auditor wants',
+    },
   },
   {
     name: 'documents',
@@ -66,7 +69,10 @@ const SCREENS: {
     element: <SuppliersScreen />,
     route: '/suppliers',
     path: '/suppliers/:supplierId?',
-    marker: { sv: /Inga leverantörer registrerade/, en: /No suppliers registered/ },
+    marker: {
+      sv: /Inga leverantörer registrerade/,
+      en: /No suppliers registered/,
+    },
   },
   {
     name: 'management review',
@@ -80,7 +86,10 @@ const SCREENS: {
     element: <FieldModeScreen />,
     route: '/field-mode',
     path: '/field-mode',
-    marker: { sv: /Ingen revisionsrunda pågår/, en: /No audit walk in progress/ },
+    marker: {
+      sv: /Ingen revisionsrunda pågår/,
+      en: /No audit walk in progress/,
+    },
   },
   {
     name: 'settings',
