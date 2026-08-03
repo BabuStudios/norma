@@ -1,7 +1,7 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { CLAUSES } from '@/data/clauses';
-import { findClause } from '@/domain/conformity';
+import { findClause, inStandard } from '@/domain/conformity';
 import { renderScreen } from '@/test/render';
 import { RequirementsScreen } from './RequirementsScreen';
 
@@ -13,6 +13,10 @@ const render = (clauseId = '6.1.2') =>
 
 /** Clause rows in the tree are the only elements carrying aria-current. */
 const treeRows = () => Array.from(document.querySelectorAll('[aria-current]'));
+
+/** The two headline cells are distinguished only by the panel they control. */
+const toggleFor = (standard: '9001' | '14001') =>
+  document.querySelector<HTMLButtonElement>(`[aria-controls="not-met-${standard}"]`)!;
 
 describe('the requirement walkthrough', () => {
   it('shows the selected clause in the detail pane', () => {
@@ -189,6 +193,63 @@ describe('the chapter conformity panel', () => {
     await user.click(rows[0]);
     const firstOfChapter = CLAUSES.find((c) => c.chapter === chapters[0])!;
     expect(screen.getByTestId('pathname')).toHaveTextContent(`/requirements/${firstOfChapter.id}`);
+  });
+});
+
+describe('the not-met band', () => {
+  it('reports every requirement as not met', () => {
+    render();
+    expect(toggleFor('9001')).toHaveTextContent(String(inStandard('9001').length));
+    expect(toggleFor('14001')).toHaveTextContent(String(inStandard('14001').length));
+  });
+
+  it('lists every outstanding requirement in the dropdown', async () => {
+    const { user } = render();
+    await user.click(toggleFor('9001'));
+
+    const panel = document.getElementById('not-met-9001')!;
+    expect(within(panel).getAllByRole('button')).toHaveLength(inStandard('9001').length);
+  });
+
+  it('opens and closes on the same button', async () => {
+    const { user } = render();
+    await user.click(toggleFor('9001'));
+    expect(document.getElementById('not-met-9001')).toBeInTheDocument();
+    expect(toggleFor('9001')).toHaveAttribute('aria-expanded', 'true');
+
+    await user.click(toggleFor('9001'));
+    expect(document.getElementById('not-met-9001')).not.toBeInTheDocument();
+  });
+
+  it('closes on Escape', async () => {
+    const { user } = render();
+    await user.click(toggleFor('9001'));
+    await user.keyboard('{Escape}');
+    expect(document.getElementById('not-met-9001')).not.toBeInTheDocument();
+  });
+
+  it('closes when pressing outside it', async () => {
+    const { user } = render();
+    await user.click(toggleFor('9001'));
+    await user.click(document.body);
+    expect(document.getElementById('not-met-9001')).not.toBeInTheDocument();
+  });
+
+  it('navigates to the chosen requirement and closes', async () => {
+    const { user } = render();
+    await user.click(toggleFor('9001'));
+
+    const panel = document.getElementById('not-met-9001')!;
+    const [firstRow] = within(panel).getAllByRole('button');
+    const clauseNumber = firstRow.textContent?.match(/^[\d.]+/)?.[0];
+    await user.click(firstRow);
+
+    const path = screen.getByTestId('pathname').textContent!;
+    expect(path).toMatch(/^\/requirements\//);
+    // The row's clause number must be the one the URL carries — the id may
+    // carry an `e` suffix the number does not.
+    expect(path.replace('/requirements/', '')).toMatch(new RegExp(`^${clauseNumber}e?$`));
+    expect(document.getElementById('not-met-9001')).not.toBeInTheDocument();
   });
 });
 

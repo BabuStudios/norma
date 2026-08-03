@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Pill } from '@/components/Pill';
 import { Tick } from '@/components/Tick';
@@ -6,13 +6,22 @@ import { CHAPTERS, CLAUSES, DEFAULT_CLAUSE_ID, type Clause } from '@/data/clause
 import { CLAUSE_LINKED_DOCUMENTS } from '@/data/documents';
 import { CURRENT_USER } from '@/data/organizations';
 import type { ClauseStatus } from '@/data/types';
-import { chapterProgress, findClause, standardLabel, statusOf } from '@/domain/conformity';
+import {
+  chapterProgress,
+  findClause,
+  inStandard,
+  notMet,
+  standardLabel,
+  statusOf,
+} from '@/domain/conformity';
 import { evidenceRows, uploadsForClause } from '@/domain/evidence';
 import { formatFileSize } from '@/domain/format';
+import { useDismissable } from '@/hooks/useDismissable';
 import { useApp } from '@/state/store';
 import styles from './RequirementsScreen.module.css';
 
 type Filter = 'all' | '9001' | '14001';
+type NotMetPanel = '9001' | '14001' | null;
 
 /**
  * Last edit to this requirement. Null until something is changed — in
@@ -28,6 +37,10 @@ export function RequirementsScreen() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [chapterPanelOpen, setChapterPanelOpen] = useState(true);
+  const [openNotMet, setOpenNotMet] = useState<NotMetPanel>(null);
+
+  const closeNotMet = useCallback(() => setOpenNotMet(null), []);
+  const notMetBandRef = useDismissable<HTMLDivElement>(openNotMet !== null, closeNotMet);
 
   const clause = findClause(clauseId) ?? findClause(DEFAULT_CLAUSE_ID) ?? CLAUSES[0];
   const lang = state.lang;
@@ -66,8 +79,73 @@ export function RequirementsScreen() {
     if (first) navigate(`/requirements/${first.id}`);
   };
 
+  const clauses9001 = inStandard('9001');
+  const clauses14001 = inStandard('14001');
+  const open9001 = notMet(clauses9001, state.statuses);
+  const open14001 = notMet(clauses14001, state.statuses);
+
+  const openNotMetClause = (target: Clause) => {
+    setOpenNotMet(null);
+    navigate(`/requirements/${target.id}`);
+  };
+
+  const renderNotMetCell = (
+    standard: Exclude<NotMetPanel, null>,
+    label: string,
+    open: Clause[],
+    total: number,
+  ) => {
+    const isOpen = openNotMet === standard;
+    const panelId = `not-met-${standard}`;
+    return (
+      <div className={styles.notMetCell}>
+        <div className="microLabel microLabel--wide">{label}</div>
+        <button
+          type="button"
+          className={styles.countRow}
+          onClick={() => setOpenNotMet(isOpen ? null : standard)}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+        >
+          <span className={styles.count}>{open.length}</span>
+          <span className={styles.countOf}>
+            {t.ofRequirements} {total}
+          </span>
+          <span className={`btn btn-secondary ${styles.countToggle}`}>
+            <span aria-hidden="true">{isOpen ? '▴' : '▾'}</span> {t.viewList}
+          </span>
+        </button>
+
+        {isOpen ? (
+          <div className={`dropdown ${styles.notMetDropdown}`} id={panelId}>
+            {open.length === 0 ? (
+              <p className={styles.notMetDropdownEmpty}>{t.allMet}</p>
+            ) : (
+              open.map((candidate) => (
+                <button
+                  key={candidate.id}
+                  type="button"
+                  className={styles.notMetDropdownRow}
+                  onClick={() => openNotMetClause(candidate)}
+                >
+                  <span className={styles.notMetDropdownId}>{candidate.number}</span>
+                  <span className={styles.notMetDropdownTitle}>{candidate[lang].title}</span>
+                </button>
+              ))
+            )}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.screen}>
+      <div className={styles.notMetBand} ref={notMetBandRef}>
+        {renderNotMetCell('9001', t.notYetMet9, open9001, clauses9001.length)}
+        {renderNotMetCell('14001', t.notYetMet14, open14001, clauses14001.length)}
+      </div>
+
       <section className={styles.chapterPanel}>
         <button
           type="button"

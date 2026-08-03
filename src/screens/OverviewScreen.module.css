@@ -2,55 +2,11 @@
   padding: 0 0 48px;
 }
 
-/* — the three-cell status band — */
-.band {
-  display: grid;
-  grid-template-columns: 1fr 1fr 0.85fr;
+/* — next external audit — */
+.auditPanel {
+  padding: 26px 28px;
   border-bottom: var(--rule-strong);
 }
-.cell {
-  position: relative;
-  padding: 26px 28px;
-}
-.cell + .cell {
-  border-left: var(--rule-strong);
-}
-
-.countRow {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-top: 10px;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.count {
-  font-size: 44px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: var(--color-accent);
-  font-variant-numeric: tabular-nums;
-}
-.countOf {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink-60);
-}
-.countToggle {
-  margin-left: auto;
-  padding: 5px 10px;
-  font-size: 12px;
-  user-select: none;
-  white-space: nowrap;
-}
-
 .auditDate {
   margin-top: 10px;
   font-size: 30px;
@@ -66,54 +22,6 @@
 /* No audit booked: same slot, held back so it does not read as a fact. */
 .auditDateEmpty {
   color: var(--ink-45);
-}
-
-/* — the not-met dropdown, hung off the bottom edge of its cell — */
-.dropdown {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  top: 100%;
-  z-index: 10;
-  max-height: 340px;
-  overflow-y: auto;
-  border-top: none;
-}
-.dropdownRow {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 12px 16px;
-  border: 0;
-  border-bottom: 1px solid var(--ink-15);
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.dropdownRow:hover {
-  background: var(--ink-5);
-}
-.dropdownId {
-  flex: none;
-  width: 34px;
-  font-size: 12px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-accent-700);
-}
-.dropdownTitle {
-  flex: 1;
-  min-width: 0;
-  font-size: 13px;
-  font-weight: 600;
-}
-.dropdownEmpty {
-  padding: 16px;
-  font-size: 13px;
-  color: var(--ink-60);
 }
 
 /* — change log — */
@@ -138,23 +46,9 @@
   font-weight: 700;
 }
 
-@media (max-width: 1100px) {
-  .band {
-    grid-template-columns: 1fr;
-  }
-  .cell + .cell {
-    border-left: 0;
-    border-top: var(--rule-strong);
-  }
-}
-
 @media (max-width: 720px) {
-  .cell {
+  .auditPanel {
     padding: 20px;
-  }
-  .dropdown {
-    left: 20px;
-    right: 20px;
   }
   .trail {
     padding-inline: 20px;

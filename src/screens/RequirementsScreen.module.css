@@ -11,6 +11,105 @@
   min-height: 0;
 }
 
+/* ── not-met band ─────────────────────────────────────────────────────── */
+
+.notMetBand {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: var(--rule-strong);
+}
+.notMetCell {
+  position: relative;
+  padding: 26px 28px;
+}
+.notMetCell + .notMetCell {
+  border-left: var(--rule-strong);
+}
+
+.countRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.count {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+.countOf {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-60);
+}
+.countToggle {
+  margin-left: auto;
+  padding: 5px 10px;
+  font-size: 12px;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* — the not-met dropdown, hung off the bottom edge of its cell — */
+.notMetDropdown {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  top: 100%;
+  z-index: 10;
+  max-height: 340px;
+  overflow-y: auto;
+  border-top: none;
+}
+.notMetDropdownRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--ink-15);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.notMetDropdownRow:hover {
+  background: var(--ink-5);
+}
+.notMetDropdownId {
+  flex: none;
+  width: 34px;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent-700);
+}
+.notMetDropdownTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.notMetDropdownEmpty {
+  padding: 16px;
+  font-size: 13px;
+  color: var(--ink-60);
+}
+
 /* ── chapter conformity panel ────────────────────────────────────────── */
 
 .chapterPanel {
@@ -76,7 +175,7 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-.chapterRow[data-behind="true"] .chapterNumber {
+.chapterRow[data-behind='true'] .chapterNumber {
   color: var(--color-accent);
 }
 .chapterLabel {
@@ -96,7 +195,7 @@
   height: 8px;
   background: var(--color-text);
 }
-.chapterRow[data-behind="true"] .fill {
+.chapterRow[data-behind='true'] .fill {
   background: var(--color-accent);
 }
 .chapterPercent {
@@ -166,11 +265,11 @@
 .clauseRow:hover {
   background: var(--ink-5);
 }
-.clauseRow[aria-current="true"] {
+.clauseRow[aria-current='true'] {
   background: var(--ink-7);
 }
-.clauseRow[aria-current="true"]::before {
-  content: "";
+.clauseRow[aria-current='true']::before {
+  content: '';
   position: absolute;
   left: 0;
   top: 0;
@@ -189,10 +288,10 @@
   border: 1px solid var(--color-divider);
   background: transparent;
 }
-.dot[data-status="prog"] {
+.dot[data-status='prog'] {
   background: var(--ink-30);
 }
-.dot[data-status="met"] {
+.dot[data-status='met'] {
   background: var(--color-text);
 }
 .clauseId {
@@ -351,7 +450,7 @@
   line-height: 1.55;
   text-wrap: pretty;
 }
-.step[data-done="true"] .stepText {
+.step[data-done='true'] .stepText {
   color: var(--ink-50);
   text-decoration: line-through;
 }
@@ -552,10 +651,10 @@
     width: 100%;
     border-right: 0;
   }
-  .panes[data-view="detail"] .tree {
+  .panes[data-view='detail'] .tree {
     display: none;
   }
-  .panes[data-view="list"] .detailPane {
+  .panes[data-view='list'] .detailPane {
     display: none;
   }
   .backLink {
@@ -563,6 +662,13 @@
   }
   .detail {
     padding: 20px;
+  }
+  .notMetBand {
+    grid-template-columns: 1fr;
+  }
+  .notMetCell + .notMetCell {
+    border-left: 0;
+    border-top: var(--rule-strong);
   }
 }
 
@@ -579,6 +685,13 @@
   }
   .evidenceText {
     flex-basis: calc(100% - 90px);
+  }
+  .notMetCell {
+    padding: 20px;
+  }
+  .notMetDropdown {
+    left: 20px;
+    right: 20px;
   }
   .chapterPanelToggle {
     padding: 14px 20px;
