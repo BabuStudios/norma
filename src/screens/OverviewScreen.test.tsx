@@ -202,3 +202,77 @@ describe('the process diagram tool', () => {
     expect(screen.getByText('Ny låda')).toBeInTheDocument();
   });
 });
+
+describe('the box menu on a finished diagram', () => {
+  const addFinishedDiagram = async (user: ReturnType<typeof render>['user']) => {
+    await user.click(screen.getByRole('button', { name: 'Redigera' }));
+    await user.click(screen.getByRole('button', { name: 'Lägg till processbild' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Klar' }));
+  };
+
+  it('opens a menu with Koppla and Mer info when a box is clicked', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    expect(screen.getByRole('menuitem', { name: 'Koppla' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Mer info' })).toBeInTheDocument();
+  });
+
+  it('shows Koppla dokument and Länka vidare after choosing Koppla', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Koppla' }));
+
+    expect(screen.getByRole('menuitem', { name: 'Koppla dokument' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Länka vidare' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Mer info' })).not.toBeInTheDocument();
+  });
+
+  it('goes back to the root menu', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Koppla' }));
+    await user.click(screen.getByRole('button', { name: 'Tillbaka' }));
+
+    expect(screen.getByRole('menuitem', { name: 'Koppla' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Mer info' })).toBeInTheDocument();
+  });
+
+  it('closes the menu on Escape', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('closes the menu when clicking outside it', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+
+    await user.click(document.body);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('closes the menu after choosing a leaf item', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Mer info' }));
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+});

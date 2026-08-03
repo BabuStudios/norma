@@ -195,6 +195,13 @@ const sv = {
   emptyDiagram: 'Ingen låda tillagd ännu.',
   emptyManagementSystem:
     'Inget innehåll tillagt än. Klicka på Redigera för att lägga till text eller rita en processbild.',
+
+  // — the per-box menu on a finished process diagram —
+  nodeMenuConnect: 'Koppla',
+  nodeMenuInfo: 'Mer info',
+  nodeMenuLinkDocument: 'Koppla dokument',
+  nodeMenuLinkForward: 'Länka vidare',
+  nodeMenuBack: 'Tillbaka',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -378,6 +385,12 @@ const en: Dictionary = {
   boxLabel: 'Box',
   emptyDiagram: 'No box added yet.',
   emptyManagementSystem: 'No content added yet. Click Edit to add text or draw a process image.',
+
+  nodeMenuConnect: 'Connect',
+  nodeMenuInfo: 'More info',
+  nodeMenuLinkDocument: 'Link document',
+  nodeMenuLinkForward: 'Link onward',
+  nodeMenuBack: 'Back',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };

@@ -1,4 +1,4 @@
-import { useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import {
   boxEdgePoint,
   DIAGRAM_NODE_MIN_HEIGHT,
@@ -11,8 +11,11 @@ import {
   type DiagramShape,
   type SnapGuide,
 } from '@/domain/page';
+import { useDismissable } from '@/hooks/useDismissable';
 import type { Dictionary } from '@/i18n/dictionary';
 import styles from './DiagramEditor.module.css';
+
+type NodeMenuView = 'root' | 'connect';
 
 const SHAPE_LABEL: Record<DiagramShape, keyof Dictionary> = {
   process: 'shapeProcess',
@@ -178,6 +181,24 @@ export function DiagramEditor({
   const setToolMode = (next: Mode) => {
     setMode((prev) => (prev === next ? 'select' : next));
     setPendingSource(null);
+  };
+
+  const [openMenuNodeId, setOpenMenuNodeId] = useState<string | null>(null);
+  const [menuView, setMenuView] = useState<NodeMenuView>('root');
+
+  const closeNodeMenu = useCallback(() => {
+    setOpenMenuNodeId(null);
+    setMenuView('root');
+  }, []);
+  const menuRef = useDismissable<HTMLDivElement>(openMenuNodeId !== null, closeNodeMenu);
+
+  const toggleNodeMenu = (nodeId: string) => {
+    if (openMenuNodeId === nodeId) {
+      closeNodeMenu();
+    } else {
+      setOpenMenuNodeId(nodeId);
+      setMenuView('root');
+    }
   };
 
   return (
@@ -356,7 +377,75 @@ export function DiagramEditor({
                   {node.label || t.newBoxLabel}
                 </button>
               ) : (
-                <div className={styles.nodeLabel}>{node.label}</div>
+                <>
+                  <button
+                    type="button"
+                    className={styles.nodeLabel}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleNodeMenu(node.id);
+                    }}
+                    aria-haspopup="menu"
+                    aria-expanded={openMenuNodeId === node.id}
+                  >
+                    {node.label}
+                  </button>
+                  {openMenuNodeId === node.id ? (
+                    <div
+                      ref={menuRef}
+                      className={`dropdown ${styles.nodeMenu}`}
+                      role="menu"
+                      onPointerDown={(event) => event.stopPropagation()}
+                    >
+                      {menuView === 'root' ? (
+                        <>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className={styles.nodeMenuItem}
+                            onClick={() => setMenuView('connect')}
+                          >
+                            {t.nodeMenuConnect}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className={styles.nodeMenuItem}
+                            onClick={closeNodeMenu}
+                          >
+                            {t.nodeMenuInfo}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className={styles.nodeMenuBack}
+                            onClick={() => setMenuView('root')}
+                          >
+                            <span aria-hidden="true">←</span> {t.nodeMenuBack}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className={styles.nodeMenuItem}
+                            onClick={closeNodeMenu}
+                          >
+                            {t.nodeMenuLinkDocument}
+                          </button>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className={styles.nodeMenuItem}
+                            onClick={closeNodeMenu}
+                          >
+                            {t.nodeMenuLinkForward}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ) : null}
+                </>
               )}
               {editing && mode === 'select' ? (
                 <div
