@@ -64,7 +64,17 @@
   clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
 }
 .shapeSwatch[data-shape='document'] {
-  clip-path: polygon(0% 0%, 70% 0%, 100% 30%, 100% 100%, 0% 100%);
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% 78%,
+    83% 100%,
+    66% 78%,
+    50% 100%,
+    33% 78%,
+    17% 100%,
+    0% 78%
+  );
 }
 .shapeSwatch[data-shape='predefined'] {
   position: relative;
@@ -88,6 +98,7 @@
   clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
 }
 .shapeSwatch[data-shape='connector'] {
+  width: 14px;
   border-radius: 50%;
 }
 
@@ -157,8 +168,10 @@
   clip-path: polygon(16% 0%, 100% 0%, 84% 100%, 0% 100%);
   box-shadow: none;
 }
+/* The document shape's wavy bottom edge is computed per node and set as an
+   inline clip-path (see documentClipPath in DiagramEditor.tsx) since a
+   fixed CSS path can't track a resizable box. */
 .node[data-shape='document'] .nodeShape {
-  clip-path: polygon(0% 0%, 82% 0%, 100% 18%, 100% 100%, 0% 100%);
   box-shadow: none;
 }
 .node[data-shape='predefined'] .nodeShape::before,
@@ -180,8 +193,20 @@
   clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
   box-shadow: none;
 }
+/* A true circle — sized to the box height and centered horizontally —
+   rather than an ellipse stretched to the full (usually wider) box, so it
+   reads as the standard on/off-page reference symbol regardless of how
+   wide the box is. */
 .node[data-shape='connector'] .nodeShape {
+  inset: auto;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
   border-radius: 50%;
+  box-shadow: none;
 }
 
 .nodeInput {

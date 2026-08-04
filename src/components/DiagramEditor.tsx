@@ -37,6 +37,15 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+/** The flowchart "document" symbol's wavy bottom edge, as a clip-path path.
+ *  Computed per node rather than fixed in CSS because the box is resizable —
+ *  a static path wouldn't track a changed width or height. */
+function documentClipPath(width: number, height: number): string {
+  const wave = Math.min(8, height / 6);
+  const baseY = height - wave;
+  return `path('M0,0 L${width},0 L${width},${baseY} C${width * 0.75},${baseY + wave * 2} ${width * 0.25},${baseY - wave * 2} 0,${baseY} Z')`;
+}
+
 /** Box-to-box arrow coordinates, trimmed to each node's edge rather than its
  *  center, so the line meets the border instead of crossing the label. */
 function edgeLine(from: DiagramNode, to: DiagramNode): [number, number, number, number] {
@@ -360,7 +369,15 @@ export function DiagramEditor({
               onPointerUp={endDrag}
               onPointerCancel={endDrag}
             >
-              <span className={styles.nodeShape} aria-hidden="true" />
+              <span
+                className={styles.nodeShape}
+                style={
+                  node.shape === 'document'
+                    ? { clipPath: documentClipPath(node.width, node.height) }
+                    : undefined
+                }
+                aria-hidden="true"
+              />
               {editing && mode === 'select' ? (
                 <input
                   className={styles.nodeInput}
