@@ -95,15 +95,30 @@ describe('editing the page', () => {
     expect(moveDownButtons[1]).toBeDisabled();
   });
 
-  it('adds an editable organization chart, pre-titled and using the same box tool', async () => {
+  it('adds an organization chart pre-filled with an ISO-style reporting structure', async () => {
     const { user } = render();
     await user.click(screen.getByRole('button', { name: 'Redigera' }));
     await user.click(screen.getByRole('button', { name: 'Lägg till organisationsschema' }));
 
     expect(screen.getByDisplayValue('Organisationsschema')).toBeInTheDocument();
 
+    // Top management plus the five direct reports, already labeled and wired
+    // up with connectors — a ready-made structure, not a blank canvas.
+    const boxes = screen.getAllByLabelText('Låda') as HTMLInputElement[];
+    expect(boxes.map((box) => box.value)).toEqual([
+      'VD',
+      'Kvalitets- och miljöchef',
+      'Produktionschef',
+      'Försäljningschef',
+      'Inköpschef',
+      'Ekonomi- och HR-chef',
+    ]);
+    expect(document.querySelectorAll('[class*="edgeLine"]')).toHaveLength(5);
+
+    // Still just the ordinary box/arrow diagram tool underneath — new shapes
+    // can be added the same way as on any process image.
     await user.click(screen.getByRole('button', { name: 'Process' }));
-    expect(screen.getAllByLabelText('Låda')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Låda')).toHaveLength(7);
   });
 });
 

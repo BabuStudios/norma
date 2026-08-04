@@ -6,6 +6,7 @@ import {
   addDiagramBlock,
   addDiagramEdge,
   addDiagramNode,
+  addOrgChartBlock,
   addTextBlock,
   moveBlock,
   moveDiagramNode,
@@ -68,7 +69,15 @@ export function OverviewScreen() {
               type="button"
               className="btn btn-secondary"
               onClick={() =>
-                updateManagementSystemBlocks((prev) => addDiagramBlock(prev, t.newOrgChartTitle))
+                updateManagementSystemBlocks((prev) =>
+                  addOrgChartBlock(prev, t.newOrgChartTitle, t.orgChartTopLabel, [
+                    t.qhseManager,
+                    t.orgChartProductionLabel,
+                    t.orgChartSalesLabel,
+                    t.orgChartPurchasingLabel,
+                    t.orgChartFinanceHrLabel,
+                  ]),
+                )
               }
             >
               {t.addOrgChart}

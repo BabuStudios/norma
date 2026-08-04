@@ -177,6 +177,63 @@ export function addDiagramBlock(blocks: PageBlock[], title: string): PageBlock[]
   return [...blocks, newDiagramBlock(title)];
 }
 
+function newOrgChartNode(label: string, x: number, y: number): DiagramNode {
+  return {
+    id: genId('node'),
+    label,
+    shape: 'process',
+    x,
+    y,
+    width: DIAGRAM_NODE_WIDTH,
+    height: DIAGRAM_NODE_HEIGHT,
+    fillColor: DIAGRAM_DEFAULT_FILL_COLOR,
+    textColor: DIAGRAM_DEFAULT_TEXT_COLOR,
+    linkedDocumentIds: [],
+  };
+}
+
+function newOrgChartEdge(from: string, to: string): DiagramEdge {
+  return {
+    id: genId('edge'),
+    from,
+    to,
+    fromPoint: 's',
+    toPoint: 'n',
+    lineStyle: 'solid',
+    lineShape: 'angled',
+    color: DIAGRAM_DEFAULT_EDGE_COLOR,
+  };
+}
+
+/**
+ * The reporting structure ISO 9001 §5.3 / ISO 14001 §5.3 expect at the top of
+ * a management system: top management with the quality/environment role and
+ * the other function heads reporting directly to it, already wired up with
+ * elbow connectors. The company renames the boxes and adjusts the roles from
+ * here — the hierarchy, not the exact titles, is the part worth starting from.
+ */
+function newOrgChartBlock(title: string, topLabel: string, roleLabels: string[]): DiagramBlock {
+  const top = newOrgChartNode(topLabel, 375, 24);
+  const row = roleLabels.map((label, index) => newOrgChartNode(label, 25 + index * 175, 134));
+  return {
+    id: genId('diagram'),
+    type: 'diagram',
+    title,
+    nodes: [top, ...row],
+    edges: row.map((node) => newOrgChartEdge(top.id, node.id)),
+    backgroundColor: DIAGRAM_DEFAULT_BACKGROUND_COLOR,
+  };
+}
+
+export function addOrgChartBlock(
+  blocks: PageBlock[],
+  title: string,
+  topLabel: string,
+  roleLabels: string[],
+): PageBlock[] {
+  return [...blocks, newOrgChartBlock(title, topLabel, roleLabels)];
+}
+
 export function updateTextBlock(
   blocks: PageBlock[],
   id: string,

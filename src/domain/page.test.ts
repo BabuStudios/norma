@@ -3,6 +3,7 @@ import {
   addDiagramBlock,
   addDiagramEdge,
   addDiagramNode,
+  addOrgChartBlock,
   addTextBlock,
   connectionPointCoords,
   edgePath,
@@ -263,6 +264,55 @@ describe('diagram blocks', () => {
     const diagram = blocks[0] as DiagramBlock;
     expect(diagram.edges).toHaveLength(0);
     expect(diagram.nodes).toHaveLength(2);
+  });
+});
+
+describe('org chart blocks', () => {
+  const roles = ['Kvalitet', 'Produktion', 'Försäljning', 'Inköp', 'Ekonomi'];
+
+  it('seeds top management plus one box per role, not an empty canvas', () => {
+    const blocks = addOrgChartBlock([], 'Organisationsschema', 'VD', roles);
+    const diagram = blocks[0] as DiagramBlock;
+    expect(diagram.title).toBe('Organisationsschema');
+    expect(diagram.nodes.map((node) => node.label)).toEqual(['VD', ...roles]);
+  });
+
+  it('connects every role directly to top management, not to each other', () => {
+    const blocks = addOrgChartBlock([], 'Organisationsschema', 'VD', roles);
+    const diagram = blocks[0] as DiagramBlock;
+    const [top, ...rest] = diagram.nodes;
+    expect(diagram.edges).toHaveLength(rest.length);
+    for (const edge of diagram.edges) {
+      expect(edge.from).toBe(top.id);
+      expect(rest.map((node) => node.id)).toContain(edge.to);
+    }
+  });
+
+  it('draws the reporting lines as elbow connectors, the usual org-chart style', () => {
+    const blocks = addOrgChartBlock([], 'Organisationsschema', 'VD', roles);
+    const diagram = blocks[0] as DiagramBlock;
+    expect(diagram.edges.every((edge) => edge.lineShape === 'angled')).toBe(true);
+  });
+
+  it('places every role below top management, none overlapping another', () => {
+    const blocks = addOrgChartBlock([], 'Organisationsschema', 'VD', roles);
+    const diagram = blocks[0] as DiagramBlock;
+    const [top, ...rest] = diagram.nodes;
+    for (const node of rest) {
+      expect(node.y).toBeGreaterThan(top.y);
+    }
+    const xs = rest.map((node) => node.x).sort((a, b) => a - b);
+    for (let i = 1; i < xs.length; i += 1) {
+      expect(xs[i]).toBeGreaterThanOrEqual(xs[i - 1] + 150);
+    }
+  });
+
+  it('still produces an ordinary, fully editable diagram block', () => {
+    const blocks = addOrgChartBlock([], 'Organisationsschema', 'VD', roles);
+    const diagram = blocks[0] as DiagramBlock;
+    expect(diagram.type).toBe('diagram');
+    const relabeled = updateDiagramNodeLabel(blocks, diagram.id, diagram.nodes[0].id, 'Ny VD');
+    expect((relabeled[0] as DiagramBlock).nodes[0].label).toBe('Ny VD');
   });
 });
 
