@@ -1,4 +1,6 @@
 import { useCallback, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import type { ManagedDocument } from '@/data/documents';
+import type { Lang } from '@/data/types';
 import {
   ARROW_LINE_SHAPES,
   ARROW_LINE_STYLES,
@@ -24,7 +26,7 @@ import type { Dictionary } from '@/i18n/dictionary';
 import { DiagramShapeSvg } from './DiagramShape';
 import styles from './DiagramEditor.module.css';
 
-type NodeMenuView = 'root' | 'connect';
+type NodeMenuView = 'root' | 'connect' | 'linkDocument';
 
 const ARROW_STYLE_LABEL: Record<ArrowLineStyle, keyof Dictionary> = {
   solid: 'arrowStyleSolid',
@@ -94,6 +96,7 @@ export function DiagramEditor({
   block,
   editing,
   t,
+  lang,
   onTitleChange,
   onAddNode,
   onMoveNode,
@@ -105,10 +108,13 @@ export function DiagramEditor({
   onFillColorChange,
   onTextColorChange,
   onBackgroundChange,
+  documents,
+  onToggleDocumentLink,
 }: {
   block: DiagramBlock;
   editing: boolean;
   t: Dictionary;
+  lang: Lang;
   onTitleChange: (title: string) => void;
   onAddNode: (shape: DiagramShape) => void;
   onMoveNode: (nodeId: string, x: number, y: number) => void;
@@ -128,6 +134,8 @@ export function DiagramEditor({
   onFillColorChange: (nodeId: string, color: string) => void;
   onTextColorChange: (nodeId: string, color: string) => void;
   onBackgroundChange: (color: string) => void;
+  documents: ManagedDocument[];
+  onToggleDocumentLink: (nodeId: string, documentId: string) => void;
 }) {
   const [mode, setMode] = useState<Mode>('select');
   const [pendingSource, setPendingSource] = useState<{
@@ -256,6 +264,7 @@ export function DiagramEditor({
 
   const [openMenuNodeId, setOpenMenuNodeId] = useState<string | null>(null);
   const [menuView, setMenuView] = useState<NodeMenuView>('root');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   const closeNodeMenu = useCallback(() => {
     setOpenMenuNodeId(null);
@@ -264,6 +273,7 @@ export function DiagramEditor({
   const menuRef = useDismissable<HTMLDivElement>(openMenuNodeId !== null, closeNodeMenu);
 
   const toggleNodeMenu = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
     if (openMenuNodeId === nodeId) {
       closeNodeMenu();
     } else {
@@ -271,6 +281,11 @@ export function DiagramEditor({
       setMenuView('root');
     }
   };
+
+  const selectedNode = block.nodes.find((node) => node.id === selectedNodeId) ?? null;
+  const linkedDocuments = selectedNode
+    ? documents.filter((document) => selectedNode.linkedDocumentIds.includes(document.id))
+    : [];
 
   return (
     <div className={styles.wrap}>
@@ -604,7 +619,7 @@ export function DiagramEditor({
                             {t.nodeMenuInfo}
                           </button>
                         </>
-                      ) : (
+                      ) : menuView === 'connect' ? (
                         <>
                           <button
                             type="button"
@@ -617,7 +632,7 @@ export function DiagramEditor({
                             type="button"
                             role="menuitem"
                             className={styles.nodeMenuItem}
-                            onClick={closeNodeMenu}
+                            onClick={() => setMenuView('linkDocument')}
                           >
                             {t.nodeMenuLinkDocument}
                           </button>
@@ -629,6 +644,35 @@ export function DiagramEditor({
                           >
                             {t.nodeMenuLinkForward}
                           </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className={styles.nodeMenuBack}
+                            onClick={() => setMenuView('connect')}
+                          >
+                            <span aria-hidden="true">←</span> {t.nodeMenuBack}
+                          </button>
+                          {documents.length === 0 ? (
+                            <p className={styles.nodeMenuEmpty}>{t.noDocumentsToLink}</p>
+                          ) : (
+                            documents.map((document) => (
+                              <button
+                                key={document.id}
+                                type="button"
+                                role="menuitemcheckbox"
+                                aria-checked={node.linkedDocumentIds.includes(document.id)}
+                                className={styles.nodeMenuItem}
+                                onClick={() => onToggleDocumentLink(node.id, document.id)}
+                              >
+                                <span className={styles.nodeMenuCheck} aria-hidden="true">
+                                  {node.linkedDocumentIds.includes(document.id) ? '✓' : ''}
+                                </span>
+                                {document.id} — {document.name[lang]}
+                              </button>
+                            ))
+                          )}
                         </>
                       )}
                     </div>
@@ -649,6 +693,24 @@ export function DiagramEditor({
           ))}
         </div>
       )}
+
+      {!editing && selectedNode ? (
+        <div className={styles.linkedDocuments}>
+          <h5 className="microLabel">{t.linked}</h5>
+          {linkedDocuments.length === 0 ? (
+            <p className={styles.linkedDocumentsEmpty}>{t.noDocs}</p>
+          ) : (
+            <ul className={styles.linkedDocumentList}>
+              {linkedDocuments.map((document) => (
+                <li key={document.id} className={styles.linkedDocument}>
+                  <span className={styles.linkedDocumentId}>{document.id}</span>
+                  <span>{document.name[lang]}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   removeDiagramEdge,
   removeDiagramNode,
   resizeDiagramNode,
+  toggleDiagramNodeDocument,
   updateDiagramBackgroundColor,
   updateDiagramNodeFillColor,
   updateDiagramNodeLabel,
@@ -148,6 +149,8 @@ export function OverviewScreen() {
                     block={block}
                     editing={editing}
                     t={t}
+                    lang={state.lang}
+                    documents={state.documents}
                     onTitleChange={(title) =>
                       updateManagementSystemBlocks((prev) =>
                         updateDiagramTitle(prev, block.id, title),
@@ -211,6 +214,11 @@ export function OverviewScreen() {
                     onBackgroundChange={(color) =>
                       updateManagementSystemBlocks((prev) =>
                         updateDiagramBackgroundColor(prev, block.id, color),
+                      )
+                    }
+                    onToggleDocumentLink={(nodeId, documentId) =>
+                      updateManagementSystemBlocks((prev) =>
+                        toggleDiagramNodeDocument(prev, block.id, nodeId, documentId),
                       )
                     }
                   />

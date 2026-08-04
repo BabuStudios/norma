@@ -2,47 +2,136 @@
   padding: 24px 28px 48px;
 }
 
-.templates {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin-bottom: 24px;
-  border: var(--rule-strong);
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.template {
-  padding: 16px 18px;
+.idPrefixField {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.idPrefixField input {
+  width: 64px;
+}
+
+/* — document tabs — */
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+  border-bottom: 1px solid var(--color-divider);
+}
+.tab {
+  padding: 9px 14px;
   border: 0;
-  border-right: 1px solid var(--ink-20);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
+  color: var(--ink-60);
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   cursor: pointer;
 }
-.template:last-child {
-  border-right: 0;
+.tab:hover {
+  color: var(--color-text);
 }
-.template:hover {
-  background: var(--ink-5);
+.tab[aria-selected='true'] {
+  color: var(--color-text);
+  border-bottom-color: var(--color-text);
 }
-.template > span {
-  display: block;
-}
-.templateName {
-  margin-top: 8px;
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.25;
-}
-.templateMeta {
-  margin-top: 6px;
+.addTab {
+  padding: 9px 10px;
+  border: 0;
+  background: none;
+  color: var(--ink-60);
+  font-family: var(--font-heading);
   font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.addTab:hover {
+  color: var(--color-text);
+}
+.newTabForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+}
+.newTabForm input {
+  width: 160px;
+}
+
+/* — per-tab metadata field editor — */
+.metadataBar {
+  margin-top: 14px;
+}
+.metadataEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-text);
+}
+.metadataEmpty {
+  margin: 0;
+  font-size: 13px;
   color: var(--ink-60);
 }
-.templateAction {
-  margin-top: 12px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--color-accent-700);
+.metadataFieldList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.metadataFieldChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 10px;
+  border: 1px solid var(--color-divider);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.metadataFieldChip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--ink-55);
+  cursor: pointer;
+  font-size: 13px;
+}
+.metadataFieldChip button:hover {
+  color: var(--color-text);
+}
+.metadataAddField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.metadataAddField input {
+  width: 200px;
 }
 
 /* — new document form — */
@@ -81,21 +170,37 @@
 .docName {
   font-weight: 600;
 }
+.docFile {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-55);
+}
 /* A review falling due within about a month prints in accent. */
 .dueSoon {
   color: var(--color-accent-700);
 }
 
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-divider);
+  background: none;
+  color: var(--ink-55);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.deleteButton:hover {
+  color: var(--color-accent-700);
+  border-color: var(--color-accent-700);
+}
+
 @media (max-width: 1100px) {
-  .templates {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .template:nth-child(2n) {
-    border-right: 0;
-  }
-  .template:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--ink-20);
-  }
   .newDocForm {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -104,16 +209,6 @@
 @media (max-width: 720px) {
   .screen {
     padding: 20px;
-  }
-  .templates {
-    grid-template-columns: 1fr;
-  }
-  .template {
-    border-right: 0;
-    border-bottom: 1px solid var(--ink-20);
-  }
-  .template:last-child {
-    border-bottom: 0;
   }
   .newDocForm {
     grid-template-columns: 1fr;

@@ -14,6 +14,7 @@ import {
   resizeDiagramNode,
   snapNodePosition,
   snapToGrid,
+  toggleDiagramNodeDocument,
   updateDiagramBackgroundColor,
   updateDiagramNodeFillColor,
   updateDiagramNodeLabel,
@@ -156,6 +157,37 @@ describe('diagram blocks', () => {
     const id = blocks[0].id;
     blocks = updateDiagramBackgroundColor(blocks, id, '#0000ff');
     expect((blocks[0] as DiagramBlock).backgroundColor).toBe('#0000ff');
+  });
+
+  it('starts every new box with no linked documents', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    expect((blocks[0] as DiagramBlock).nodes[0].linkedDocumentIds).toEqual([]);
+  });
+
+  it('links a document to a box, and unlinks it on a second toggle', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
+
+    blocks = toggleDiagramNodeDocument(blocks, id, nodeId, 'D001');
+    expect((blocks[0] as DiagramBlock).nodes[0].linkedDocumentIds).toEqual(['D001']);
+
+    blocks = toggleDiagramNodeDocument(blocks, id, nodeId, 'D001');
+    expect((blocks[0] as DiagramBlock).nodes[0].linkedDocumentIds).toEqual([]);
+  });
+
+  it('links multiple documents to the same box independently', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
+
+    blocks = toggleDiagramNodeDocument(blocks, id, nodeId, 'D001');
+    blocks = toggleDiagramNodeDocument(blocks, id, nodeId, 'D002');
+    expect((blocks[0] as DiagramBlock).nodes[0].linkedDocumentIds).toEqual(['D001', 'D002']);
   });
 
   it('connects two nodes with an edge', () => {

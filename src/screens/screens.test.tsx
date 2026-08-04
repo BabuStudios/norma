@@ -48,7 +48,9 @@ const SCREENS: {
     element: <DocumentsScreen />,
     route: '/documents',
     path: '/documents',
-    marker: { sv: /Använd mall/, en: /Use template/ },
+    // Tab names are the company's own data, not translated catalogue
+    // content, so "Mallar" shows in both languages.
+    marker: { sv: 'Mallar', en: 'Mallar' },
   },
   {
     name: 'aspects',
@@ -105,8 +107,6 @@ describe.each(['sv', 'en'] as const)('every screen in %s', (lang) => {
 
   it.each(SCREENS)('renders $name', ({ element, route, path, marker }) => {
     renderScreen(element, { route, path });
-    // getAllByText: some markers legitimately repeat, such as the "use
-    // template" link on each of the four template cards.
     expect(screen.getAllByText(marker[lang]).length).toBeGreaterThan(0);
   });
 });
@@ -123,7 +123,7 @@ describe('screens that present tabular data', () => {
   });
 
   it.each([
-    ['documents', <DocumentsScreen key="d" />, '/documents', /Inga dokument ännu/],
+    ['documents', <DocumentsScreen key="d" />, '/documents', /Inga dokument i den här fliken ännu/],
     ['aspects', <AspectsScreen key="a" />, '/aspects', /Miljöaspektregistret är tomt/],
     ['audits', <AuditsScreen key="au" />, '/audits', /Inget revisionsprogram lagt/],
   ])('shows an empty state on %s rather than an empty table', (_n, element, route, marker) => {

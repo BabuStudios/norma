@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { createDocument, type NewDocumentFields } from '@/data/documents';
+import {
+  addDocumentTab as addDocumentTabPure,
+  addTabMetadataField as addTabMetadataFieldPure,
+  createDocument,
+  removeDocument as removeDocumentPure,
+  removeTabMetadataField as removeTabMetadataFieldPure,
+  type NewDocumentFields,
+} from '@/data/documents';
 import { ORGANIZATIONS } from '@/data/organizations';
 import type { SupplierFields } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
@@ -143,7 +150,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addDocument = useCallback((fields: NewDocumentFields) => {
     setState((prev) => ({
       ...prev,
-      documents: [...prev.documents, createDocument(fields, prev.documents.length)],
+      documents: [
+        ...prev.documents,
+        createDocument(fields, prev.documents.length, prev.documentIdPrefix),
+      ],
+    }));
+  }, []);
+
+  const removeDocument = useCallback((id: string) => {
+    setState((prev) => ({ ...prev, documents: removeDocumentPure(prev.documents, id) }));
+  }, []);
+
+  const setDocumentIdPrefix = useCallback((prefix: string) => {
+    setState((prev) => ({ ...prev, documentIdPrefix: prefix }));
+  }, []);
+
+  const addDocumentTab = useCallback((name: string) => {
+    setState((prev) => ({ ...prev, documentTabs: addDocumentTabPure(prev.documentTabs, name) }));
+  }, []);
+
+  const addTabMetadataField = useCallback((tabId: string, field: string) => {
+    setState((prev) => ({
+      ...prev,
+      documentTabs: addTabMetadataFieldPure(prev.documentTabs, tabId, field),
+    }));
+  }, []);
+
+  const removeTabMetadataField = useCallback((tabId: string, field: string) => {
+    setState((prev) => ({
+      ...prev,
+      documentTabs: removeTabMetadataFieldPure(prev.documentTabs, tabId, field),
     }));
   }, []);
 
@@ -163,6 +199,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeEvidenceFile,
       updateManagementSystemBlocks,
       addDocument,
+      removeDocument,
+      setDocumentIdPrefix,
+      addDocumentTab,
+      addTabMetadataField,
+      removeTabMetadataField,
     }),
     [
       state,
@@ -178,6 +219,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeEvidenceFile,
       updateManagementSystemBlocks,
       addDocument,
+      removeDocument,
+      setDocumentIdPrefix,
+      addDocumentTab,
+      addTabMetadataField,
+      removeTabMetadataField,
     ],
   );
 

@@ -1,6 +1,12 @@
 import { createContext, useContext } from 'react';
 import { AUDIT_CHECKLIST } from '@/data/audits';
-import { DOCUMENTS, type ManagedDocument, type NewDocumentFields } from '@/data/documents';
+import {
+  DEFAULT_DOCUMENT_TABS,
+  DOCUMENTS,
+  type DocumentTab,
+  type ManagedDocument,
+  type NewDocumentFields,
+} from '@/data/documents';
 import { REVIEW_INPUTS } from '@/data/managementReview';
 import type { SupplierFields, SupplierOverrides } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
@@ -43,6 +49,11 @@ export interface AppState {
   /** The document register — starts from the (empty) seed and grows as the
    *  company adds documents. */
   documents: ManagedDocument[];
+  /** The document register's tabs and, per tab, which metadata fields apply
+   *  to documents filed under it. */
+  documentTabs: DocumentTab[];
+  /** Prefix stamped on every new document id, e.g. "D" for D001, D002, … */
+  documentIdPrefix: string;
 }
 
 export interface AppActions {
@@ -59,6 +70,11 @@ export interface AppActions {
   /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
   updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
   addDocument: (fields: NewDocumentFields) => void;
+  removeDocument: (id: string) => void;
+  setDocumentIdPrefix: (prefix: string) => void;
+  addDocumentTab: (name: string) => void;
+  addTabMetadataField: (tabId: string, field: string) => void;
+  removeTabMetadataField: (tabId: string, field: string) => void;
 }
 
 export const INITIAL_STATE: AppState = {
@@ -73,6 +89,8 @@ export const INITIAL_STATE: AppState = {
   evidenceUploads: {},
   managementSystemBlocks: [],
   documents: DOCUMENTS,
+  documentTabs: DEFAULT_DOCUMENT_TABS,
+  documentIdPrefix: 'D',
 };
 
 export interface AppContextValue extends AppActions {

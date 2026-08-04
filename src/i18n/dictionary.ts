@@ -144,7 +144,7 @@ const sv = {
   emptyChangeLog:
     'Inga ändringar loggade ännu. Varje ändring i systemet hamnar här, med användare och tidpunkt.',
   emptyDocuments:
-    'Inga dokument ännu. Börja från en mall ovan, eller lägg upp ett befintligt dokument.',
+    'Inga dokument i den här fliken ännu. Klicka på Nytt dokument för att ladda upp ett.',
   emptyAspects:
     'Miljöaspektregistret är tomt. Kartlägg era aktiviteter och deras miljöpåverkan — det är grunden i ISO 14001.',
   emptyAuditProgramme:
@@ -236,6 +236,23 @@ const sv = {
   // — new document form —
   docNameLabel: 'Dokumentnamn',
   saveDocument: 'Spara dokument',
+
+  // — document register: tabs, uploads, metadata —
+  addTab: 'Lägg till flik',
+  newTabNameLabel: 'Fliknamn',
+  saveTab: 'Spara flik',
+  idPrefixLabel: 'ID-prefix',
+  deleteDocument: 'Ta bort dokument',
+  uploadFileLabel: 'Fil',
+  noFileChosen: 'Ingen fil vald',
+  editMetadataFields: 'Redigera metadata',
+  metadataFieldsHeading: 'Metadatafält',
+  addMetadataField: 'Lägg till fält',
+  metadataFieldNameLabel: 'Fältnamn',
+  removeMetadataField: 'Ta bort fält',
+  closeMetadataEditor: 'Stäng',
+  noMetadataFields: 'Inga metadatafält ännu.',
+  noDocumentsToLink: 'Inga dokument att koppla.',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -370,7 +387,7 @@ const en: Dictionary = {
 
   emptyChangeLog:
     'No changes logged yet. Every change in the system lands here, with the user and the time.',
-  emptyDocuments: 'No documents yet. Start from a template above, or upload an existing document.',
+  emptyDocuments: 'No documents in this tab yet. Click New document to upload one.',
   emptyAspects:
     'The environmental aspects register is empty. Map your activities and their environmental impacts — this is the foundation of ISO 14001.',
   emptyAuditProgramme:
@@ -458,6 +475,22 @@ const en: Dictionary = {
 
   docNameLabel: 'Document name',
   saveDocument: 'Save document',
+
+  addTab: 'Add tab',
+  newTabNameLabel: 'Tab name',
+  saveTab: 'Save tab',
+  idPrefixLabel: 'ID prefix',
+  deleteDocument: 'Delete document',
+  uploadFileLabel: 'File',
+  noFileChosen: 'No file chosen',
+  editMetadataFields: 'Edit metadata',
+  metadataFieldsHeading: 'Metadata fields',
+  addMetadataField: 'Add field',
+  metadataFieldNameLabel: 'Field name',
+  removeMetadataField: 'Remove field',
+  closeMetadataEditor: 'Close',
+  noMetadataFields: 'No metadata fields yet.',
+  noDocumentsToLink: 'No documents to link.',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };

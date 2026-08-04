@@ -193,10 +193,15 @@
   left: 0;
   z-index: 20;
   min-width: 168px;
+  max-width: 260px;
+  max-height: 240px;
+  overflow-y: auto;
   padding: 4px;
 }
 .nodeMenuItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   width: 100%;
   padding: 8px 10px;
   border: 0;
@@ -210,6 +215,18 @@
 }
 .nodeMenuItem:hover {
   background: var(--ink-6);
+}
+.nodeMenuCheck {
+  flex: none;
+  width: 12px;
+  color: var(--color-accent-700);
+  font-weight: 800;
+}
+.nodeMenuEmpty {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--ink-60);
 }
 .nodeMenuBack {
   display: flex;
@@ -315,4 +332,35 @@
   border: 1.5px solid var(--color-bg);
   cursor: nwse-resize;
   touch-action: none;
+}
+
+/* — documents linked to whichever box was last clicked on a finished
+   diagram, shown below the canvas — */
+.linkedDocuments {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-divider);
+}
+.linkedDocumentsEmpty {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--ink-60);
+}
+.linkedDocumentList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.linkedDocument {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+.linkedDocumentId {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }

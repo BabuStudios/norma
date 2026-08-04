@@ -1,37 +1,54 @@
 import type { Bilingual, PillKind } from './types';
 
 /**
- * Document templates ship with the product — they are starting points, not
- * company data, so they stay when the registers are empty.
+ * A tab groups documents by category — templates vs. governing vs.
+ * reporting documents, or whatever the company adds — and defines which
+ * metadata fields apply to documents filed under it.
  */
-export interface DocumentTemplate {
-  kicker: Bilingual;
-  name: Bilingual;
-  meta: Bilingual;
+export interface DocumentTab {
+  id: string;
+  name: string;
+  metadataFields: string[];
 }
 
-export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Miljöaspektregister', en: 'Aspects register' },
-    meta: { sv: '14001 §6.1.2 · Excel', en: '14001 §6.1.2 · Excel' },
-  },
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Kvalitets- och miljöpolicy', en: 'Quality & environmental policy' },
-    meta: { sv: '1 sida · Word', en: '1 page · Word' },
-  },
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Internrevisionsplan', en: 'Internal audit programme' },
-    meta: { sv: '§9.2 · Excel', en: '§9.2 · Excel' },
-  },
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Protokoll ledningens genomgång', en: 'Management review minutes' },
-    meta: { sv: '§9.3 · Word', en: '§9.3 · Word' },
-  },
+let tabIdCounter = 0;
+function genTabId(): string {
+  tabIdCounter += 1;
+  return `tab-${Date.now()}-${tabIdCounter}`;
+}
+
+/** The three tabs the register ships with; the company can add more. */
+export const DEFAULT_DOCUMENT_TABS: DocumentTab[] = [
+  { id: 'templates', name: 'Mallar', metadataFields: [] },
+  { id: 'governing', name: 'Styrande', metadataFields: [] },
+  { id: 'reporting', name: 'Redovisande', metadataFields: [] },
 ];
+
+export function addDocumentTab(tabs: DocumentTab[], name: string): DocumentTab[] {
+  return [...tabs, { id: genTabId(), name, metadataFields: [] }];
+}
+
+export function addTabMetadataField(
+  tabs: DocumentTab[],
+  tabId: string,
+  field: string,
+): DocumentTab[] {
+  return tabs.map((tab) =>
+    tab.id === tabId ? { ...tab, metadataFields: [...tab.metadataFields, field] } : tab,
+  );
+}
+
+export function removeTabMetadataField(
+  tabs: DocumentTab[],
+  tabId: string,
+  field: string,
+): DocumentTab[] {
+  return tabs.map((tab) =>
+    tab.id === tabId
+      ? { ...tab, metadataFields: tab.metadataFields.filter((existing) => existing !== field) }
+      : tab,
+  );
+}
 
 export interface ManagedDocument {
   id: string;
@@ -42,6 +59,14 @@ export interface ManagedDocument {
   nextReview: string;
   kind: PillKind;
   state: Bilingual;
+  /** Which tab this document is filed under. */
+  tabId: string;
+  /** Values for the owning tab's configured metadata fields, keyed by field name. */
+  metadata: Record<string, string>;
+  /** The uploaded file's name and size — metadata only, the bytes stay on
+   *  the user's machine, same as evidence uploads. Null until a file is attached. */
+  fileName: string | null;
+  fileSize: number | null;
 }
 
 /** A review lands "due soon" — and prints in accent — before this date. */
@@ -60,20 +85,37 @@ export interface NewDocumentFields {
   version: string;
   owner: string;
   nextReview: string;
+  tabId: string;
+  metadata: Record<string, string>;
+  fileName: string | null;
+  fileSize: number | null;
 }
 
 /**
  * Turns a filled-in form into a register row. `index` is the register's
- * current length, so ids run D001, D002, … as documents are added.
+ * current length, so ids run `${idPrefix}001`, `${idPrefix}002`, … as
+ * documents are added; `idPrefix` is the company's own setting.
  */
-export function createDocument(fields: NewDocumentFields, index: number): ManagedDocument {
+export function createDocument(
+  fields: NewDocumentFields,
+  index: number,
+  idPrefix: string,
+): ManagedDocument {
   return {
-    id: `D${String(index + 1).padStart(3, '0')}`,
+    id: `${idPrefix}${String(index + 1).padStart(3, '0')}`,
     name: { sv: fields.name, en: fields.name },
     version: fields.version,
     owner: fields.owner,
     nextReview: fields.nextReview,
     kind: 'soft',
     state: { sv: 'Utkast', en: 'Draft' },
+    tabId: fields.tabId,
+    metadata: fields.metadata,
+    fileName: fields.fileName,
+    fileSize: fields.fileSize,
   };
+}
+
+export function removeDocument(documents: ManagedDocument[], id: string): ManagedDocument[] {
+  return documents.filter((document) => document.id !== id);
 }

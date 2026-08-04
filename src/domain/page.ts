@@ -73,6 +73,8 @@ export interface DiagramNode {
   shape: DiagramShape;
   fillColor: string;
   textColor: string;
+  /** Ids into the document register — which documents this box is linked to. */
+  linkedDocumentIds: string[];
 }
 
 /** Colors a new box, arrow or diagram background starts with — matching the
@@ -163,6 +165,7 @@ function newDiagramNode(label: string, shape: DiagramShape, index: number): Diag
     height: DIAGRAM_NODE_HEIGHT,
     fillColor: DIAGRAM_DEFAULT_FILL_COLOR,
     textColor: DIAGRAM_DEFAULT_TEXT_COLOR,
+    linkedDocumentIds: [],
   };
 }
 
@@ -301,6 +304,28 @@ export function updateDiagramBackgroundColor(
   backgroundColor: string,
 ): PageBlock[] {
   return mapDiagram(blocks, blockId, (block) => ({ ...block, backgroundColor }));
+}
+
+/** Links a document to a box, or unlinks it if it's already linked. */
+export function toggleDiagramNodeDocument(
+  blocks: PageBlock[],
+  blockId: string,
+  nodeId: string,
+  documentId: string,
+): PageBlock[] {
+  return mapDiagram(blocks, blockId, (block) => ({
+    ...block,
+    nodes: block.nodes.map((node) => {
+      if (node.id !== nodeId) return node;
+      const linked = node.linkedDocumentIds.includes(documentId);
+      return {
+        ...node,
+        linkedDocumentIds: linked
+          ? node.linkedDocumentIds.filter((id) => id !== documentId)
+          : [...node.linkedDocumentIds, documentId],
+      };
+    }),
+  }));
 }
 
 export function removeDiagramNode(

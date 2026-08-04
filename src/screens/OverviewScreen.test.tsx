@@ -346,6 +346,29 @@ describe('the box menu on a finished diagram', () => {
     await user.click(screen.getByRole('button', { name: 'Klar' }));
   };
 
+  const seedDocuments = () => {
+    window.localStorage.setItem(
+      'norma.state.v1',
+      JSON.stringify({
+        documents: [
+          {
+            id: 'D001',
+            name: { sv: 'Kvalitetshandbok', en: 'Kvalitetshandbok' },
+            version: '1.0',
+            owner: '',
+            nextReview: '',
+            kind: 'soft',
+            state: { sv: 'Utkast', en: 'Draft' },
+            tabId: 'templates',
+            metadata: {},
+            fileName: null,
+            fileSize: null,
+          },
+        ],
+      }),
+    );
+  };
+
   it('opens a menu with Koppla and Mer info when a box is clicked', async () => {
     const { user } = render();
     await addFinishedDiagram(user);
@@ -409,5 +432,35 @@ describe('the box menu on a finished diagram', () => {
     await user.click(screen.getByRole('menuitem', { name: 'Mer info' }));
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('shows a message when there are no documents to link', async () => {
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Koppla' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Koppla dokument' }));
+
+    expect(screen.getByText('Inga dokument att koppla.')).toBeInTheDocument();
+  });
+
+  it('links a document to a box and shows it below the diagram once selected', async () => {
+    seedDocuments();
+    const { user } = render();
+    await addFinishedDiagram(user);
+
+    await user.click(screen.getByRole('button', { name: 'Ny låda' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Koppla' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Koppla dokument' }));
+
+    const docItem = screen.getByRole('menuitemcheckbox', { name: /D001/ });
+    expect(docItem).toHaveAttribute('aria-checked', 'false');
+    await user.click(docItem);
+    expect(docItem).toHaveAttribute('aria-checked', 'true');
+
+    await user.keyboard('{Escape}');
+    expect(screen.getByText('Kopplade dokument')).toBeInTheDocument();
+    expect(screen.getByText('Kvalitetshandbok')).toBeInTheDocument();
   });
 });
