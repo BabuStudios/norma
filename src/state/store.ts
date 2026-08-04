@@ -69,7 +69,7 @@ export interface AppActions {
   removeEvidenceFile: (clauseId: string, evidenceIndex: number, fileId: string) => void;
   /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
   updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
-  addDocument: (fields: NewDocumentFields) => void;
+  addDocument: (fields: NewDocumentFields, file?: File) => void;
   removeDocument: (id: string) => void;
   setDocumentIdPrefix: (prefix: string) => void;
   addDocumentTab: (name: string) => void;

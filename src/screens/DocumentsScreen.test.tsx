@@ -1,5 +1,5 @@
 import { screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderScreen } from '@/test/render';
 import { DocumentsScreen } from './DocumentsScreen';
 
@@ -98,6 +98,25 @@ describe('adding a document', () => {
     await user.click(screen.getByRole('button', { name: 'Spara dokument' }));
 
     expect(screen.getByText(/handbok\.pdf/)).toBeInTheDocument();
+  });
+
+  it('opens the attached file in a new tab from its own link', async () => {
+    // jsdom has no object-URL implementation; stand one in so uploaded
+    // files can be opened, same as a real browser would let them be.
+    URL.createObjectURL = vi.fn((file: File) => `blob:mock/${file.name}`);
+    URL.revokeObjectURL = vi.fn();
+
+    const { user } = render();
+    await user.click(screen.getByRole('button', { name: '+ Nytt dokument' }));
+    await user.type(screen.getByLabelText('Dokumentnamn'), 'Kvalitetshandbok');
+
+    const file = new File(['content'], 'handbok.pdf', { type: 'application/pdf' });
+    await user.upload(screen.getByLabelText('Fil'), file);
+    await user.click(screen.getByRole('button', { name: 'Spara dokument' }));
+
+    const link = screen.getByRole('link', { name: 'handbok.pdf' });
+    expect(link).toHaveAttribute('href', 'blob:mock/handbok.pdf');
+    expect(link).toHaveAttribute('target', '_blank');
   });
 });
 

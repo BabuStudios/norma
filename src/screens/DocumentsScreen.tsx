@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { EmptyState } from '@/components/EmptyState';
 import { Pill } from '@/components/Pill';
 import { REVIEW_DUE_BEFORE, type NewDocumentFields } from '@/data/documents';
+import { getFileUrl } from '@/domain/fileStore';
 import { formatFileSize } from '@/domain/format';
 import { useApp } from '@/state/store';
 import styles from './DocumentsScreen.module.css';
@@ -31,6 +32,7 @@ export function DocumentsScreen() {
   const lang = state.lang;
   const [activeTabId, setActiveTabId] = useState(state.documentTabs[0]?.id ?? '');
   const [draft, setDraft] = useState<NewDocumentFields | null>(null);
+  const [draftFile, setDraftFile] = useState<File | null>(null);
   const [newTabOpen, setNewTabOpen] = useState(false);
   const [newTabName, setNewTabName] = useState('');
   const [editingMetadata, setEditingMetadata] = useState(false);
@@ -41,8 +43,9 @@ export function DocumentsScreen() {
 
   const commit = () => {
     if (!draft || !draft.name.trim()) return;
-    addDocument(draft);
+    addDocument(draft, draftFile ?? undefined);
     setDraft(null);
+    setDraftFile(null);
   };
 
   const commitTab = () => {
@@ -76,7 +79,10 @@ export function DocumentsScreen() {
               type="button"
               className="btn btn-secondary"
               aria-expanded={draft !== null}
-              onClick={() => setDraft((current) => (current ? null : emptyDraft(activeTabId)))}
+              onClick={() => {
+                setDraft((current) => (current ? null : emptyDraft(activeTabId)));
+                setDraftFile(null);
+              }}
             >
               + {t.addDocument}
             </button>
@@ -234,6 +240,7 @@ export function DocumentsScreen() {
                 className="input"
                 onChange={(event) => {
                   const file = event.target.files?.[0] ?? null;
+                  setDraftFile(file);
                   setDraft({
                     ...draft,
                     fileName: file?.name ?? null,
@@ -262,7 +269,14 @@ export function DocumentsScreen() {
               <button type="submit" className="btn btn-primary">
                 {t.saveDocument}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => setDraft(null)}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => {
+                  setDraft(null);
+                  setDraftFile(null);
+                }}
+              >
                 {t.cancel}
               </button>
             </div>
@@ -306,7 +320,17 @@ export function DocumentsScreen() {
                       {document.name[lang]}
                       {document.fileName ? (
                         <span className={styles.docFile}>
-                          {document.fileName}
+                          {getFileUrl(document.id) ? (
+                            <a
+                              href={getFileUrl(document.id)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {document.fileName}
+                            </a>
+                          ) : (
+                            document.fileName
+                          )}
                           {document.fileSize != null
                             ? ` · ${formatFileSize(document.fileSize)}`
                             : ''}

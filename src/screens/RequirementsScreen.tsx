@@ -15,6 +15,7 @@ import {
   statusOf,
 } from '@/domain/conformity';
 import { evidenceRows, uploadsForClause } from '@/domain/evidence';
+import { getFileUrl } from '@/domain/fileStore';
 import { formatFileSize } from '@/domain/format';
 import { useDismissable } from '@/hooks/useDismissable';
 import { useApp } from '@/state/store';
@@ -340,7 +341,18 @@ export function RequirementsScreen() {
                           <ul className={styles.evidenceFiles}>
                             {row.files.map((file) => (
                               <li key={file.id} className={styles.evidenceFile}>
-                                <span className={styles.evidenceFileName}>{file.name}</span>
+                                {getFileUrl(file.id) ? (
+                                  <a
+                                    className={styles.evidenceFileName}
+                                    href={getFileUrl(file.id)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {file.name}
+                                  </a>
+                                ) : (
+                                  <span className={styles.evidenceFileName}>{file.name}</span>
+                                )}
                                 <span className={styles.evidenceFileSize}>
                                   {formatFileSize(file.size)}
                                 </span>

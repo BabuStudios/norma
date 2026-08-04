@@ -21,6 +21,7 @@ import {
   type DiagramShape,
   type SnapGuide,
 } from '@/domain/page';
+import { getFileUrl } from '@/domain/fileStore';
 import { useDismissable } from '@/hooks/useDismissable';
 import type { Dictionary } from '@/i18n/dictionary';
 import { DiagramShapeSvg } from './DiagramShape';
@@ -704,7 +705,13 @@ export function DiagramEditor({
               {linkedDocuments.map((document) => (
                 <li key={document.id} className={styles.linkedDocument}>
                   <span className={styles.linkedDocumentId}>{document.id}</span>
-                  <span>{document.name[lang]}</span>
+                  {getFileUrl(document.id) ? (
+                    <a href={getFileUrl(document.id)} target="_blank" rel="noopener noreferrer">
+                      {document.name[lang]}
+                    </a>
+                  ) : (
+                    <span>{document.name[lang]}</span>
+                  )}
                 </li>
               ))}
             </ul>

@@ -1,5 +1,5 @@
 import { screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CLAUSES } from '@/data/clauses';
 import { findClause, inStandard } from '@/domain/conformity';
 import { renderScreen } from '@/test/render';
@@ -260,6 +260,24 @@ describe('the not-met band', () => {
 });
 
 describe('attaching evidence files', () => {
+  beforeEach(() => {
+    // jsdom has no object-URL implementation; stand one in so uploaded
+    // files can be opened, same as a real browser would let them be.
+    URL.createObjectURL = vi.fn((file: File) => `blob:mock/${file.name}`);
+    URL.revokeObjectURL = vi.fn();
+  });
+
+  it('opens the uploaded file in a new tab from its own link', async () => {
+    const { user } = render('6.1.2');
+    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
+    const file = new File(['content'], 'aspektregister.pdf');
+    await user.upload(input, file);
+
+    const link = screen.getByRole('link', { name: 'aspektregister.pdf' });
+    expect(link).toHaveAttribute('href', 'blob:mock/aspektregister.pdf');
+    expect(link).toHaveAttribute('target', '_blank');
+  });
+
   it('flips an evidence item from Saknas to Finns and shows the file', async () => {
     const { user } = render('6.1.2');
     expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);

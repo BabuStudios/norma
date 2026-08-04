@@ -11,6 +11,7 @@ import { ORGANIZATIONS } from '@/data/organizations';
 import type { SupplierFields } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
 import type { UploadedFile } from '@/domain/evidence';
+import { registerFile, releaseFile } from '@/domain/fileStore';
 import type { PageBlock } from '@/domain/page';
 import { AppContext, INITIAL_STATE, dictionaryFor, type AppState } from './store';
 
@@ -111,6 +112,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       size: file.size,
       uploadedAt,
     }));
+    added.forEach((uploaded, index) => registerFile(uploaded.id, files[index]));
     setState((prev) => ({
       ...prev,
       evidenceUploads: {
@@ -122,6 +124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const removeEvidenceFile = useCallback(
     (clauseId: string, evidenceIndex: number, fileId: string) => {
+      releaseFile(fileId);
       const key = `${clauseId}:${evidenceIndex}`;
       setState((prev) => {
         const remaining = (prev.evidenceUploads[key] ?? []).filter((file) => file.id !== fileId);
@@ -147,17 +150,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const addDocument = useCallback((fields: NewDocumentFields) => {
-    setState((prev) => ({
-      ...prev,
-      documents: [
-        ...prev.documents,
-        createDocument(fields, prev.documents.length, prev.documentIdPrefix),
-      ],
-    }));
+  const addDocument = useCallback((fields: NewDocumentFields, file?: File) => {
+    setState((prev) => {
+      const document = createDocument(fields, prev.documents.length, prev.documentIdPrefix);
+      if (file) registerFile(document.id, file);
+      return { ...prev, documents: [...prev.documents, document] };
+    });
   }, []);
 
   const removeDocument = useCallback((id: string) => {
+    releaseFile(id);
     setState((prev) => ({ ...prev, documents: removeDocumentPure(prev.documents, id) }));
   }, []);
 
