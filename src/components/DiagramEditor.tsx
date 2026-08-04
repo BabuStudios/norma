@@ -13,6 +13,7 @@ import {
 } from '@/domain/page';
 import { useDismissable } from '@/hooks/useDismissable';
 import type { Dictionary } from '@/i18n/dictionary';
+import { DiagramShapeSvg } from './DiagramShape';
 import styles from './DiagramEditor.module.css';
 
 type NodeMenuView = 'root' | 'connect';
@@ -26,6 +27,18 @@ const SHAPE_LABEL: Record<DiagramShape, keyof Dictionary> = {
   predefined: 'shapePredefined',
   preparation: 'shapePreparation',
   connector: 'shapeConnector',
+  manualOperation: 'shapeManualOperation',
+  storedData: 'shapeStoredData',
+  internalStorage: 'shapeInternalStorage',
+  directData: 'shapeDirectData',
+  manualInput: 'shapeManualInput',
+  card: 'shapeCard',
+  paperTape: 'shapePaperTape',
+  display: 'shapeDisplay',
+  loopLimit: 'shapeLoopLimit',
+  offPageOut: 'shapeOffPageOut',
+  offPageIn: 'shapeOffPageIn',
+  offPageArrow: 'shapeOffPageArrow',
 };
 
 const CANVAS_WIDTH = 900;
@@ -35,15 +48,6 @@ type Mode = 'select' | 'connect' | 'delete';
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
-}
-
-/** The flowchart "document" symbol's wavy bottom edge, as a clip-path path.
- *  Computed per node rather than fixed in CSS because the box is resizable —
- *  a static path wouldn't track a changed width or height. */
-function documentClipPath(width: number, height: number): string {
-  const wave = Math.min(8, height / 6);
-  const baseY = height - wave;
-  return `path('M0,0 L${width},0 L${width},${baseY} C${width * 0.75},${baseY + wave * 2} ${width * 0.25},${baseY - wave * 2} 0,${baseY} Z')`;
 }
 
 /** Box-to-box arrow coordinates, trimmed to each node's edge rather than its
@@ -239,7 +243,13 @@ export function DiagramEditor({
                 className={styles.shapeButton}
                 onClick={() => onAddNode(shape)}
               >
-                <span className={styles.shapeSwatch} data-shape={shape} aria-hidden="true" />
+                <DiagramShapeSvg
+                  shape={shape}
+                  width={18}
+                  height={14}
+                  strokeWidth={1.25}
+                  className={styles.shapeSwatch}
+                />
                 {t[SHAPE_LABEL[shape]]}
               </button>
             ))}
@@ -369,14 +379,11 @@ export function DiagramEditor({
               onPointerUp={endDrag}
               onPointerCancel={endDrag}
             >
-              <span
+              <DiagramShapeSvg
+                shape={node.shape}
+                width={node.width}
+                height={node.height}
                 className={styles.nodeShape}
-                style={
-                  node.shape === 'document'
-                    ? { clipPath: documentClipPath(node.width, node.height) }
-                    : undefined
-                }
-                aria-hidden="true"
               />
               {editing && mode === 'select' ? (
                 <input

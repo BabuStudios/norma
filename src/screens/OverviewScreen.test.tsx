@@ -118,7 +118,7 @@ describe('the process diagram tool', () => {
     expect(boxes[0]).toHaveValue('Beställning');
   });
 
-  it('offers the eight Visio-style flowchart shapes, each stamped on its box', async () => {
+  it('offers the twenty Visio-style flowchart shapes, each stamped on its box', async () => {
     const { user } = render();
     await addDiagram(user);
 
@@ -130,6 +130,18 @@ describe('the process diagram tool', () => {
     await user.click(screen.getByRole('button', { name: 'Delprocess' }));
     await user.click(screen.getByRole('button', { name: 'Förberedelse' }));
     await user.click(screen.getByRole('button', { name: 'Anslutning' }));
+    await user.click(screen.getByRole('button', { name: 'Manuell operation' }));
+    await user.click(screen.getByRole('button', { name: 'Lagrad data' }));
+    await user.click(screen.getByRole('button', { name: 'Internminne' }));
+    await user.click(screen.getByRole('button', { name: 'Direktdata' }));
+    await user.click(screen.getByRole('button', { name: 'Manuell inmatning' }));
+    await user.click(screen.getByRole('button', { name: 'Kort' }));
+    await user.click(screen.getByRole('button', { name: 'Pappersremsa' }));
+    await user.click(screen.getByRole('button', { name: 'Skärm' }));
+    await user.click(screen.getByRole('button', { name: 'Loopgräns' }));
+    await user.click(screen.getByRole('button', { name: 'Sidreferens (ut)' }));
+    await user.click(screen.getByRole('button', { name: 'Sidreferens (in)' }));
+    await user.click(screen.getByRole('button', { name: 'Sidreferens (pil)' }));
 
     const shapes = Array.from(document.querySelectorAll('[data-shape]')).map((el) =>
       el.getAttribute('data-shape'),
@@ -144,6 +156,18 @@ describe('the process diagram tool', () => {
         'predefined',
         'preparation',
         'connector',
+        'manualOperation',
+        'storedData',
+        'internalStorage',
+        'directData',
+        'manualInput',
+        'card',
+        'paperTape',
+        'display',
+        'loopLimit',
+        'offPageOut',
+        'offPageIn',
+        'offPageArrow',
       ]),
     );
   });
@@ -160,6 +184,8 @@ describe('the process diagram tool', () => {
     expect(node.querySelector('[class*="resizeHandle"]')).toBeInTheDocument();
   });
 
+  const edgeLines = () => document.querySelectorAll('[class*="edges"] line');
+
   it('connects two boxes with an arrow', async () => {
     const { user } = render();
     await addDiagram(user);
@@ -168,11 +194,11 @@ describe('the process diagram tool', () => {
 
     await user.click(screen.getByRole('button', { name: 'Koppla' }));
     const nodeButtons = screen.getAllByRole('button', { name: 'Ny låda' });
-    expect(document.querySelectorAll('svg line')).toHaveLength(0);
+    expect(edgeLines()).toHaveLength(0);
 
     await user.click(nodeButtons[0]);
     await user.click(nodeButtons[1]);
-    expect(document.querySelectorAll('svg line')).toHaveLength(1);
+    expect(edgeLines()).toHaveLength(1);
   });
 
   it('does not connect a box to itself', async () => {
@@ -184,7 +210,7 @@ describe('the process diagram tool', () => {
     const [node] = screen.getAllByRole('button', { name: 'Ny låda' });
     await user.click(node);
     await user.click(node);
-    expect(document.querySelectorAll('svg line')).toHaveLength(0);
+    expect(edgeLines()).toHaveLength(0);
   });
 
   it('deletes a box, taking its edge with it', async () => {
@@ -196,7 +222,7 @@ describe('the process diagram tool', () => {
     const [first, second] = screen.getAllByRole('button', { name: 'Ny låda' });
     await user.click(first);
     await user.click(second);
-    expect(document.querySelectorAll('svg line')).toHaveLength(1);
+    expect(edgeLines()).toHaveLength(1);
 
     await user.click(screen.getByRole('button', { name: 'Koppla' })); // back to select
     await user.click(screen.getByRole('button', { name: 'Ta bort' }));
@@ -204,7 +230,7 @@ describe('the process diagram tool', () => {
     await user.click(remaining);
 
     expect(screen.getAllByRole('button', { name: 'Ny låda' })).toHaveLength(1);
-    expect(document.querySelectorAll('svg line')).toHaveLength(0);
+    expect(edgeLines()).toHaveLength(0);
   });
 
   it('shows the diagram read-only once editing ends', async () => {
