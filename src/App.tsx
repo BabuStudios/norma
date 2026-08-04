@@ -7,6 +7,7 @@ import { DocumentsScreen } from '@/screens/DocumentsScreen';
 import { FieldModeScreen } from '@/screens/FieldModeScreen';
 import { ManagementReviewScreen } from '@/screens/ManagementReviewScreen';
 import { OverviewScreen } from '@/screens/OverviewScreen';
+import { ProcessScreen } from '@/screens/ProcessScreen';
 import { RequirementsScreen } from '@/screens/RequirementsScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { SuppliersScreen } from '@/screens/SuppliersScreen';
@@ -19,6 +20,7 @@ export function App() {
           <Route element={<AppShell />}>
             <Route path="/" element={<Navigate to="/overview" replace />} />
             <Route path="/overview" element={<OverviewScreen />} />
+            <Route path="/processes/:pageId" element={<ProcessScreen />} />
             <Route path="/requirements" element={<RequirementsScreen />} />
             <Route path="/requirements/:clauseId" element={<RequirementsScreen />} />
             <Route path="/documents" element={<DocumentsScreen />} />

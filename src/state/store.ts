@@ -44,6 +44,10 @@ export interface AppState {
   evidenceDocumentLinks: Record<string, string[]>;
   /** Editable content on Ledningssystem: text blocks and process diagrams. */
   managementSystemBlocks: PageBlock[];
+  /** Editable content on each of the mandatory-process pages (§4.1, §6.2,
+   *  §7.4, §7.2/7.3, §6.1.3, §8.2, §10.2 — see `data/processPages.ts`),
+   *  keyed by page id. Starts empty like every other register. */
+  processPages: Record<string, PageBlock[]>;
   /** The document register — starts from the (empty) seed and grows as the
    *  company adds documents. */
   documents: ManagedDocument[];
@@ -64,6 +68,8 @@ export interface AppActions {
   toggleEvidenceDocumentLink: (clauseId: string, evidenceIndex: number, documentId: string) => void;
   /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
   updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
+  /** Applies a pure update from `domain/page.ts` to one process page's blocks. */
+  updateProcessPageBlocks: (pageId: string, updater: (blocks: PageBlock[]) => PageBlock[]) => void;
   addDocument: (fields: NewDocumentFields, file?: File) => void;
   removeDocument: (id: string) => void;
   addDocumentTab: (name: string) => void;
@@ -83,6 +89,7 @@ export const INITIAL_STATE: AppState = {
   supplierOverrides: {},
   evidenceDocumentLinks: {},
   managementSystemBlocks: [],
+  processPages: {},
   documents: DOCUMENTS,
   documentTabs: DEFAULT_DOCUMENT_TABS,
 };

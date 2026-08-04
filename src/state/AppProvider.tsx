@@ -130,6 +130,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateProcessPageBlocks = useCallback(
+    (pageId: string, updater: (blocks: PageBlock[]) => PageBlock[]) => {
+      setState((prev) => ({
+        ...prev,
+        processPages: {
+          ...prev.processPages,
+          [pageId]: updater(prev.processPages[pageId] ?? []),
+        },
+      }));
+    },
+    [],
+  );
+
   const addDocument = useCallback((fields: NewDocumentFields, file?: File) => {
     setState((prev) => {
       const tab = prev.documentTabs.find((candidate) => candidate.id === fields.tabId);
@@ -186,6 +199,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveSupplier,
       toggleEvidenceDocumentLink,
       updateManagementSystemBlocks,
+      updateProcessPageBlocks,
       addDocument,
       removeDocument,
       addDocumentTab,
@@ -205,6 +219,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       saveSupplier,
       toggleEvidenceDocumentLink,
       updateManagementSystemBlocks,
+      updateProcessPageBlocks,
       addDocument,
       removeDocument,
       addDocumentTab,

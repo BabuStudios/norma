@@ -9,6 +9,7 @@ import { DocumentsScreen } from './DocumentsScreen';
 import { FieldModeScreen } from './FieldModeScreen';
 import { ManagementReviewScreen } from './ManagementReviewScreen';
 import { OverviewScreen } from './OverviewScreen';
+import { ProcessScreen } from './ProcessScreen';
 import { RequirementsScreen } from './RequirementsScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { SuppliersScreen } from './SuppliersScreen';
@@ -41,6 +42,16 @@ const SCREENS: {
     marker: {
       sv: 'Bevis som revisorn vill se',
       en: 'Evidence the auditor wants',
+    },
+  },
+  {
+    name: 'process page',
+    element: <ProcessScreen />,
+    route: '/processes/context',
+    path: '/processes/:pageId',
+    marker: {
+      sv: 'Verksamhetens förutsättningar',
+      en: 'Context & interested parties',
     },
   },
   {

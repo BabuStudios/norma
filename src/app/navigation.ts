@@ -2,6 +2,13 @@ import type { Bilingual } from '@/data/types';
 
 export type ScreenId =
   | 'dash'
+  | 'context'
+  | 'objectives'
+  | 'communication'
+  | 'competence'
+  | 'compliance'
+  | 'emergency'
+  | 'improvement'
   | 'req'
   | 'docs'
   | 'aspects'
@@ -28,6 +35,46 @@ export const NAV: NavGroup[] = [
     label: { sv: 'Styrning', en: 'Steering' },
     items: [
       { id: 'dash', path: '/overview', label: { sv: 'Ledningssystem', en: 'Management system' } },
+      {
+        id: 'context',
+        path: '/processes/context',
+        label: { sv: 'Verksamhetens förutsättningar', en: 'Context & interested parties' },
+      },
+      {
+        id: 'objectives',
+        path: '/processes/objectives',
+        label: { sv: 'Mål och handlingsplaner', en: 'Objectives & action plans' },
+      },
+      {
+        id: 'communication',
+        path: '/processes/communication',
+        label: { sv: 'Kommunikation', en: 'Communication' },
+      },
+      {
+        id: 'competence',
+        path: '/processes/competence',
+        label: { sv: 'Kompetens och medvetenhet', en: 'Competence & awareness' },
+      },
+      {
+        id: 'compliance',
+        path: '/processes/compliance',
+        label: { sv: 'Efterlevnad av lagkrav', en: 'Compliance obligations' },
+      },
+      {
+        id: 'emergency',
+        path: '/processes/emergency',
+        label: { sv: 'Beredskap och agerande vid nödläge', en: 'Emergency preparedness' },
+      },
+      {
+        id: 'improvement',
+        path: '/processes/improvement',
+        label: { sv: 'Avvikelser och ständiga förbättringar', en: 'Nonconformity & improvement' },
+      },
+    ],
+  },
+  {
+    label: { sv: 'Krav', en: 'Requirements' },
+    items: [
       { id: 'req', path: '/requirements', label: { sv: 'Kravgenomgång', en: 'Requirements' } },
       { id: 'docs', path: '/documents', label: { sv: 'Dokument', en: 'Documents' } },
     ],
