@@ -11,13 +11,31 @@ export interface TextBlock {
 }
 
 /**
- * The classic Visio flowchart stencil, narrowed to the four shapes that cover
- * almost every process diagram: process, decision, terminator (start/end)
- * and data (input/output).
+ * The classic Visio flowchart stencil: process, decision, terminator
+ * (start/end), data (input/output), document, subprocess (predefined
+ * process), preparation and connector — the shapes that cover the large
+ * majority of process diagrams.
  */
-export type DiagramShape = 'process' | 'decision' | 'terminator' | 'data';
+export type DiagramShape =
+  | 'process'
+  | 'decision'
+  | 'terminator'
+  | 'data'
+  | 'document'
+  | 'predefined'
+  | 'preparation'
+  | 'connector';
 
-export const DIAGRAM_SHAPES: DiagramShape[] = ['process', 'decision', 'terminator', 'data'];
+export const DIAGRAM_SHAPES: DiagramShape[] = [
+  'process',
+  'decision',
+  'terminator',
+  'data',
+  'document',
+  'predefined',
+  'preparation',
+  'connector',
+];
 
 export interface DiagramNode {
   id: string;

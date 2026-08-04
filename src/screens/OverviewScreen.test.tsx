@@ -118,7 +118,7 @@ describe('the process diagram tool', () => {
     expect(boxes[0]).toHaveValue('Beställning');
   });
 
-  it('offers the four Visio-style flowchart shapes, each stamped on its box', async () => {
+  it('offers the eight Visio-style flowchart shapes, each stamped on its box', async () => {
     const { user } = render();
     await addDiagram(user);
 
@@ -126,11 +126,26 @@ describe('the process diagram tool', () => {
     await user.click(screen.getByRole('button', { name: 'Beslut' }));
     await user.click(screen.getByRole('button', { name: 'Start/Slut' }));
     await user.click(screen.getByRole('button', { name: 'Data' }));
+    await user.click(screen.getByRole('button', { name: 'Dokument' }));
+    await user.click(screen.getByRole('button', { name: 'Delprocess' }));
+    await user.click(screen.getByRole('button', { name: 'Förberedelse' }));
+    await user.click(screen.getByRole('button', { name: 'Anslutning' }));
 
     const shapes = Array.from(document.querySelectorAll('[data-shape]')).map((el) =>
       el.getAttribute('data-shape'),
     );
-    expect(shapes).toEqual(expect.arrayContaining(['process', 'decision', 'terminator', 'data']));
+    expect(shapes).toEqual(
+      expect.arrayContaining([
+        'process',
+        'decision',
+        'terminator',
+        'data',
+        'document',
+        'predefined',
+        'preparation',
+        'connector',
+      ]),
+    );
   });
 
   it('gives every new box the default size and a resize handle', async () => {

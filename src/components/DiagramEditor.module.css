@@ -63,6 +63,33 @@
 .shapeSwatch[data-shape='data'] {
   clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
 }
+.shapeSwatch[data-shape='document'] {
+  clip-path: polygon(0% 0%, 70% 0%, 100% 30%, 100% 100%, 0% 100%);
+}
+.shapeSwatch[data-shape='predefined'] {
+  position: relative;
+}
+.shapeSwatch[data-shape='predefined']::before,
+.shapeSwatch[data-shape='predefined']::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-text);
+}
+.shapeSwatch[data-shape='predefined']::before {
+  left: 3px;
+}
+.shapeSwatch[data-shape='predefined']::after {
+  right: 3px;
+}
+.shapeSwatch[data-shape='preparation'] {
+  clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
+}
+.shapeSwatch[data-shape='connector'] {
+  border-radius: 50%;
+}
 
 .empty {
   padding: 16px 0;
@@ -129,6 +156,32 @@
 .node[data-shape='data'] .nodeShape {
   clip-path: polygon(16% 0%, 100% 0%, 84% 100%, 0% 100%);
   box-shadow: none;
+}
+.node[data-shape='document'] .nodeShape {
+  clip-path: polygon(0% 0%, 82% 0%, 100% 18%, 100% 100%, 0% 100%);
+  box-shadow: none;
+}
+.node[data-shape='predefined'] .nodeShape::before,
+.node[data-shape='predefined'] .nodeShape::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--color-text);
+}
+.node[data-shape='predefined'] .nodeShape::before {
+  left: 6px;
+}
+.node[data-shape='predefined'] .nodeShape::after {
+  right: 6px;
+}
+.node[data-shape='preparation'] .nodeShape {
+  clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
+  box-shadow: none;
+}
+.node[data-shape='connector'] .nodeShape {
+  border-radius: 50%;
 }
 
 .nodeInput {

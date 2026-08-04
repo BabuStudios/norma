@@ -22,6 +22,10 @@ const SHAPE_LABEL: Record<DiagramShape, keyof Dictionary> = {
   decision: 'shapeDecision',
   terminator: 'shapeTerminator',
   data: 'shapeData',
+  document: 'shapeDocument',
+  predefined: 'shapePredefined',
+  preparation: 'shapePreparation',
+  connector: 'shapeConnector',
 };
 
 const CANVAS_WIDTH = 900;
