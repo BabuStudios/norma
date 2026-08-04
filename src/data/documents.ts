@@ -3,12 +3,14 @@ import type { Bilingual, PillKind } from './types';
 /**
  * A tab groups documents by category — templates vs. governing vs.
  * reporting documents, or whatever the company adds — and defines which
- * metadata fields apply to documents filed under it.
+ * metadata fields apply to documents filed under it, and what prefix its own
+ * documents are numbered with (each tab counts its own ids from 001).
  */
 export interface DocumentTab {
   id: string;
   name: string;
   metadataFields: string[];
+  idPrefix: string;
 }
 
 let tabIdCounter = 0;
@@ -19,13 +21,21 @@ function genTabId(): string {
 
 /** The three tabs the register ships with; the company can add more. */
 export const DEFAULT_DOCUMENT_TABS: DocumentTab[] = [
-  { id: 'templates', name: 'Mallar', metadataFields: [] },
-  { id: 'governing', name: 'Styrande', metadataFields: [] },
-  { id: 'reporting', name: 'Redovisande', metadataFields: [] },
+  { id: 'templates', name: 'Mallar', metadataFields: [], idPrefix: 'M' },
+  { id: 'governing', name: 'Styrande', metadataFields: [], idPrefix: 'S' },
+  { id: 'reporting', name: 'Redovisande', metadataFields: [], idPrefix: 'R' },
 ];
 
 export function addDocumentTab(tabs: DocumentTab[], name: string): DocumentTab[] {
-  return [...tabs, { id: genTabId(), name, metadataFields: [] }];
+  return [...tabs, { id: genTabId(), name, metadataFields: [], idPrefix: 'D' }];
+}
+
+export function updateTabIdPrefix(
+  tabs: DocumentTab[],
+  tabId: string,
+  idPrefix: string,
+): DocumentTab[] {
+  return tabs.map((tab) => (tab.id === tabId ? { ...tab, idPrefix } : tab));
 }
 
 export function addTabMetadataField(
@@ -92,9 +102,9 @@ export interface NewDocumentFields {
 }
 
 /**
- * Turns a filled-in form into a register row. `index` is the register's
- * current length, so ids run `${idPrefix}001`, `${idPrefix}002`, … as
- * documents are added; `idPrefix` is the company's own setting.
+ * Turns a filled-in form into a register row. `index` is how many documents
+ * already exist in the target tab, so ids run `${idPrefix}001`,
+ * `${idPrefix}002`, … per tab; `idPrefix` is that tab's own setting.
  */
 export function createDocument(
   fields: NewDocumentFields,

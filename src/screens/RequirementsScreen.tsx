@@ -14,9 +14,8 @@ import {
   standardLabel,
   statusOf,
 } from '@/domain/conformity';
-import { evidenceRows, uploadsForClause } from '@/domain/evidence';
+import { evidenceRows, linkedDocumentsForClause } from '@/domain/evidence';
 import { getFileUrl } from '@/domain/fileStore';
-import { formatFileSize } from '@/domain/format';
 import { useDismissable } from '@/hooks/useDismissable';
 import { useApp } from '@/state/store';
 import styles from './RequirementsScreen.module.css';
@@ -31,7 +30,7 @@ type NotMetPanel = '9001' | '14001' | null;
 const lastChanged: string | null = null;
 
 export function RequirementsScreen() {
-  const { state, t, setStatus, toggleStep, addEvidenceFiles, removeEvidenceFile } = useApp();
+  const { state, t, setStatus, toggleStep, toggleEvidenceDocumentLink } = useApp();
   const navigate = useNavigate();
   const { clauseId } = useParams();
 
@@ -39,9 +38,13 @@ export function RequirementsScreen() {
   const [filter, setFilter] = useState<Filter>('all');
   const [chapterPanelOpen, setChapterPanelOpen] = useState(true);
   const [openNotMet, setOpenNotMet] = useState<NotMetPanel>(null);
+  const [openLinkPicker, setOpenLinkPicker] = useState<number | null>(null);
 
   const closeNotMet = useCallback(() => setOpenNotMet(null), []);
   const notMetBandRef = useDismissable<HTMLDivElement>(openNotMet !== null, closeNotMet);
+
+  const closeLinkPicker = useCallback(() => setOpenLinkPicker(null), []);
+  const linkPickerRef = useDismissable<HTMLDivElement>(openLinkPicker !== null, closeLinkPicker);
 
   const clause = findClause(clauseId) ?? findClause(DEFAULT_CLAUSE_ID) ?? CLAUSES[0];
   const lang = state.lang;
@@ -71,8 +74,8 @@ export function RequirementsScreen() {
     { key: 'met', label: t.stMet },
   ];
 
-  const uploads = uploadsForClause(state.evidenceUploads, clause.id);
-  const evidence = evidenceRows(clause, status, lang, uploads);
+  const linked = linkedDocumentsForClause(state.evidenceDocumentLinks, state.documents, clause.id);
+  const evidence = evidenceRows(clause, status, lang, linked);
   const doneSteps = text.steps.filter((_, i) => state.steps[`${clause.id}:${i}`]).length;
 
   const openChapter = (chapterId: string) => {
@@ -337,33 +340,34 @@ export function RequirementsScreen() {
                       <span className={styles.evidenceText}>
                         <span className={styles.evidenceName}>{row.name}</span>
                         <span className={styles.evidenceAsk}>{row.description}</span>
-                        {row.files.length > 0 ? (
+                        {row.linkedDocuments.length > 0 ? (
                           <ul className={styles.evidenceFiles}>
-                            {row.files.map((file) => (
-                              <li key={file.id} className={styles.evidenceFile}>
-                                {getFileUrl(file.id) ? (
+                            {row.linkedDocuments.map((document) => (
+                              <li key={document.id} className={styles.evidenceFile}>
+                                {getFileUrl(document.id) ? (
                                   <a
                                     className={styles.evidenceFileName}
-                                    href={getFileUrl(file.id)}
+                                    href={getFileUrl(document.id)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
-                                    {file.name}
+                                    {document.name[lang]}
                                   </a>
                                 ) : (
-                                  <span className={styles.evidenceFileName}>{file.name}</span>
+                                  <span className={styles.evidenceFileName}>
+                                    {document.name[lang]}
+                                  </span>
                                 )}
-                                <span className={styles.evidenceFileSize}>
-                                  {formatFileSize(file.size)}
-                                </span>
                                 <button
                                   type="button"
                                   className={styles.evidenceFileRemove}
-                                  onClick={() => removeEvidenceFile(clause.id, index, file.id)}
+                                  onClick={() =>
+                                    toggleEvidenceDocumentLink(clause.id, index, document.id)
+                                  }
                                 >
                                   <span aria-hidden="true">×</span>
                                   <span className="visuallyHidden">
-                                    {t.removeFile} {file.name}
+                                    {t.removeFile} {document.name[lang]}
                                   </span>
                                 </button>
                               </li>
@@ -374,21 +378,53 @@ export function RequirementsScreen() {
                       <span className={styles.evidencePill}>
                         <Pill kind={row.onFile ? 'met' : 'gap'}>{row.stateLabel}</Pill>
                       </span>
-                      <label className={`btn btn-secondary ${styles.evidenceAction}`}>
-                        {row.actionLabel}
-                        <input
-                          type="file"
-                          multiple
-                          className="visuallyHidden"
-                          onChange={(event) => {
-                            const files = event.target.files;
-                            if (files && files.length > 0) {
-                              addEvidenceFiles(clause.id, index, Array.from(files));
-                            }
-                            event.target.value = '';
-                          }}
-                        />
-                      </label>
+                      <div className={styles.evidenceAction}>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          aria-expanded={openLinkPicker === index}
+                          aria-haspopup="menu"
+                          onClick={() =>
+                            setOpenLinkPicker((current) => (current === index ? null : index))
+                          }
+                        >
+                          {row.actionLabel}
+                        </button>
+                        {openLinkPicker === index ? (
+                          <div
+                            ref={linkPickerRef}
+                            className={`dropdown ${styles.linkPicker}`}
+                            role="menu"
+                          >
+                            {state.documents.length === 0 ? (
+                              <p className={styles.linkPickerEmpty}>{t.noDocumentsToLink}</p>
+                            ) : (
+                              state.documents.map((document) => {
+                                const isLinked = row.linkedDocuments.some(
+                                  (candidate) => candidate.id === document.id,
+                                );
+                                return (
+                                  <button
+                                    key={document.id}
+                                    type="button"
+                                    role="menuitemcheckbox"
+                                    aria-checked={isLinked}
+                                    className={styles.linkPickerItem}
+                                    onClick={() =>
+                                      toggleEvidenceDocumentLink(clause.id, index, document.id)
+                                    }
+                                  >
+                                    <span className={styles.linkPickerCheck} aria-hidden="true">
+                                      {isLinked ? '✓' : ''}
+                                    </span>
+                                    {document.id} — {document.name[lang]}
+                                  </button>
+                                );
+                              })
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   ))}
                 </section>
@@ -396,9 +432,6 @@ export function RequirementsScreen() {
                 <div className={styles.actions}>
                   <button type="button" className="btn btn-primary">
                     {t.createTask}
-                  </button>
-                  <button type="button" className="btn btn-secondary">
-                    {t.fromTemplate}
                   </button>
                   <button type="button" className="btn btn-secondary">
                     {t.markNA}

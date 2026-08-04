@@ -74,11 +74,16 @@
   width: 160px;
 }
 
-/* — per-tab metadata field editor — */
+/* — per-tab id prefix and metadata field editor — */
 .metadataBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   margin-top: 14px;
 }
 .metadataEditor {
+  flex-basis: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;

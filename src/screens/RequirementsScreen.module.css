@@ -536,11 +536,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.evidenceFileSize {
-  flex: none;
-  color: var(--ink-55);
-  font-variant-numeric: tabular-nums;
-}
 .evidenceFileRemove {
   flex: none;
   width: 16px;
@@ -564,15 +559,50 @@
 }
 .evidenceAction {
   position: relative;
-  padding: 5px 10px;
-  font-size: 12px;
+}
+
+/* — document picker: choose which register documents this evidence item
+   links to, opened from the row's "Koppla dokument" button — */
+.linkPicker {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.linkPickerEmpty {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--ink-60);
+}
+.linkPickerItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
   cursor: pointer;
 }
-/* The real file input is visually hidden inside the label (app.css
-   .visuallyHidden); mirror it into view on keyboard focus, same as .tick. */
-.evidenceAction:has(input:focus-visible) {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+.linkPickerItem:hover {
+  background: var(--ink-6);
+}
+.linkPickerCheck {
+  flex: none;
+  width: 12px;
+  color: var(--color-accent-700);
+  font-weight: 800;
 }
 
 .actions {

@@ -1,9 +1,42 @@
 import { screen, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CLAUSES } from '@/data/clauses';
 import { findClause, inStandard } from '@/domain/conformity';
+import { registerFile } from '@/domain/fileStore';
 import { renderScreen } from '@/test/render';
 import { RequirementsScreen } from './RequirementsScreen';
+
+const seedDocuments = (documents: unknown[]) => {
+  window.localStorage.setItem('norma.state.v1', JSON.stringify({ documents }));
+};
+
+const document1 = {
+  id: 'D001',
+  name: { sv: 'Miljöaspektregister', en: 'Aspects register' },
+  version: '1.0',
+  owner: '',
+  nextReview: '',
+  kind: 'soft',
+  state: { sv: 'Utkast', en: 'Draft' },
+  tabId: 'templates',
+  metadata: {},
+  fileName: null,
+  fileSize: null,
+};
+
+const document2 = {
+  id: 'D002',
+  name: { sv: 'Policy', en: 'Policy' },
+  version: '1.0',
+  owner: '',
+  nextReview: '',
+  kind: 'soft',
+  state: { sv: 'Utkast', en: 'Draft' },
+  tabId: 'templates',
+  metadata: {},
+  fileName: null,
+  fileSize: null,
+};
 
 const render = (clauseId = '6.1.2') =>
   renderScreen(<RequirementsScreen />, {
@@ -259,90 +292,128 @@ describe('the not-met band', () => {
   });
 });
 
-describe('attaching evidence files', () => {
-  beforeEach(() => {
-    // jsdom has no object-URL implementation; stand one in so uploaded
-    // files can be opened, same as a real browser would let them be.
-    URL.createObjectURL = vi.fn((file: File) => `blob:mock/${file.name}`);
-    URL.revokeObjectURL = vi.fn();
+describe('linking evidence to documents', () => {
+  it('opens a picker listing the document register from the row button', async () => {
+    seedDocuments([document1]);
+    const { user } = render('6.1.2');
+
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
+
+    expect(
+      screen.getByRole('menuitemcheckbox', { name: /D001.*Miljöaspektregister/ }),
+    ).toBeInTheDocument();
   });
 
-  it('opens the uploaded file in a new tab from its own link', async () => {
+  it('shows a message when the register has no documents to link', async () => {
     const { user } = render('6.1.2');
-    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    const file = new File(['content'], 'aspektregister.pdf');
-    await user.upload(input, file);
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
 
-    const link = screen.getByRole('link', { name: 'aspektregister.pdf' });
+    expect(screen.getByText('Inga dokument att koppla.')).toBeInTheDocument();
+  });
+
+  it('flips an evidence item from Saknas to Finns once a document is linked', async () => {
+    seedDocuments([document1]);
+    const { user } = render('6.1.2');
+    expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
+
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D001/ }));
+
+    expect(screen.getByText('Miljöaspektregister')).toBeInTheDocument();
+    expect(screen.getAllByText('Finns').length).toBeGreaterThan(0);
+  });
+
+  it('unlinks a document by checking it again in the picker', async () => {
+    seedDocuments([document1]);
+    const { user } = render('6.1.2');
+
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: /D001/ });
+    await user.click(checkbox);
+    expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+    await user.click(checkbox);
+    expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    expect(screen.queryByText('Miljöaspektregister')).not.toBeInTheDocument();
+  });
+
+  it('links more than one document to the same evidence item', async () => {
+    seedDocuments([document1, document2]);
+    const { user } = render('6.1.2');
+
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D001/ }));
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D002/ }));
+
+    expect(screen.getByText('Miljöaspektregister')).toBeInTheDocument();
+    expect(screen.getByText('Policy')).toBeInTheDocument();
+  });
+
+  it('unlinks a document from its own remove button in the linked list', async () => {
+    seedDocuments([document1]);
+    const { user } = render('6.1.2');
+
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D001/ }));
+    expect(screen.getByText('Miljöaspektregister')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Ta bort Miljöaspektregister/ }));
+    expect(screen.queryByText('Miljöaspektregister')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
+  });
+
+  it('keeps links scoped to the evidence item they were made on', async () => {
+    seedDocuments([document1]);
+    const { user } = render('6.1.2');
+
+    const [firstLinkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(firstLinkButton);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D001/ }));
+    expect(screen.getByText('Miljöaspektregister')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Kompetens/ }));
+    expect(screen.queryByText('Miljöaspektregister')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Miljöaspekter och påverkan/ }));
+    expect(screen.getByText('Miljöaspektregister')).toBeInTheDocument();
+  });
+
+  it('opens a linked document in a new tab when it has an uploaded file', async () => {
+    // jsdom has no object-URL implementation; stand one in and register it as
+    // though the document had already been uploaded from the document library.
+    URL.createObjectURL = vi.fn(() => 'blob:mock/aspektregister.pdf');
+    URL.revokeObjectURL = vi.fn();
+    registerFile('D001', new File(['content'], 'aspektregister.pdf'));
+
+    seedDocuments([document1]);
+    const { user } = render('6.1.2');
+    const [linkButton] = screen.getAllByRole('button', { name: 'Koppla dokument' });
+    await user.click(linkButton);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D001/ }));
+
+    const link = screen.getByRole('link', { name: 'Miljöaspektregister' });
     expect(link).toHaveAttribute('href', 'blob:mock/aspektregister.pdf');
     expect(link).toHaveAttribute('target', '_blank');
   });
 
-  it('flips an evidence item from Saknas to Finns and shows the file', async () => {
-    const { user } = render('6.1.2');
-    expect(screen.getAllByText('Saknas').length).toBeGreaterThan(0);
-
-    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    const file = new File(['content'], 'aspektregister.pdf', {
-      type: 'application/pdf',
-    });
-    await user.upload(input, file);
-
-    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
-    expect(screen.getAllByText('Finns').length).toBeGreaterThan(0);
-  });
-
-  it('shows a human-readable file size', async () => {
-    const { user } = render('6.1.2');
-    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    const file = new File(['x'.repeat(2048)], 'a.pdf');
-    await user.upload(input, file);
-
-    expect(screen.getByText('2.0 KB')).toBeInTheDocument();
-  });
-
-  it('supports attaching more than one file to the same evidence item', async () => {
-    const { user } = render('6.1.2');
-    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    const a = new File(['a'], 'a.pdf');
-    const b = new File(['b'], 'b.pdf');
-    await user.upload(input, [a, b]);
-
-    expect(screen.getByText('a.pdf')).toBeInTheDocument();
-    expect(screen.getByText('b.pdf')).toBeInTheDocument();
-  });
-
-  it('removes an attached file and reverts to Saknas', async () => {
-    const { user } = render('6.1.2');
-    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    const file = new File(['content'], 'aspektregister.pdf');
-    await user.upload(input, file);
-    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Ta bort aspektregister.pdf' }));
-    expect(screen.queryByText('aspektregister.pdf')).not.toBeInTheDocument();
-  });
-
-  it('keeps uploads scoped to the clause they were attached to', async () => {
-    const { user } = render('6.1.2');
-    const [input] = screen.getAllByLabelText('Ladda upp') as HTMLInputElement[];
-    await user.upload(input, new File(['content'], 'aspektregister.pdf'));
-
-    await user.click(screen.getByRole('button', { name: /Kompetens/ }));
-    expect(screen.queryByText('aspektregister.pdf')).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /Miljöaspekter och påverkan/ }));
-    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
-  });
-
-  it('works the same way in English — the file name is not localized copy', async () => {
-    window.localStorage.setItem('norma.state.v1', JSON.stringify({ lang: 'en' }));
+  it('works the same way in English — links come from the register, not local copy', async () => {
+    window.localStorage.setItem(
+      'norma.state.v1',
+      JSON.stringify({ lang: 'en', documents: [document1] }),
+    );
     const { user } = render('6.1.2');
 
-    const [input] = screen.getAllByLabelText('Upload') as HTMLInputElement[];
-    await user.upload(input, new File(['content'], 'aspektregister.pdf'));
+    const [linkButton] = screen.getAllByRole('button', { name: 'Link document' });
+    await user.click(linkButton);
+    await user.click(screen.getByRole('menuitemcheckbox', { name: /D001/ }));
 
-    expect(screen.getByText('aspektregister.pdf')).toBeInTheDocument();
+    expect(screen.getByText('Aspects register')).toBeInTheDocument();
     expect(screen.getAllByText('On file').length).toBeGreaterThan(0);
   });
 });

@@ -94,6 +94,17 @@ describe('editing the page', () => {
     expect(moveUpButtons[0]).toBeDisabled();
     expect(moveDownButtons[1]).toBeDisabled();
   });
+
+  it('adds an editable organization chart, pre-titled and using the same box tool', async () => {
+    const { user } = render();
+    await user.click(screen.getByRole('button', { name: 'Redigera' }));
+    await user.click(screen.getByRole('button', { name: 'Lägg till organisationsschema' }));
+
+    expect(screen.getByDisplayValue('Organisationsschema')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    expect(screen.getAllByLabelText('Låda')).toHaveLength(1);
+  });
 });
 
 describe('the process diagram tool', () => {

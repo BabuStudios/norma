@@ -24,10 +24,10 @@ export function DocumentsScreen() {
     t,
     addDocument,
     removeDocument,
-    setDocumentIdPrefix,
     addDocumentTab,
     addTabMetadataField,
     removeTabMetadataField,
+    setTabIdPrefix,
   } = useApp();
   const lang = state.lang;
   const [activeTabId, setActiveTabId] = useState(state.documentTabs[0]?.id ?? '');
@@ -67,14 +67,6 @@ export function DocumentsScreen() {
         <div className="sectionHead">
           <h2>{t.documentRegister}</h2>
           <div className={styles.headActions}>
-            <label className={styles.idPrefixField}>
-              {t.idPrefixLabel}
-              <input
-                className="input"
-                value={state.documentIdPrefix}
-                onChange={(event) => setDocumentIdPrefix(event.target.value)}
-              />
-            </label>
             <button
               type="button"
               className="btn btn-secondary"
@@ -133,6 +125,14 @@ export function DocumentsScreen() {
 
         {activeTab ? (
           <div className={styles.metadataBar}>
+            <label className={styles.idPrefixField}>
+              {t.idPrefixLabel}
+              <input
+                className="input"
+                value={activeTab.idPrefix}
+                onChange={(event) => setTabIdPrefix(activeTab.id, event.target.value)}
+              />
+            </label>
             <button
               type="button"
               className="btn btn-secondary"

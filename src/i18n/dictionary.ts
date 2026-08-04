@@ -27,7 +27,6 @@ const sv = {
   doneWord: 'klara',
   evidence: 'Bevis som revisorn vill se',
   createTask: 'Skapa uppgift',
-  fromTemplate: 'Starta från mall',
   evidenceHelp:
     'Detta är vad du ska kunna lägga fram om revisorn ber om det — inte bara berätta om det. Håll det uppdaterat och lätt att hitta.',
   markNA: 'Ej tillämpligt',
@@ -175,6 +174,7 @@ const sv = {
   doneEditing: 'Klar',
   addTextBlock: 'Lägg till textblock',
   addDiagramBlock: 'Lägg till processbild',
+  addOrgChart: 'Lägg till organisationsschema',
   textBlockHeadingLabel: 'Rubrik',
   textBlockBodyLabel: 'Brödtext',
   diagramTitleLabel: 'Titel',
@@ -221,6 +221,7 @@ const sv = {
   newBoxLabel: 'Ny låda',
   newTextHeading: 'Ny rubrik',
   newDiagramTitle: 'Ny processbild',
+  newOrgChartTitle: 'Organisationsschema',
   boxLabel: 'Låda',
   emptyDiagram: 'Ingen låda tillagd ännu.',
   emptyManagementSystem:
@@ -277,7 +278,6 @@ const en: Dictionary = {
   doneWord: 'done',
   evidence: 'Evidence the auditor wants',
   createTask: 'Create task',
-  fromTemplate: 'Start from template',
   evidenceHelp:
     'This is what you must be able to produce if the auditor asks — not just describe. Keep it current and easy to find.',
   markNA: 'Not applicable',
@@ -417,6 +417,7 @@ const en: Dictionary = {
   doneEditing: 'Done',
   addTextBlock: 'Add text block',
   addDiagramBlock: 'Add process image',
+  addOrgChart: 'Add organization chart',
   textBlockHeadingLabel: 'Heading',
   textBlockBodyLabel: 'Body text',
   diagramTitleLabel: 'Title',
@@ -463,6 +464,7 @@ const en: Dictionary = {
   newBoxLabel: 'New box',
   newTextHeading: 'New heading',
   newDiagramTitle: 'New process image',
+  newOrgChartTitle: 'Organization chart',
   boxLabel: 'Box',
   emptyDiagram: 'No box added yet.',
   emptyManagementSystem: 'No content added yet. Click Edit to add text or draw a process image.',

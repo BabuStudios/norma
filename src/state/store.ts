@@ -12,7 +12,6 @@ import type { SupplierFields, SupplierOverrides } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
 import { DICTIONARY, type Dictionary } from '@/i18n/dictionary';
 import type { StatusMap } from '@/domain/conformity';
-import type { UploadedFile } from '@/domain/evidence';
 import type { PageBlock } from '@/domain/page';
 
 /**
@@ -21,9 +20,9 @@ import type { PageBlock } from '@/domain/page';
  * Everything here is client-side in this build. In production the slices split
  * three ways:
  *   - `lang` and `supplierColumns` are user preferences,
- *   - `statuses`, `steps`, `auditChecks`, `reviewChecks` and `evidenceUploads`
- *     are per-organization data behind the API, each write landing in the
- *     append-only change log,
+ *   - `statuses`, `steps`, `auditChecks`, `reviewChecks` and
+ *     `evidenceDocumentLinks` are per-organization data behind the API, each
+ *     write landing in the append-only change log,
  *   - `supplierOverrides` disappears entirely — saving a supplier posts to the
  *     API and the table re-reads the record.
  */
@@ -39,21 +38,18 @@ export interface AppState {
   supplierColumns: Record<string, boolean>;
   supplierOverrides: SupplierOverrides;
   /**
-   * Files attached to a requirement's evidence rows, keyed
-   * `${clauseId}:${evidenceIndex}`. Metadata only — in production the actual
-   * bytes go to the document store and this becomes the link to that record.
+   * Document register ids linked to a requirement's evidence rows, keyed
+   * `${clauseId}:${evidenceIndex}`.
    */
-  evidenceUploads: Record<string, UploadedFile[]>;
+  evidenceDocumentLinks: Record<string, string[]>;
   /** Editable content on Ledningssystem: text blocks and process diagrams. */
   managementSystemBlocks: PageBlock[];
   /** The document register — starts from the (empty) seed and grows as the
    *  company adds documents. */
   documents: ManagedDocument[];
-  /** The document register's tabs and, per tab, which metadata fields apply
-   *  to documents filed under it. */
+  /** The document register's tabs — each with its own metadata fields and id
+   *  prefix — for documents filed under it. */
   documentTabs: DocumentTab[];
-  /** Prefix stamped on every new document id, e.g. "D" for D001, D002, … */
-  documentIdPrefix: string;
 }
 
 export interface AppActions {
@@ -65,16 +61,15 @@ export interface AppActions {
   toggleReviewCheck: (index: number) => void;
   toggleSupplierColumn: (key: string) => void;
   saveSupplier: (supplierId: string, fields: Partial<SupplierFields>) => void;
-  addEvidenceFiles: (clauseId: string, evidenceIndex: number, files: File[]) => void;
-  removeEvidenceFile: (clauseId: string, evidenceIndex: number, fileId: string) => void;
+  toggleEvidenceDocumentLink: (clauseId: string, evidenceIndex: number, documentId: string) => void;
   /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
   updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
   addDocument: (fields: NewDocumentFields, file?: File) => void;
   removeDocument: (id: string) => void;
-  setDocumentIdPrefix: (prefix: string) => void;
   addDocumentTab: (name: string) => void;
   addTabMetadataField: (tabId: string, field: string) => void;
   removeTabMetadataField: (tabId: string, field: string) => void;
+  setTabIdPrefix: (tabId: string, idPrefix: string) => void;
 }
 
 export const INITIAL_STATE: AppState = {
@@ -86,11 +81,10 @@ export const INITIAL_STATE: AppState = {
   reviewChecks: Object.fromEntries(REVIEW_INPUTS.map((r, i) => [i, r.defaultChecked])),
   supplierColumns: { nextEvaluation: true },
   supplierOverrides: {},
-  evidenceUploads: {},
+  evidenceDocumentLinks: {},
   managementSystemBlocks: [],
   documents: DOCUMENTS,
   documentTabs: DEFAULT_DOCUMENT_TABS,
-  documentIdPrefix: 'D',
 };
 
 export interface AppContextValue extends AppActions {

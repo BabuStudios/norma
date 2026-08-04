@@ -1,4 +1,5 @@
 import type { Clause } from '@/data/clauses';
+import type { ManagedDocument } from '@/data/documents';
 import type { Bilingual, ClauseStatus, Lang } from '@/data/types';
 
 /**
@@ -32,20 +33,11 @@ export const KIND_LABEL: Record<EvidenceKind, Bilingual> = {
 
 const ON_FILE: Bilingual = { sv: 'Finns', en: 'On file' };
 const MISSING: Bilingual = { sv: 'Saknas', en: 'Missing' };
-const UPLOAD: Bilingual = { sv: 'Ladda upp', en: 'Upload' };
+const LINK_DOCUMENT: Bilingual = { sv: 'Koppla dokument', en: 'Link document' };
 
 export function evidenceKind(swedishLabel: string): EvidenceKind {
   const text = swedishLabel.toLowerCase();
   return KIND_PATTERNS.find((p) => p.test.test(text))?.kind ?? 'document';
-}
-
-/** A file the user has attached to one evidence item. Metadata only — the
- *  bytes stay on the user's machine; nothing here is a document store. */
-export interface UploadedFile {
-  id: string;
-  name: string;
-  size: number;
-  uploadedAt: string;
 }
 
 export interface EvidenceRow {
@@ -56,26 +48,27 @@ export interface EvidenceRow {
   onFile: boolean;
   stateLabel: string;
   actionLabel: string;
-  files: UploadedFile[];
+  linkedDocuments: ManagedDocument[];
 }
 
 /**
- * Whether an artifact is on file stands in for the document store, which is
- * empty: nothing is on file until the company uploads it, or the clause is met
- * — the one status that asserts the artifacts already exist. Once a file is
- * attached to a specific evidence item, that item reads "on file" regardless
- * of the clause's overall status, since the artifact is now demonstrably there.
+ * Whether an artifact is on file stands in for the document store: nothing is
+ * on file until the company links a document to it from the register, or the
+ * clause is met — the one status that asserts the artifacts already exist.
+ * Once a document is linked to a specific evidence item, that item reads "on
+ * file" regardless of the clause's overall status, since the artifact is now
+ * demonstrably there.
  */
 export function evidenceRows(
   clause: Clause,
   status: ClauseStatus | undefined,
   lang: Lang,
-  uploadsByIndex: Record<number, UploadedFile[]> = {},
+  linkedByIndex: Record<number, ManagedDocument[]> = {},
 ): EvidenceRow[] {
   return clause[lang].evidence.map((item, index) => {
     const kind = evidenceKind(clause.sv.evidence[index]?.label ?? item.label);
-    const files = uploadsByIndex[index] ?? [];
-    const onFile = status === 'met' || files.length > 0;
+    const linkedDocuments = linkedByIndex[index] ?? [];
+    const onFile = status === 'met' || linkedDocuments.length > 0;
     return {
       kind,
       kindLabel: KIND_LABEL[kind][lang],
@@ -83,26 +76,32 @@ export function evidenceRows(
       description: item.ask,
       onFile,
       stateLabel: onFile ? ON_FILE[lang] : MISSING[lang],
-      actionLabel: UPLOAD[lang],
-      files,
+      actionLabel: LINK_DOCUMENT[lang],
+      linkedDocuments,
     };
   });
 }
 
 /**
- * Uploads are stored globally keyed by `${clauseId}:${evidenceIndex}` (see
- * AppState.evidenceUploads); this narrows that map to one clause and re-keys
- * it by evidence index, which is what evidenceRows needs.
+ * Evidence-to-document links are stored globally keyed by
+ * `${clauseId}:${evidenceIndex}` (see AppState.evidenceDocumentLinks) as
+ * document ids; this narrows that map to one clause, re-keys it by evidence
+ * index, and resolves the ids against the document register — which is what
+ * evidenceRows needs.
  */
-export function uploadsForClause(
-  evidenceUploads: Record<string, UploadedFile[]>,
+export function linkedDocumentsForClause(
+  evidenceDocumentLinks: Record<string, string[]>,
+  documents: ManagedDocument[],
   clauseId: string,
-): Record<number, UploadedFile[]> {
+): Record<number, ManagedDocument[]> {
   const prefix = `${clauseId}:`;
-  const result: Record<number, UploadedFile[]> = {};
-  for (const [key, files] of Object.entries(evidenceUploads)) {
-    if (!key.startsWith(prefix) || files.length === 0) continue;
-    result[Number(key.slice(prefix.length))] = files;
+  const result: Record<number, ManagedDocument[]> = {};
+  for (const [key, documentIds] of Object.entries(evidenceDocumentLinks)) {
+    if (!key.startsWith(prefix) || documentIds.length === 0) continue;
+    const linked = documentIds
+      .map((id) => documents.find((document) => document.id === id))
+      .filter((document): document is ManagedDocument => document !== undefined);
+    if (linked.length > 0) result[Number(key.slice(prefix.length))] = linked;
   }
   return result;
 }

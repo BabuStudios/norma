@@ -48,7 +48,8 @@ describe('adding a document', () => {
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getByText('Kvalitetshandbok')).toBeInTheDocument();
-    expect(screen.getByText('D001')).toBeInTheDocument();
+    // Mallar is the active tab and ships with the "M" prefix.
+    expect(screen.getByText('M001')).toBeInTheDocument();
     expect(screen.getByText('Maja Karlsson')).toBeInTheDocument();
     expect(screen.getByText('Utkast')).toBeInTheDocument();
     expect(screen.queryByLabelText('Dokumentnamn')).not.toBeInTheDocument();
@@ -84,8 +85,8 @@ describe('adding a document', () => {
     await user.type(screen.getByLabelText('Dokumentnamn'), 'Sedan');
     await user.click(screen.getByRole('button', { name: 'Spara dokument' }));
 
-    expect(screen.getByText('D001')).toBeInTheDocument();
-    expect(screen.getByText('D002')).toBeInTheDocument();
+    expect(screen.getByText('M001')).toBeInTheDocument();
+    expect(screen.getByText('M002')).toBeInTheDocument();
   });
 
   it('lets a file be attached and shows its name in the register', async () => {
@@ -174,8 +175,19 @@ describe('document tabs', () => {
   });
 });
 
-describe('the ID prefix', () => {
-  it('stamps new documents with the configured prefix', async () => {
+describe('the ID prefix, per tab', () => {
+  it('defaults each stock tab to its own prefix', async () => {
+    const { user } = render();
+    expect(screen.getByLabelText('ID-prefix')).toHaveValue('M');
+
+    await user.click(screen.getByRole('tab', { name: 'Styrande' }));
+    expect(screen.getByLabelText('ID-prefix')).toHaveValue('S');
+
+    await user.click(screen.getByRole('tab', { name: 'Redovisande' }));
+    expect(screen.getByLabelText('ID-prefix')).toHaveValue('R');
+  });
+
+  it('stamps new documents with the active tab’s configured prefix', async () => {
     const { user } = render();
     const prefixInput = screen.getByLabelText('ID-prefix');
     await user.clear(prefixInput);
@@ -186,6 +198,30 @@ describe('the ID prefix', () => {
     await user.click(screen.getByRole('button', { name: 'Spara dokument' }));
 
     expect(screen.getByText('POL-001')).toBeInTheDocument();
+  });
+
+  it('numbers each tab’s documents independently of the others', async () => {
+    const { user } = render();
+    await user.click(screen.getByRole('button', { name: '+ Nytt dokument' }));
+    await user.type(screen.getByLabelText('Dokumentnamn'), 'Mallpolicy');
+    await user.click(screen.getByRole('button', { name: 'Spara dokument' }));
+    expect(screen.getByText('M001')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Styrande' }));
+    await user.click(screen.getByRole('button', { name: '+ Nytt dokument' }));
+    await user.type(screen.getByLabelText('Dokumentnamn'), 'Styrpolicy');
+    await user.click(screen.getByRole('button', { name: 'Spara dokument' }));
+    expect(screen.getByText('S001')).toBeInTheDocument();
+  });
+
+  it('leaves other tabs’ prefixes untouched when one is changed', async () => {
+    const { user } = render();
+    const prefixInput = screen.getByLabelText('ID-prefix');
+    await user.clear(prefixInput);
+    await user.type(prefixInput, 'POL-');
+
+    await user.click(screen.getByRole('tab', { name: 'Styrande' }));
+    expect(screen.getByLabelText('ID-prefix')).toHaveValue('S');
   });
 });
 

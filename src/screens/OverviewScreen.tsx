@@ -64,6 +64,15 @@ export function OverviewScreen() {
             >
               {t.addDiagramBlock}
             </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() =>
+                updateManagementSystemBlocks((prev) => addDiagramBlock(prev, t.newOrgChartTitle))
+              }
+            >
+              {t.addOrgChart}
+            </button>
           </div>
         ) : null}
 

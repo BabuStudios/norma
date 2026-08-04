@@ -5,12 +5,12 @@ import {
   createDocument,
   removeDocument as removeDocumentPure,
   removeTabMetadataField as removeTabMetadataFieldPure,
+  updateTabIdPrefix as updateTabIdPrefixPure,
   type NewDocumentFields,
 } from '@/data/documents';
 import { ORGANIZATIONS } from '@/data/organizations';
 import type { SupplierFields } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
-import type { UploadedFile } from '@/domain/evidence';
 import { registerFile, releaseFile } from '@/domain/fileStore';
 import type { PageBlock } from '@/domain/page';
 import { AppContext, INITIAL_STATE, dictionaryFor, type AppState } from './store';
@@ -100,41 +100,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const addEvidenceFiles = useCallback((clauseId: string, evidenceIndex: number, files: File[]) => {
-    if (files.length === 0) return;
-    const key = `${clauseId}:${evidenceIndex}`;
-    const uploadedAt = new Date().toISOString();
-    // Not crypto.randomUUID(): this only has to be unique within one evidence
-    // row's list, and the app already runs without other UUID needs.
-    const added: UploadedFile[] = files.map((file, index) => ({
-      id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
-      name: file.name,
-      size: file.size,
-      uploadedAt,
-    }));
-    added.forEach((uploaded, index) => registerFile(uploaded.id, files[index]));
-    setState((prev) => ({
-      ...prev,
-      evidenceUploads: {
-        ...prev.evidenceUploads,
-        [key]: [...(prev.evidenceUploads[key] ?? []), ...added],
-      },
-    }));
-  }, []);
-
-  const removeEvidenceFile = useCallback(
-    (clauseId: string, evidenceIndex: number, fileId: string) => {
-      releaseFile(fileId);
+  const toggleEvidenceDocumentLink = useCallback(
+    (clauseId: string, evidenceIndex: number, documentId: string) => {
       const key = `${clauseId}:${evidenceIndex}`;
       setState((prev) => {
-        const remaining = (prev.evidenceUploads[key] ?? []).filter((file) => file.id !== fileId);
-        const evidenceUploads = { ...prev.evidenceUploads };
-        if (remaining.length === 0) {
-          delete evidenceUploads[key];
+        const linked = prev.evidenceDocumentLinks[key] ?? [];
+        const next = linked.includes(documentId)
+          ? linked.filter((id) => id !== documentId)
+          : [...linked, documentId];
+        const evidenceDocumentLinks = { ...prev.evidenceDocumentLinks };
+        if (next.length === 0) {
+          delete evidenceDocumentLinks[key];
         } else {
-          evidenceUploads[key] = remaining;
+          evidenceDocumentLinks[key] = next;
         }
-        return { ...prev, evidenceUploads };
+        return { ...prev, evidenceDocumentLinks };
       });
     },
     [],
@@ -152,7 +132,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addDocument = useCallback((fields: NewDocumentFields, file?: File) => {
     setState((prev) => {
-      const document = createDocument(fields, prev.documents.length, prev.documentIdPrefix);
+      const tab = prev.documentTabs.find((candidate) => candidate.id === fields.tabId);
+      const indexInTab = prev.documents.filter(
+        (candidate) => candidate.tabId === fields.tabId,
+      ).length;
+      const document = createDocument(fields, indexInTab, tab?.idPrefix ?? 'D');
       if (file) registerFile(document.id, file);
       return { ...prev, documents: [...prev.documents, document] };
     });
@@ -163,8 +147,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, documents: removeDocumentPure(prev.documents, id) }));
   }, []);
 
-  const setDocumentIdPrefix = useCallback((prefix: string) => {
-    setState((prev) => ({ ...prev, documentIdPrefix: prefix }));
+  const setTabIdPrefix = useCallback((tabId: string, idPrefix: string) => {
+    setState((prev) => ({
+      ...prev,
+      documentTabs: updateTabIdPrefixPure(prev.documentTabs, tabId, idPrefix),
+    }));
   }, []);
 
   const addDocumentTab = useCallback((name: string) => {
@@ -197,15 +184,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleReviewCheck,
       toggleSupplierColumn,
       saveSupplier,
-      addEvidenceFiles,
-      removeEvidenceFile,
+      toggleEvidenceDocumentLink,
       updateManagementSystemBlocks,
       addDocument,
       removeDocument,
-      setDocumentIdPrefix,
       addDocumentTab,
       addTabMetadataField,
       removeTabMetadataField,
+      setTabIdPrefix,
     }),
     [
       state,
@@ -217,15 +203,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleReviewCheck,
       toggleSupplierColumn,
       saveSupplier,
-      addEvidenceFiles,
-      removeEvidenceFile,
+      toggleEvidenceDocumentLink,
       updateManagementSystemBlocks,
       addDocument,
       removeDocument,
-      setDocumentIdPrefix,
       addDocumentTab,
       addTabMetadataField,
       removeTabMetadataField,
+      setTabIdPrefix,
     ],
   );
 
