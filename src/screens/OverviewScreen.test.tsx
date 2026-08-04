@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderScreen } from '@/test/render';
 import { OverviewScreen } from './OverviewScreen';
@@ -184,20 +184,34 @@ describe('the process diagram tool', () => {
     expect(node.querySelector('[class*="resizeHandle"]')).toBeInTheDocument();
   });
 
-  const edgeLines = () => document.querySelectorAll('[class*="edges"] line');
+  const edgeLines = () => document.querySelectorAll('[class*="edgeLine"]');
+  const nodeContainers = () =>
+    Array.from(document.querySelectorAll('[data-shape]')) as HTMLElement[];
+  const connectionPointsOf = (node: HTMLElement) =>
+    within(node).getAllByRole('button', { name: 'Kopplingspunkt' });
 
-  it('connects two boxes with an arrow', async () => {
+  it('shows connection points around a box only in arrow mode', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    expect(screen.queryAllByRole('button', { name: 'Kopplingspunkt' })).toHaveLength(0);
+
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    expect(screen.getAllByRole('button', { name: 'Kopplingspunkt' })).toHaveLength(8);
+  });
+
+  it('connects two boxes with an arrow drawn between chosen connection points', async () => {
     const { user } = render();
     await addDiagram(user);
     await user.click(screen.getByRole('button', { name: 'Process' }));
     await user.click(screen.getByRole('button', { name: 'Process' }));
 
-    await user.click(screen.getByRole('button', { name: 'Koppla' }));
-    const nodeButtons = screen.getAllByRole('button', { name: 'Ny låda' });
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    const [first, second] = nodeContainers();
     expect(edgeLines()).toHaveLength(0);
 
-    await user.click(nodeButtons[0]);
-    await user.click(nodeButtons[1]);
+    await user.click(connectionPointsOf(first)[0]);
+    await user.click(connectionPointsOf(second)[0]);
     expect(edgeLines()).toHaveLength(1);
   });
 
@@ -206,11 +220,31 @@ describe('the process diagram tool', () => {
     await addDiagram(user);
     await user.click(screen.getByRole('button', { name: 'Process' }));
 
-    await user.click(screen.getByRole('button', { name: 'Koppla' }));
-    const [node] = screen.getAllByRole('button', { name: 'Ny låda' });
-    await user.click(node);
-    await user.click(node);
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    const [node] = nodeContainers();
+    const [point] = connectionPointsOf(node);
+    await user.click(point);
+    await user.click(point);
     expect(edgeLines()).toHaveLength(0);
+  });
+
+  it('draws a curved, dashed arrow when those styles are selected', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    await user.click(screen.getByRole('button', { name: 'Streckad' }));
+    await user.click(screen.getByRole('button', { name: 'Svängd' }));
+
+    const [first, second] = nodeContainers();
+    await user.click(connectionPointsOf(first)[0]);
+    await user.click(connectionPointsOf(second)[0]);
+
+    const [line] = edgeLines();
+    expect(line.getAttribute('stroke-dasharray')).toBe('10 6');
+    expect(line.getAttribute('d')).toContain('Q');
   });
 
   it('deletes a box, taking its edge with it', async () => {
@@ -218,13 +252,13 @@ describe('the process diagram tool', () => {
     await addDiagram(user);
     await user.click(screen.getByRole('button', { name: 'Process' }));
     await user.click(screen.getByRole('button', { name: 'Process' }));
-    await user.click(screen.getByRole('button', { name: 'Koppla' }));
-    const [first, second] = screen.getAllByRole('button', { name: 'Ny låda' });
-    await user.click(first);
-    await user.click(second);
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    const [first, second] = nodeContainers();
+    await user.click(connectionPointsOf(first)[0]);
+    await user.click(connectionPointsOf(second)[0]);
     expect(edgeLines()).toHaveLength(1);
 
-    await user.click(screen.getByRole('button', { name: 'Koppla' })); // back to select
+    await user.click(screen.getByRole('button', { name: 'Pil' })); // back to select
     await user.click(screen.getByRole('button', { name: 'Ta bort' }));
     const [remaining] = screen.getAllByRole('button', { name: 'Ny låda' });
     await user.click(remaining);

@@ -4,7 +4,8 @@ import {
   addDiagramEdge,
   addDiagramNode,
   addTextBlock,
-  boxEdgePoint,
+  connectionPointCoords,
+  edgePath,
   moveBlock,
   moveDiagramNode,
   removeBlock,
@@ -20,6 +21,9 @@ import {
   type PageBlock,
   type SnapBox,
 } from './page';
+
+const addEdge = (blocks: PageBlock[], blockId: string, from: string, to: string): PageBlock[] =>
+  addDiagramEdge(blocks, blockId, from, to, 'e', 'w', 'solid', 'straight');
 
 describe('text blocks', () => {
   it('adds a text block with the given heading and an empty body', () => {
@@ -127,10 +131,25 @@ describe('diagram blocks', () => {
     blocks = addDiagramNode(blocks, id, 'A', 'process');
     blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
-    blocks = addDiagramEdge(blocks, id, a.id, b.id);
+    blocks = addEdge(blocks, id, a.id, b.id);
     expect((blocks[0] as DiagramBlock).edges).toEqual([
       expect.objectContaining({ from: a.id, to: b.id }),
     ]);
+  });
+
+  it('stores the requested attachment points and line style', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    blocks = addDiagramNode(blocks, id, 'B', 'process');
+    const [a, b] = (blocks[0] as DiagramBlock).nodes;
+    blocks = addDiagramEdge(blocks, id, a.id, b.id, 'se', 'nw', 'dashed', 'curved');
+    expect((blocks[0] as DiagramBlock).edges[0]).toMatchObject({
+      fromPoint: 'se',
+      toPoint: 'nw',
+      lineStyle: 'dashed',
+      lineShape: 'curved',
+    });
   });
 
   it('refuses a self-loop', () => {
@@ -138,7 +157,7 @@ describe('diagram blocks', () => {
     const id = blocks[0].id;
     blocks = addDiagramNode(blocks, id, 'A', 'process');
     const [a] = (blocks[0] as DiagramBlock).nodes;
-    blocks = addDiagramEdge(blocks, id, a.id, a.id);
+    blocks = addEdge(blocks, id, a.id, a.id);
     expect((blocks[0] as DiagramBlock).edges).toHaveLength(0);
   });
 
@@ -148,8 +167,8 @@ describe('diagram blocks', () => {
     blocks = addDiagramNode(blocks, id, 'A', 'process');
     blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
-    blocks = addDiagramEdge(blocks, id, a.id, b.id);
-    blocks = addDiagramEdge(blocks, id, b.id, a.id);
+    blocks = addEdge(blocks, id, a.id, b.id);
+    blocks = addEdge(blocks, id, b.id, a.id);
     expect((blocks[0] as DiagramBlock).edges).toHaveLength(1);
   });
 
@@ -159,7 +178,7 @@ describe('diagram blocks', () => {
     blocks = addDiagramNode(blocks, id, 'A', 'process');
     blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
-    blocks = addDiagramEdge(blocks, id, a.id, b.id);
+    blocks = addEdge(blocks, id, a.id, b.id);
     blocks = removeDiagramNode(blocks, id, a.id);
     const diagram = blocks[0] as DiagramBlock;
     expect(diagram.nodes.map((n) => n.id)).toEqual([b.id]);
@@ -172,7 +191,7 @@ describe('diagram blocks', () => {
     blocks = addDiagramNode(blocks, id, 'A', 'process');
     blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
-    blocks = addDiagramEdge(blocks, id, a.id, b.id);
+    blocks = addEdge(blocks, id, a.id, b.id);
     const edgeId = (blocks[0] as DiagramBlock).edges[0].id;
     blocks = removeDiagramEdge(blocks, id, edgeId);
     const diagram = blocks[0] as DiagramBlock;
@@ -281,18 +300,27 @@ describe('snapNodePosition', () => {
   });
 });
 
-describe('boxEdgePoint', () => {
-  it('returns the center when there is no direction', () => {
-    expect(boxEdgePoint(50, 50, 0, 0, 75, 28)).toEqual({ x: 50, y: 50 });
+describe('connectionPointCoords', () => {
+  const box = { x: 100, y: 200, width: 60, height: 40 };
+
+  it('places the four edge midpoints and corners around the box', () => {
+    expect(connectionPointCoords(box, 'n')).toEqual({ x: 130, y: 200 });
+    expect(connectionPointCoords(box, 'e')).toEqual({ x: 160, y: 220 });
+    expect(connectionPointCoords(box, 's')).toEqual({ x: 130, y: 240 });
+    expect(connectionPointCoords(box, 'w')).toEqual({ x: 100, y: 220 });
+    expect(connectionPointCoords(box, 'nw')).toEqual({ x: 100, y: 200 });
+    expect(connectionPointCoords(box, 'se')).toEqual({ x: 160, y: 240 });
+  });
+});
+
+describe('edgePath', () => {
+  it('draws a straight line as a plain segment', () => {
+    expect(edgePath({ x: 0, y: 0 }, { x: 100, y: 0 }, 'straight')).toBe('M0,0 L100,0');
   });
 
-  it('exits through the right edge when pointing mostly horizontal', () => {
-    const point = boxEdgePoint(0, 0, 100, 10, 75, 28);
-    expect(point.x).toBeCloseTo(75);
-  });
-
-  it('exits through the bottom edge when pointing mostly vertical', () => {
-    const point = boxEdgePoint(0, 0, 10, 100, 75, 28);
-    expect(point.y).toBeCloseTo(28);
+  it('bows a curved line away from the straight path', () => {
+    const path = edgePath({ x: 0, y: 0 }, { x: 100, y: 0 }, 'curved');
+    expect(path).toMatch(/^M0,0 Q\d+(\.\d+)?,-?\d+(\.\d+)? 100,0$/);
+    expect(path).not.toContain('Q50,0 ');
   });
 });

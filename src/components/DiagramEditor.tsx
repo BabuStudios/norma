@@ -1,11 +1,18 @@
 import { useCallback, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import {
-  boxEdgePoint,
+  ARROW_LINE_SHAPES,
+  ARROW_LINE_STYLES,
+  CONNECTION_POINTS,
+  connectionPointCoords,
   DIAGRAM_NODE_MIN_HEIGHT,
   DIAGRAM_NODE_MIN_WIDTH,
   DIAGRAM_SHAPES,
+  edgePath,
   snapNodePosition,
   snapToGrid,
+  type ArrowLineShape,
+  type ArrowLineStyle,
+  type ConnectionPoint,
   type DiagramBlock,
   type DiagramNode,
   type DiagramShape,
@@ -17,6 +24,37 @@ import { DiagramShapeSvg } from './DiagramShape';
 import styles from './DiagramEditor.module.css';
 
 type NodeMenuView = 'root' | 'connect';
+
+const ARROW_STYLE_LABEL: Record<ArrowLineStyle, keyof Dictionary> = {
+  solid: 'arrowStyleSolid',
+  dashed: 'arrowStyleDashed',
+  dotted: 'arrowStyleDotted',
+  dashDot: 'arrowStyleDashDot',
+};
+
+const ARROW_SHAPE_LABEL: Record<ArrowLineShape, keyof Dictionary> = {
+  straight: 'arrowShapeStraight',
+  curved: 'arrowShapeCurved',
+};
+
+const ARROW_DASH: Record<ArrowLineStyle, string | undefined> = {
+  solid: undefined,
+  dashed: '10 6',
+  dotted: '1.5 5',
+  dashDot: '10 5 1.5 5',
+};
+
+/** Fixed CSS position (percent of box width/height) for each connection point. */
+const CONNECTION_POINT_OFFSET: Record<ConnectionPoint, { left: string; top: string }> = {
+  n: { left: '50%', top: '0%' },
+  ne: { left: '100%', top: '0%' },
+  e: { left: '100%', top: '50%' },
+  se: { left: '100%', top: '100%' },
+  s: { left: '50%', top: '100%' },
+  sw: { left: '0%', top: '100%' },
+  w: { left: '0%', top: '50%' },
+  nw: { left: '0%', top: '0%' },
+};
 
 const SHAPE_LABEL: Record<DiagramShape, keyof Dictionary> = {
   process: 'shapeProcess',
@@ -50,18 +88,6 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-/** Box-to-box arrow coordinates, trimmed to each node's edge rather than its
- *  center, so the line meets the border instead of crossing the label. */
-function edgeLine(from: DiagramNode, to: DiagramNode): [number, number, number, number] {
-  const fromCenter = { x: from.x + from.width / 2, y: from.y + from.height / 2 };
-  const toCenter = { x: to.x + to.width / 2, y: to.y + to.height / 2 };
-  const dx = toCenter.x - fromCenter.x;
-  const dy = toCenter.y - fromCenter.y;
-  const start = boxEdgePoint(fromCenter.x, fromCenter.y, dx, dy, from.width / 2, from.height / 2);
-  const end = boxEdgePoint(toCenter.x, toCenter.y, -dx, -dy, to.width / 2, to.height / 2);
-  return [start.x, start.y, end.x, end.y];
-}
-
 export function DiagramEditor({
   block,
   editing,
@@ -84,11 +110,23 @@ export function DiagramEditor({
   onResizeNode: (nodeId: string, width: number, height: number) => void;
   onLabelChange: (nodeId: string, label: string) => void;
   onRemoveNode: (nodeId: string) => void;
-  onAddEdge: (from: string, to: string) => void;
+  onAddEdge: (
+    from: string,
+    to: string,
+    fromPoint: ConnectionPoint,
+    toPoint: ConnectionPoint,
+    lineStyle: ArrowLineStyle,
+    lineShape: ArrowLineShape,
+  ) => void;
   onRemoveEdge: (edgeId: string) => void;
 }) {
   const [mode, setMode] = useState<Mode>('select');
-  const [pendingSource, setPendingSource] = useState<string | null>(null);
+  const [pendingSource, setPendingSource] = useState<{
+    nodeId: string;
+    point: ConnectionPoint;
+  } | null>(null);
+  const [lineStyle, setLineStyle] = useState<ArrowLineStyle>('solid');
+  const [lineShape, setLineShape] = useState<ArrowLineShape>('straight');
   const [drag, setDrag] = useState<{
     nodeId: string;
     pointerId: number;
@@ -109,21 +147,19 @@ export function DiagramEditor({
 
   const markerId = `diagram-arrow-${block.id}`;
 
-  const handleNodeClick = (nodeId: string) => {
-    if (mode === 'delete') {
-      onRemoveNode(nodeId);
+  const handleConnectionPointClick = (nodeId: string, point: ConnectionPoint) => {
+    if (!pendingSource) {
+      setPendingSource({ nodeId, point });
       return;
     }
-    if (mode === 'connect') {
-      if (pendingSource === null) {
-        setPendingSource(nodeId);
-      } else if (pendingSource === nodeId) {
-        setPendingSource(null);
-      } else {
-        onAddEdge(pendingSource, nodeId);
-        setPendingSource(null);
-      }
+    if (pendingSource.nodeId === nodeId) {
+      // Same box again: re-picking the same point cancels, a different one
+      // just moves where the arrow will start from.
+      setPendingSource(pendingSource.point === point ? null : { nodeId, point });
+      return;
     }
+    onAddEdge(pendingSource.nodeId, nodeId, pendingSource.point, point, lineStyle, lineShape);
+    setPendingSource(null);
   };
 
   const startDrag = (event: ReactPointerEvent<HTMLDivElement>, node: DiagramNode) => {
@@ -260,7 +296,7 @@ export function DiagramEditor({
             aria-pressed={mode === 'connect'}
             onClick={() => setToolMode('connect')}
           >
-            {t.connectBoxes}
+            {t.arrowMode}
           </button>
           <button
             type="button"
@@ -270,6 +306,44 @@ export function DiagramEditor({
           >
             {t.deleteMode}
           </button>
+          {mode === 'connect' ? (
+            <div className={styles.arrowStylePanel}>
+              <div
+                className="segmented segmented--caps"
+                role="group"
+                aria-label={t.arrowLineStyleLabel}
+              >
+                {ARROW_LINE_STYLES.map((style) => (
+                  <button
+                    key={style}
+                    type="button"
+                    className="segmented__opt"
+                    aria-pressed={lineStyle === style}
+                    onClick={() => setLineStyle(style)}
+                  >
+                    {t[ARROW_STYLE_LABEL[style]]}
+                  </button>
+                ))}
+              </div>
+              <div
+                className="segmented segmented--caps"
+                role="group"
+                aria-label={t.arrowLineShapeLabel}
+              >
+                {ARROW_LINE_SHAPES.map((shape) => (
+                  <button
+                    key={shape}
+                    type="button"
+                    className="segmented__opt"
+                    aria-pressed={lineShape === shape}
+                    onClick={() => setLineShape(shape)}
+                  >
+                    {t[ARROW_SHAPE_LABEL[shape]]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -304,24 +378,25 @@ export function DiagramEditor({
               const from = block.nodes.find((node) => node.id === edge.from);
               const to = block.nodes.find((node) => node.id === edge.to);
               if (!from || !to) return null;
-              const [x1, y1, x2, y2] = edgeLine(from, to);
+              const start = connectionPointCoords(from, edge.fromPoint);
+              const end = connectionPointCoords(to, edge.toPoint);
+              const d = edgePath(start, end, edge.lineShape);
               return (
                 <g key={edge.id}>
-                  <line
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
+                  <path
+                    d={d}
+                    fill="none"
                     stroke="var(--color-text)"
                     strokeWidth={1.5}
+                    strokeDasharray={ARROW_DASH[edge.lineStyle]}
+                    strokeLinecap={edge.lineStyle === 'dotted' ? 'round' : undefined}
+                    className={styles.edgeLine}
                     markerEnd={`url(#${markerId})`}
                   />
                   {editing && mode === 'delete' ? (
-                    <line
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
+                    <path
+                      d={d}
+                      fill="none"
                       stroke="transparent"
                       strokeWidth={14}
                       className={styles.edgeHit}
@@ -393,13 +468,34 @@ export function DiagramEditor({
                   onPointerDown={(event) => event.stopPropagation()}
                   aria-label={t.boxLabel}
                 />
+              ) : editing && mode === 'connect' ? (
+                <>
+                  <span className={styles.nodeStatic}>{node.label || t.newBoxLabel}</span>
+                  {CONNECTION_POINTS.map((point) => (
+                    <button
+                      key={point}
+                      type="button"
+                      className={`${styles.connectionPoint} ${
+                        pendingSource?.nodeId === node.id && pendingSource.point === point
+                          ? styles.connectionPointActive
+                          : ''
+                      }`}
+                      style={CONNECTION_POINT_OFFSET[point]}
+                      aria-label={t.connectionPointLabel}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleConnectionPointClick(node.id, point);
+                      }}
+                    />
+                  ))}
+                </>
               ) : editing ? (
                 <button
                   type="button"
-                  className={`${styles.nodeButton} ${pendingSource === node.id ? styles.nodePending : ''}`}
+                  className={styles.nodeButton}
                   onClick={(event) => {
                     event.stopPropagation();
-                    handleNodeClick(node.id);
+                    onRemoveNode(node.id);
                   }}
                 >
                   {node.label || t.newBoxLabel}

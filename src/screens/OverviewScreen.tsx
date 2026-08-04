@@ -175,9 +175,18 @@ export function OverviewScreen() {
                         removeDiagramNode(prev, block.id, nodeId),
                       )
                     }
-                    onAddEdge={(from, to) =>
+                    onAddEdge={(from, to, fromPoint, toPoint, lineStyle, lineShape) =>
                       updateManagementSystemBlocks((prev) =>
-                        addDiagramEdge(prev, block.id, from, to),
+                        addDiagramEdge(
+                          prev,
+                          block.id,
+                          from,
+                          to,
+                          fromPoint,
+                          toPoint,
+                          lineStyle,
+                          lineShape,
+                        ),
                       )
                     }
                     onRemoveEdge={(edgeId) =>

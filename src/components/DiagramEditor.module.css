@@ -215,10 +215,55 @@
 .nodeButton:hover {
   background: var(--ink-6);
 }
-.nodePending {
-  background: var(--ink-10);
-  outline: 2px solid var(--color-accent);
-  outline-offset: -2px;
+
+/* — a box's label while an arrow is being drawn: plain, non-interactive text
+   so it doesn't compete with the connection-point dots for clicks — */
+.nodeStatic {
+  position: absolute;
+  inset: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  word-break: break-word;
+  pointer-events: none;
+}
+
+/* — the eight fixed connection-point dots shown around a box's border while
+   an arrow is being drawn, one per compass position — */
+.connectionPoint {
+  position: absolute;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg);
+  transform: translate(-50%, -50%);
+  cursor: crosshair;
+}
+.connectionPoint:hover {
+  background: var(--color-accent);
+}
+.connectionPointActive {
+  background: var(--color-accent);
+}
+
+/* — line-style / line-shape pickers shown in the toolbar while drawing — */
+.arrowStylePanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.edgeLine {
+  fill: none;
 }
 
 .resizeHandle {

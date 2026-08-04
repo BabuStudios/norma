@@ -73,10 +73,30 @@ export interface DiagramNode {
   shape: DiagramShape;
 }
 
+/**
+ * Fixed attachment points around a box's perimeter — the four corners plus
+ * the four edge midpoints — so an arrow can be anchored to a specific spot
+ * on a box instead of always meeting it wherever the center-to-center line
+ * happens to cross.
+ */
+export type ConnectionPoint = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
+
+export const CONNECTION_POINTS: ConnectionPoint[] = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
+
+export type ArrowLineStyle = 'solid' | 'dashed' | 'dotted' | 'dashDot';
+export const ARROW_LINE_STYLES: ArrowLineStyle[] = ['solid', 'dashed', 'dotted', 'dashDot'];
+
+export type ArrowLineShape = 'straight' | 'curved';
+export const ARROW_LINE_SHAPES: ArrowLineShape[] = ['straight', 'curved'];
+
 export interface DiagramEdge {
   id: string;
   from: string;
   to: string;
+  fromPoint: ConnectionPoint;
+  toPoint: ConnectionPoint;
+  lineStyle: ArrowLineStyle;
+  lineShape: ArrowLineShape;
 }
 
 export interface DiagramBlock {
@@ -248,6 +268,10 @@ export function addDiagramEdge(
   blockId: string,
   from: string,
   to: string,
+  fromPoint: ConnectionPoint,
+  toPoint: ConnectionPoint,
+  lineStyle: ArrowLineStyle,
+  lineShape: ArrowLineShape,
 ): PageBlock[] {
   if (from === to) return blocks;
   return mapDiagram(blocks, blockId, (block) => {
@@ -255,7 +279,13 @@ export function addDiagramEdge(
       (edge) => (edge.from === from && edge.to === to) || (edge.from === to && edge.to === from),
     );
     if (exists) return block;
-    return { ...block, edges: [...block.edges, { id: genId('edge'), from, to }] };
+    return {
+      ...block,
+      edges: [
+        ...block.edges,
+        { id: genId('edge'), from, to, fromPoint, toPoint, lineStyle, lineShape },
+      ],
+    };
   });
 }
 
@@ -270,23 +300,50 @@ export function removeDiagramEdge(
   }));
 }
 
-/**
- * Point where the ray from a box's center toward (dx, dy) crosses its edge,
- * so an arrow meets the box border instead of overlapping its label.
- */
-export function boxEdgePoint(
-  cx: number,
-  cy: number,
-  dx: number,
-  dy: number,
-  halfWidth: number,
-  halfHeight: number,
+/** Pixel coordinate of one of a box's eight fixed connection points. */
+export function connectionPointCoords(
+  box: { x: number; y: number; width: number; height: number },
+  point: ConnectionPoint,
 ): { x: number; y: number } {
-  if (dx === 0 && dy === 0) return { x: cx, y: cy };
-  const scaleX = dx !== 0 ? halfWidth / Math.abs(dx) : Infinity;
-  const scaleY = dy !== 0 ? halfHeight / Math.abs(dy) : Infinity;
-  const scale = Math.min(scaleX, scaleY);
-  return { x: cx + dx * scale, y: cy + dy * scale };
+  const { x, y, width, height } = box;
+  switch (point) {
+    case 'n':
+      return { x: x + width / 2, y };
+    case 'ne':
+      return { x: x + width, y };
+    case 'e':
+      return { x: x + width, y: y + height / 2 };
+    case 'se':
+      return { x: x + width, y: y + height };
+    case 's':
+      return { x: x + width / 2, y: y + height };
+    case 'sw':
+      return { x, y: y + height };
+    case 'w':
+      return { x, y: y + height / 2 };
+    case 'nw':
+      return { x, y };
+  }
+}
+
+/**
+ * SVG path `d` for an edge between two connection points — a straight
+ * segment, or a quadratic curve bowed away from the midpoint so a "curved"
+ * arrow reads as bent rather than doubling back on the straight line.
+ */
+export function edgePath(
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  shape: ArrowLineShape,
+): string {
+  if (shape === 'straight') return `M${start.x},${start.y} L${end.x},${end.y}`;
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const length = Math.hypot(dx, dy) || 1;
+  const bow = Math.min(40, length * 0.25);
+  const controlX = (start.x + end.x) / 2 + (-dy / length) * bow;
+  const controlY = (start.y + end.y) / 2 + (dx / length) * bow;
+  return `M${start.x},${start.y} Q${controlX},${controlY} ${end.x},${end.y}`;
 }
 
 /**
