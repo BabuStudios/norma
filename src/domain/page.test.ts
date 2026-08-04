@@ -323,4 +323,14 @@ describe('edgePath', () => {
     expect(path).toMatch(/^M0,0 Q\d+(\.\d+)?,-?\d+(\.\d+)? 100,0$/);
     expect(path).not.toContain('Q50,0 ');
   });
+
+  it('turns a single 90° corner for an angled line, exiting the source horizontally', () => {
+    const path = edgePath({ x: 0, y: 0 }, { x: 100, y: 80 }, 'angled', 'e');
+    expect(path).toBe('M0,0 L100,0 L100,80');
+  });
+
+  it('turns a single 90° corner for an angled line, exiting the source vertically', () => {
+    const path = edgePath({ x: 0, y: 0 }, { x: 100, y: 80 }, 'angled', 'n');
+    expect(path).toBe('M0,0 L0,80 L100,80');
+  });
 });

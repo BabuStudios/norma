@@ -86,8 +86,8 @@ export const CONNECTION_POINTS: ConnectionPoint[] = ['n', 'ne', 'e', 'se', 's', 
 export type ArrowLineStyle = 'solid' | 'dashed' | 'dotted' | 'dashDot';
 export const ARROW_LINE_STYLES: ArrowLineStyle[] = ['solid', 'dashed', 'dotted', 'dashDot'];
 
-export type ArrowLineShape = 'straight' | 'curved';
-export const ARROW_LINE_SHAPES: ArrowLineShape[] = ['straight', 'curved'];
+export type ArrowLineShape = 'straight' | 'curved' | 'angled';
+export const ARROW_LINE_SHAPES: ArrowLineShape[] = ['straight', 'curved', 'angled'];
 
 export interface DiagramEdge {
   id: string;
@@ -326,17 +326,41 @@ export function connectionPointCoords(
   }
 }
 
+/** Which axis a box's connection point faces outward along — the direction
+ *  an "angled" arrow's first straight segment leaves the box on. */
+const POINT_EXIT_AXIS: Record<ConnectionPoint, 'horizontal' | 'vertical'> = {
+  n: 'vertical',
+  s: 'vertical',
+  e: 'horizontal',
+  w: 'horizontal',
+  ne: 'horizontal',
+  se: 'horizontal',
+  sw: 'horizontal',
+  nw: 'horizontal',
+};
+
 /**
- * SVG path `d` for an edge between two connection points — a straight
- * segment, or a quadratic curve bowed away from the midpoint so a "curved"
- * arrow reads as bent rather than doubling back on the straight line.
+ * SVG path `d` for an edge between two connection points:
+ * - straight: a plain segment.
+ * - curved: a quadratic curve bowed away from the midpoint so it reads as
+ *   bent rather than doubling back on the straight line.
+ * - angled: a single 90° elbow — straight out from the source in the
+ *   direction its connection point faces, then straight into the target.
  */
 export function edgePath(
   start: { x: number; y: number },
   end: { x: number; y: number },
   shape: ArrowLineShape,
+  fromPoint?: ConnectionPoint,
 ): string {
   if (shape === 'straight') return `M${start.x},${start.y} L${end.x},${end.y}`;
+  if (shape === 'angled') {
+    const corner =
+      POINT_EXIT_AXIS[fromPoint ?? 'e'] === 'horizontal'
+        ? { x: end.x, y: start.y }
+        : { x: start.x, y: end.y };
+    return `M${start.x},${start.y} L${corner.x},${corner.y} L${end.x},${end.y}`;
+  }
   const dx = end.x - start.x;
   const dy = end.y - start.y;
   const length = Math.hypot(dx, dy) || 1;

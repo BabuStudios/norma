@@ -247,6 +247,25 @@ describe('the process diagram tool', () => {
     expect(line.getAttribute('d')).toContain('Q');
   });
 
+  it('draws an angled arrow with a single 90° corner when that shape is selected', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    await user.click(screen.getByRole('button', { name: 'Vinklad' }));
+
+    const [first, second] = nodeContainers();
+    await user.click(connectionPointsOf(first)[0]);
+    await user.click(connectionPointsOf(second)[0]);
+
+    const [line] = edgeLines();
+    const d = line.getAttribute('d') ?? '';
+    expect(d).not.toContain('Q');
+    expect(d.match(/L/g)).toHaveLength(2);
+  });
+
   it('deletes a box, taking its edge with it', async () => {
     const { user } = render();
     await addDiagram(user);

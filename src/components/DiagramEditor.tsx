@@ -35,6 +35,7 @@ const ARROW_STYLE_LABEL: Record<ArrowLineStyle, keyof Dictionary> = {
 const ARROW_SHAPE_LABEL: Record<ArrowLineShape, keyof Dictionary> = {
   straight: 'arrowShapeStraight',
   curved: 'arrowShapeCurved',
+  angled: 'arrowShapeAngled',
 };
 
 const ARROW_DASH: Record<ArrowLineStyle, string | undefined> = {
@@ -380,7 +381,7 @@ export function DiagramEditor({
               if (!from || !to) return null;
               const start = connectionPointCoords(from, edge.fromPoint);
               const end = connectionPointCoords(to, edge.toPoint);
-              const d = edgePath(start, end, edge.lineShape);
+              const d = edgePath(start, end, edge.lineShape, edge.fromPoint);
               return (
                 <g key={edge.id}>
                   <path
