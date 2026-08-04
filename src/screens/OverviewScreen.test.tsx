@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { renderScreen } from '@/test/render';
 import { OverviewScreen } from './OverviewScreen';
@@ -184,6 +184,30 @@ describe('the process diagram tool', () => {
     expect(node.querySelector('[class*="resizeHandle"]')).toBeInTheDocument();
   });
 
+  it('lets a box choose its own fill and text color', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+
+    const [box] = screen.getAllByLabelText('Låda');
+    const node = box.closest('[data-shape]') as HTMLElement;
+    fireEvent.change(within(node).getByLabelText('Lådfärg'), { target: { value: '#ff0000' } });
+    fireEvent.change(within(node).getByLabelText('Textfärg'), { target: { value: '#00ff00' } });
+
+    expect(node.querySelector('svg rect')).toHaveAttribute('fill', '#ff0000');
+    expect(box).toHaveStyle({ color: '#00ff00' });
+  });
+
+  it('lets the diagram background be recolored', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+
+    fireEvent.change(screen.getByLabelText('Bakgrundsfärg'), { target: { value: '#0000ff' } });
+    const canvas = document.querySelector('[class*="canvas"]') as HTMLElement;
+    expect(canvas).toHaveStyle({ background: '#0000ff' });
+  });
+
   const edgeLines = () => document.querySelectorAll('[class*="edgeLine"]');
   const nodeContainers = () =>
     Array.from(document.querySelectorAll('[data-shape]')) as HTMLElement[];
@@ -245,6 +269,23 @@ describe('the process diagram tool', () => {
     const [line] = edgeLines();
     expect(line.getAttribute('stroke-dasharray')).toBe('10 6');
     expect(line.getAttribute('d')).toContain('Q');
+  });
+
+  it('draws an arrow in the chosen color', async () => {
+    const { user } = render();
+    await addDiagram(user);
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+    await user.click(screen.getByRole('button', { name: 'Process' }));
+
+    await user.click(screen.getByRole('button', { name: 'Pil' }));
+    fireEvent.change(screen.getByLabelText('Pilfärg'), { target: { value: '#ff00ff' } });
+
+    const [first, second] = nodeContainers();
+    await user.click(connectionPointsOf(first)[0]);
+    await user.click(connectionPointsOf(second)[0]);
+
+    const [line] = edgeLines();
+    expect(line).toHaveAttribute('stroke', '#ff00ff');
   });
 
   it('draws an angled arrow with a single 90° corner when that shape is selected', async () => {

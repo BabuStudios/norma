@@ -14,8 +14,11 @@ import {
   resizeDiagramNode,
   snapNodePosition,
   snapToGrid,
-  updateDiagramTitle,
+  updateDiagramBackgroundColor,
+  updateDiagramNodeFillColor,
   updateDiagramNodeLabel,
+  updateDiagramNodeTextColor,
+  updateDiagramTitle,
   updateTextBlock,
   type DiagramBlock,
   type PageBlock,
@@ -23,7 +26,7 @@ import {
 } from './page';
 
 const addEdge = (blocks: PageBlock[], blockId: string, from: string, to: string): PageBlock[] =>
-  addDiagramEdge(blocks, blockId, from, to, 'e', 'w', 'solid', 'straight');
+  addDiagramEdge(blocks, blockId, from, to, 'e', 'w', 'solid', 'straight', '#201e1d');
 
 describe('text blocks', () => {
   it('adds a text block with the given heading and an empty body', () => {
@@ -125,6 +128,36 @@ describe('diagram blocks', () => {
     expect((blocks[0] as DiagramBlock).nodes[0].label).toBe('Renamed');
   });
 
+  it('gives every new box and diagram a default fill, text and background color', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    const diagram = blocks[0] as DiagramBlock;
+    expect(diagram.backgroundColor).toBeTruthy();
+    expect(diagram.nodes[0].fillColor).toBeTruthy();
+    expect(diagram.nodes[0].textColor).toBeTruthy();
+  });
+
+  it('recolors a box independently of its text', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = addDiagramNode(blocks, id, 'A', 'process');
+    const nodeId = (blocks[0] as DiagramBlock).nodes[0].id;
+    blocks = updateDiagramNodeFillColor(blocks, id, nodeId, '#ff0000');
+    blocks = updateDiagramNodeTextColor(blocks, id, nodeId, '#00ff00');
+    expect((blocks[0] as DiagramBlock).nodes[0]).toMatchObject({
+      fillColor: '#ff0000',
+      textColor: '#00ff00',
+    });
+  });
+
+  it('recolors the diagram background', () => {
+    let blocks = addDiagramBlock([], 'Process');
+    const id = blocks[0].id;
+    blocks = updateDiagramBackgroundColor(blocks, id, '#0000ff');
+    expect((blocks[0] as DiagramBlock).backgroundColor).toBe('#0000ff');
+  });
+
   it('connects two nodes with an edge', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
@@ -137,18 +170,19 @@ describe('diagram blocks', () => {
     ]);
   });
 
-  it('stores the requested attachment points and line style', () => {
+  it('stores the requested attachment points, line style and color', () => {
     let blocks = addDiagramBlock([], 'Process');
     const id = blocks[0].id;
     blocks = addDiagramNode(blocks, id, 'A', 'process');
     blocks = addDiagramNode(blocks, id, 'B', 'process');
     const [a, b] = (blocks[0] as DiagramBlock).nodes;
-    blocks = addDiagramEdge(blocks, id, a.id, b.id, 'se', 'nw', 'dashed', 'curved');
+    blocks = addDiagramEdge(blocks, id, a.id, b.id, 'se', 'nw', 'dashed', 'curved', '#ec3013');
     expect((blocks[0] as DiagramBlock).edges[0]).toMatchObject({
       fromPoint: 'se',
       toPoint: 'nw',
       lineStyle: 'dashed',
       lineShape: 'curved',
+      color: '#ec3013',
     });
   });
 

@@ -14,8 +14,8 @@ function shapeContent(
   width: number,
   height: number,
   strokeWidth: number,
+  fill: string,
 ): ReactNode {
-  const fill = 'var(--color-bg)';
   const stroke = 'var(--color-text)';
   const inset = strokeWidth / 2;
   const w = width;
@@ -312,12 +312,14 @@ export function DiagramShapeSvg({
   width,
   height,
   strokeWidth = 1.5,
+  fillColor = 'var(--color-bg)',
   className,
 }: {
   shape: DiagramShape;
   width: number;
   height: number;
   strokeWidth?: number;
+  fillColor?: string;
   className?: string;
 }) {
   return (
@@ -328,7 +330,7 @@ export function DiagramShapeSvg({
       viewBox={`0 0 ${width} ${height}`}
       aria-hidden="true"
     >
-      {shapeContent(shape, width, height, strokeWidth)}
+      {shapeContent(shape, width, height, strokeWidth, fillColor)}
     </svg>
   );
 }

@@ -4,6 +4,7 @@ import {
   ARROW_LINE_STYLES,
   CONNECTION_POINTS,
   connectionPointCoords,
+  DIAGRAM_DEFAULT_EDGE_COLOR,
   DIAGRAM_NODE_MIN_HEIGHT,
   DIAGRAM_NODE_MIN_WIDTH,
   DIAGRAM_SHAPES,
@@ -101,6 +102,9 @@ export function DiagramEditor({
   onRemoveNode,
   onAddEdge,
   onRemoveEdge,
+  onFillColorChange,
+  onTextColorChange,
+  onBackgroundChange,
 }: {
   block: DiagramBlock;
   editing: boolean;
@@ -118,8 +122,12 @@ export function DiagramEditor({
     toPoint: ConnectionPoint,
     lineStyle: ArrowLineStyle,
     lineShape: ArrowLineShape,
+    color: string,
   ) => void;
   onRemoveEdge: (edgeId: string) => void;
+  onFillColorChange: (nodeId: string, color: string) => void;
+  onTextColorChange: (nodeId: string, color: string) => void;
+  onBackgroundChange: (color: string) => void;
 }) {
   const [mode, setMode] = useState<Mode>('select');
   const [pendingSource, setPendingSource] = useState<{
@@ -128,6 +136,7 @@ export function DiagramEditor({
   } | null>(null);
   const [lineStyle, setLineStyle] = useState<ArrowLineStyle>('solid');
   const [lineShape, setLineShape] = useState<ArrowLineShape>('straight');
+  const [arrowColor, setArrowColor] = useState<string>(DIAGRAM_DEFAULT_EDGE_COLOR);
   const [drag, setDrag] = useState<{
     nodeId: string;
     pointerId: number;
@@ -159,7 +168,15 @@ export function DiagramEditor({
       setPendingSource(pendingSource.point === point ? null : { nodeId, point });
       return;
     }
-    onAddEdge(pendingSource.nodeId, nodeId, pendingSource.point, point, lineStyle, lineShape);
+    onAddEdge(
+      pendingSource.nodeId,
+      nodeId,
+      pendingSource.point,
+      point,
+      lineStyle,
+      lineShape,
+      arrowColor,
+    );
     setPendingSource(null);
   };
 
@@ -343,8 +360,24 @@ export function DiagramEditor({
                   </button>
                 ))}
               </div>
+              <label className={styles.colorField}>
+                {t.arrowColorLabel}
+                <input
+                  type="color"
+                  value={arrowColor}
+                  onChange={(event) => setArrowColor(event.target.value)}
+                />
+              </label>
             </div>
           ) : null}
+          <label className={styles.colorField}>
+            {t.backgroundColorLabel}
+            <input
+              type="color"
+              value={block.backgroundColor}
+              onChange={(event) => onBackgroundChange(event.target.value)}
+            />
+          </label>
         </div>
       ) : null}
 
@@ -353,6 +386,7 @@ export function DiagramEditor({
       ) : (
         <div
           className={styles.canvas}
+          style={{ background: block.backgroundColor }}
           onClick={() => {
             if (mode === 'connect') setPendingSource(null);
           }}
@@ -362,19 +396,6 @@ export function DiagramEditor({
             viewBox={`0 0 ${CANVAS_WIDTH} ${CANVAS_HEIGHT}`}
             aria-hidden="true"
           >
-            <defs>
-              <marker
-                id={markerId}
-                viewBox="0 0 10 10"
-                refX="9"
-                refY="5"
-                markerWidth="7"
-                markerHeight="7"
-                orient="auto-start-reverse"
-              >
-                <path d="M0,0 L10,5 L0,10 z" fill="var(--color-text)" />
-              </marker>
-            </defs>
             {block.edges.map((edge) => {
               const from = block.nodes.find((node) => node.id === edge.from);
               const to = block.nodes.find((node) => node.id === edge.to);
@@ -382,17 +403,31 @@ export function DiagramEditor({
               const start = connectionPointCoords(from, edge.fromPoint);
               const end = connectionPointCoords(to, edge.toPoint);
               const d = edgePath(start, end, edge.lineShape, edge.fromPoint);
+              const edgeMarkerId = `${markerId}-${edge.id}`;
               return (
                 <g key={edge.id}>
+                  <defs>
+                    <marker
+                      id={edgeMarkerId}
+                      viewBox="0 0 10 10"
+                      refX="9"
+                      refY="5"
+                      markerWidth="7"
+                      markerHeight="7"
+                      orient="auto-start-reverse"
+                    >
+                      <path d="M0,0 L10,5 L0,10 z" fill={edge.color} />
+                    </marker>
+                  </defs>
                   <path
                     d={d}
                     fill="none"
-                    stroke="var(--color-text)"
+                    stroke={edge.color}
                     strokeWidth={1.5}
                     strokeDasharray={ARROW_DASH[edge.lineStyle]}
                     strokeLinecap={edge.lineStyle === 'dotted' ? 'round' : undefined}
                     className={styles.edgeLine}
-                    markerEnd={`url(#${markerId})`}
+                    markerEnd={`url(#${edgeMarkerId})`}
                   />
                   {editing && mode === 'delete' ? (
                     <path
@@ -459,19 +494,45 @@ export function DiagramEditor({
                 shape={node.shape}
                 width={node.width}
                 height={node.height}
+                fillColor={node.fillColor}
                 className={styles.nodeShape}
               />
               {editing && mode === 'select' ? (
-                <input
-                  className={styles.nodeInput}
-                  value={node.label}
-                  onChange={(event) => onLabelChange(node.id, event.target.value)}
-                  onPointerDown={(event) => event.stopPropagation()}
-                  aria-label={t.boxLabel}
-                />
+                <>
+                  <input
+                    className={styles.nodeInput}
+                    style={{ color: node.textColor }}
+                    value={node.label}
+                    onChange={(event) => onLabelChange(node.id, event.target.value)}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    aria-label={t.boxLabel}
+                  />
+                  <div className={styles.nodeColorControls}>
+                    <label className={styles.colorSwatch}>
+                      <span className="visuallyHidden">{t.boxColorLabel}</span>
+                      <input
+                        type="color"
+                        value={node.fillColor}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onChange={(event) => onFillColorChange(node.id, event.target.value)}
+                      />
+                    </label>
+                    <label className={styles.colorSwatch}>
+                      <span className="visuallyHidden">{t.textColorLabel}</span>
+                      <input
+                        type="color"
+                        value={node.textColor}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onChange={(event) => onTextColorChange(node.id, event.target.value)}
+                      />
+                    </label>
+                  </div>
+                </>
               ) : editing && mode === 'connect' ? (
                 <>
-                  <span className={styles.nodeStatic}>{node.label || t.newBoxLabel}</span>
+                  <span className={styles.nodeStatic} style={{ color: node.textColor }}>
+                    {node.label || t.newBoxLabel}
+                  </span>
                   {CONNECTION_POINTS.map((point) => (
                     <button
                       key={point}
@@ -494,6 +555,7 @@ export function DiagramEditor({
                 <button
                   type="button"
                   className={styles.nodeButton}
+                  style={{ color: node.textColor }}
                   onClick={(event) => {
                     event.stopPropagation();
                     onRemoveNode(node.id);
@@ -506,6 +568,7 @@ export function DiagramEditor({
                   <button
                     type="button"
                     className={styles.nodeLabel}
+                    style={{ color: node.textColor }}
                     onClick={(event) => {
                       event.stopPropagation();
                       toggleNodeMenu(node.id);

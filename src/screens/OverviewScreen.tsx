@@ -13,7 +13,10 @@ import {
   removeDiagramEdge,
   removeDiagramNode,
   resizeDiagramNode,
+  updateDiagramBackgroundColor,
+  updateDiagramNodeFillColor,
   updateDiagramNodeLabel,
+  updateDiagramNodeTextColor,
   updateDiagramTitle,
   updateTextBlock,
 } from '@/domain/page';
@@ -175,7 +178,7 @@ export function OverviewScreen() {
                         removeDiagramNode(prev, block.id, nodeId),
                       )
                     }
-                    onAddEdge={(from, to, fromPoint, toPoint, lineStyle, lineShape) =>
+                    onAddEdge={(from, to, fromPoint, toPoint, lineStyle, lineShape, color) =>
                       updateManagementSystemBlocks((prev) =>
                         addDiagramEdge(
                           prev,
@@ -186,12 +189,28 @@ export function OverviewScreen() {
                           toPoint,
                           lineStyle,
                           lineShape,
+                          color,
                         ),
                       )
                     }
                     onRemoveEdge={(edgeId) =>
                       updateManagementSystemBlocks((prev) =>
                         removeDiagramEdge(prev, block.id, edgeId),
+                      )
+                    }
+                    onFillColorChange={(nodeId, color) =>
+                      updateManagementSystemBlocks((prev) =>
+                        updateDiagramNodeFillColor(prev, block.id, nodeId, color),
+                      )
+                    }
+                    onTextColorChange={(nodeId, color) =>
+                      updateManagementSystemBlocks((prev) =>
+                        updateDiagramNodeTextColor(prev, block.id, nodeId, color),
+                      )
+                    }
+                    onBackgroundChange={(color) =>
+                      updateManagementSystemBlocks((prev) =>
+                        updateDiagramBackgroundColor(prev, block.id, color),
                       )
                     }
                   />

@@ -52,6 +52,44 @@
   display: block;
 }
 
+/* — native color pickers: the arrow/background pickers in the toolbar, and
+   the per-box fill/text swatches anchored above a selected box — */
+.colorField {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.colorField input[type='color'] {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--color-divider);
+  background: none;
+  cursor: pointer;
+}
+
+.nodeColorControls {
+  position: absolute;
+  z-index: 2;
+  top: -24px;
+  left: 0;
+  display: flex;
+  gap: 4px;
+}
+.colorSwatch input[type='color'] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--color-divider);
+  background: none;
+  cursor: pointer;
+}
+
 .empty {
   padding: 16px 0;
   font-size: 13px;

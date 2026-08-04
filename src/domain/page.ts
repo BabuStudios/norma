@@ -71,7 +71,16 @@ export interface DiagramNode {
   height: number;
   label: string;
   shape: DiagramShape;
+  fillColor: string;
+  textColor: string;
 }
+
+/** Colors a new box, arrow or diagram background starts with — matching the
+ *  page's own palette so an uncustomized diagram still looks native. */
+export const DIAGRAM_DEFAULT_FILL_COLOR = '#f3f2f2';
+export const DIAGRAM_DEFAULT_TEXT_COLOR = '#201e1d';
+export const DIAGRAM_DEFAULT_EDGE_COLOR = '#201e1d';
+export const DIAGRAM_DEFAULT_BACKGROUND_COLOR = '#eae9e9';
 
 /**
  * Fixed attachment points around a box's perimeter — the four corners plus
@@ -97,6 +106,7 @@ export interface DiagramEdge {
   toPoint: ConnectionPoint;
   lineStyle: ArrowLineStyle;
   lineShape: ArrowLineShape;
+  color: string;
 }
 
 export interface DiagramBlock {
@@ -105,6 +115,7 @@ export interface DiagramBlock {
   title: string;
   nodes: DiagramNode[];
   edges: DiagramEdge[];
+  backgroundColor: string;
 }
 
 export type PageBlock = TextBlock | DiagramBlock;
@@ -129,7 +140,14 @@ function newTextBlock(heading: string): TextBlock {
 }
 
 function newDiagramBlock(title: string): DiagramBlock {
-  return { id: genId('diagram'), type: 'diagram', title, nodes: [], edges: [] };
+  return {
+    id: genId('diagram'),
+    type: 'diagram',
+    title,
+    nodes: [],
+    edges: [],
+    backgroundColor: DIAGRAM_DEFAULT_BACKGROUND_COLOR,
+  };
 }
 
 function newDiagramNode(label: string, shape: DiagramShape, index: number): DiagramNode {
@@ -143,6 +161,8 @@ function newDiagramNode(label: string, shape: DiagramShape, index: number): Diag
     y: 24 + Math.floor(index / 4) * 110,
     width: DIAGRAM_NODE_WIDTH,
     height: DIAGRAM_NODE_HEIGHT,
+    fillColor: DIAGRAM_DEFAULT_FILL_COLOR,
+    textColor: DIAGRAM_DEFAULT_TEXT_COLOR,
   };
 }
 
@@ -251,6 +271,38 @@ export function updateDiagramNodeLabel(
   }));
 }
 
+export function updateDiagramNodeFillColor(
+  blocks: PageBlock[],
+  blockId: string,
+  nodeId: string,
+  fillColor: string,
+): PageBlock[] {
+  return mapDiagram(blocks, blockId, (block) => ({
+    ...block,
+    nodes: block.nodes.map((node) => (node.id === nodeId ? { ...node, fillColor } : node)),
+  }));
+}
+
+export function updateDiagramNodeTextColor(
+  blocks: PageBlock[],
+  blockId: string,
+  nodeId: string,
+  textColor: string,
+): PageBlock[] {
+  return mapDiagram(blocks, blockId, (block) => ({
+    ...block,
+    nodes: block.nodes.map((node) => (node.id === nodeId ? { ...node, textColor } : node)),
+  }));
+}
+
+export function updateDiagramBackgroundColor(
+  blocks: PageBlock[],
+  blockId: string,
+  backgroundColor: string,
+): PageBlock[] {
+  return mapDiagram(blocks, blockId, (block) => ({ ...block, backgroundColor }));
+}
+
 export function removeDiagramNode(
   blocks: PageBlock[],
   blockId: string,
@@ -272,6 +324,7 @@ export function addDiagramEdge(
   toPoint: ConnectionPoint,
   lineStyle: ArrowLineStyle,
   lineShape: ArrowLineShape,
+  color: string,
 ): PageBlock[] {
   if (from === to) return blocks;
   return mapDiagram(blocks, blockId, (block) => {
@@ -283,7 +336,7 @@ export function addDiagramEdge(
       ...block,
       edges: [
         ...block.edges,
-        { id: genId('edge'), from, to, fromPoint, toPoint, lineStyle, lineShape },
+        { id: genId('edge'), from, to, fromPoint, toPoint, lineStyle, lineShape, color },
       ],
     };
   });
