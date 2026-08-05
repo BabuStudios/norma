@@ -1,37 +1,64 @@
 import type { Bilingual, PillKind } from './types';
 
 /**
- * Document templates ship with the product — they are starting points, not
- * company data, so they stay when the registers are empty.
+ * A tab groups documents by category — templates vs. governing vs.
+ * reporting documents, or whatever the company adds — and defines which
+ * metadata fields apply to documents filed under it, and what prefix its own
+ * documents are numbered with (each tab counts its own ids from 001).
  */
-export interface DocumentTemplate {
-  kicker: Bilingual;
-  name: Bilingual;
-  meta: Bilingual;
+export interface DocumentTab {
+  id: string;
+  name: string;
+  metadataFields: string[];
+  idPrefix: string;
 }
 
-export const DOCUMENT_TEMPLATES: DocumentTemplate[] = [
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Miljöaspektregister', en: 'Aspects register' },
-    meta: { sv: '14001 §6.1.2 · Excel', en: '14001 §6.1.2 · Excel' },
-  },
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Kvalitets- och miljöpolicy', en: 'Quality & environmental policy' },
-    meta: { sv: '1 sida · Word', en: '1 page · Word' },
-  },
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Internrevisionsplan', en: 'Internal audit programme' },
-    meta: { sv: '§9.2 · Excel', en: '§9.2 · Excel' },
-  },
-  {
-    kicker: { sv: 'Mall', en: 'Template' },
-    name: { sv: 'Protokoll ledningens genomgång', en: 'Management review minutes' },
-    meta: { sv: '§9.3 · Word', en: '§9.3 · Word' },
-  },
+let tabIdCounter = 0;
+function genTabId(): string {
+  tabIdCounter += 1;
+  return `tab-${Date.now()}-${tabIdCounter}`;
+}
+
+/** The three tabs the register ships with; the company can add more. */
+export const DEFAULT_DOCUMENT_TABS: DocumentTab[] = [
+  { id: 'templates', name: 'Mallar', metadataFields: [], idPrefix: 'M' },
+  { id: 'governing', name: 'Styrande', metadataFields: [], idPrefix: 'S' },
+  { id: 'reporting', name: 'Redovisande', metadataFields: [], idPrefix: 'R' },
 ];
+
+export function addDocumentTab(tabs: DocumentTab[], name: string): DocumentTab[] {
+  return [...tabs, { id: genTabId(), name, metadataFields: [], idPrefix: 'D' }];
+}
+
+export function updateTabIdPrefix(
+  tabs: DocumentTab[],
+  tabId: string,
+  idPrefix: string,
+): DocumentTab[] {
+  return tabs.map((tab) => (tab.id === tabId ? { ...tab, idPrefix } : tab));
+}
+
+export function addTabMetadataField(
+  tabs: DocumentTab[],
+  tabId: string,
+  field: string,
+): DocumentTab[] {
+  return tabs.map((tab) =>
+    tab.id === tabId ? { ...tab, metadataFields: [...tab.metadataFields, field] } : tab,
+  );
+}
+
+export function removeTabMetadataField(
+  tabs: DocumentTab[],
+  tabId: string,
+  field: string,
+): DocumentTab[] {
+  return tabs.map((tab) =>
+    tab.id === tabId
+      ? { ...tab, metadataFields: tab.metadataFields.filter((existing) => existing !== field) }
+      : tab,
+  );
+}
 
 export interface ManagedDocument {
   id: string;
@@ -42,6 +69,14 @@ export interface ManagedDocument {
   nextReview: string;
   kind: PillKind;
   state: Bilingual;
+  /** Which tab this document is filed under. */
+  tabId: string;
+  /** Values for the owning tab's configured metadata fields, keyed by field name. */
+  metadata: Record<string, string>;
+  /** The uploaded file's name and size — metadata only, the bytes stay on
+   *  the user's machine, same as evidence uploads. Null until a file is attached. */
+  fileName: string | null;
+  fileSize: number | null;
 }
 
 /** A review lands "due soon" — and prints in accent — before this date. */
@@ -52,3 +87,45 @@ export const DOCUMENTS: ManagedDocument[] = [];
 
 /** Documents linked from a requirement's detail rail. Empty until linked. */
 export const CLAUSE_LINKED_DOCUMENTS: { id: string; name: Bilingual }[] = [];
+
+/** What the "Nytt dokument" form collects — one language, since this is the
+ *  company's own record, not authored catalogue content. */
+export interface NewDocumentFields {
+  name: string;
+  version: string;
+  owner: string;
+  nextReview: string;
+  tabId: string;
+  metadata: Record<string, string>;
+  fileName: string | null;
+  fileSize: number | null;
+}
+
+/**
+ * Turns a filled-in form into a register row. `index` is how many documents
+ * already exist in the target tab, so ids run `${idPrefix}001`,
+ * `${idPrefix}002`, … per tab; `idPrefix` is that tab's own setting.
+ */
+export function createDocument(
+  fields: NewDocumentFields,
+  index: number,
+  idPrefix: string,
+): ManagedDocument {
+  return {
+    id: `${idPrefix}${String(index + 1).padStart(3, '0')}`,
+    name: { sv: fields.name, en: fields.name },
+    version: fields.version,
+    owner: fields.owner,
+    nextReview: fields.nextReview,
+    kind: 'soft',
+    state: { sv: 'Utkast', en: 'Draft' },
+    tabId: fields.tabId,
+    metadata: fields.metadata,
+    fileName: fields.fileName,
+    fileSize: fields.fileSize,
+  };
+}
+
+export function removeDocument(documents: ManagedDocument[], id: string): ManagedDocument[] {
+  return documents.filter((document) => document.id !== id);
+}

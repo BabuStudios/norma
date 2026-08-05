@@ -1,0 +1,51 @@
+.addRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.blockList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+.block {
+  padding: 16px 18px;
+  background: var(--color-surface);
+  border-left: 3px solid var(--color-text);
+}
+.blockToolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.blockToolbar .btn-icon {
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+}
+
+.textEdit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+}
+.textEdit textarea {
+  min-height: 110px;
+}
+.textView .textHeading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.textView .textBody {
+  margin: 8px 0 0;
+  max-width: 640px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

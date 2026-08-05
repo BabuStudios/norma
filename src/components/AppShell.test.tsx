@@ -26,7 +26,7 @@ describe('the app shell', () => {
   it('titles the screen and breadcrumbs its group and client', () => {
     renderShell('/requirements');
     expect(screen.getByRole('heading', { level: 1, name: 'Kravgenomgång' })).toBeInTheDocument();
-    expect(screen.getByText('Styrning · Awimex International')).toBeInTheDocument();
+    expect(screen.getByText('Krav · Awimex International')).toBeInTheDocument();
   });
 
   it('marks the current nav item and no other', () => {

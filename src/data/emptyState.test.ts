@@ -3,7 +3,7 @@ import { ASPECTS } from './aspects';
 import { AUDIT_CHECKLIST, AUDIT_FINDINGS, AUDIT_PROGRAMME } from './audits';
 import { CHANGE_LOG } from './changeLog';
 import { CLAUSES } from './clauses';
-import { CLAUSE_LINKED_DOCUMENTS, DOCUMENTS, DOCUMENT_TEMPLATES } from './documents';
+import { CLAUSE_LINKED_DOCUMENTS, DOCUMENTS } from './documents';
 import { FIELD_CHECKS, FIELD_TASKS, FIELD_WALK } from './fieldMode';
 import { PERSONAL_DATA, PROTECTION_CONTROLS, ROLES } from './governance';
 import { NEXT_REVIEW_MEETING, REVIEW_INPUTS, REVIEW_OUTPUTS } from './managementReview';
@@ -74,10 +74,6 @@ describe('company data starts empty', () => {
 describe('product content stays', () => {
   it('keeps the requirements catalogue', () => {
     expect(CLAUSES.length).toBeGreaterThan(0);
-  });
-
-  it('keeps the document templates, which are starting points not records', () => {
-    expect(DOCUMENT_TEMPLATES).toHaveLength(4);
   });
 
   it('keeps what the standard requires the management review to cover', () => {

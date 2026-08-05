@@ -1,13 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { CLAUSES } from '@/data/clauses';
+import type { ManagedDocument } from '@/data/documents';
 import { findClause } from './conformity';
-import { evidenceKind, evidenceRows, KIND_LABEL, uploadsForClause, type UploadedFile } from './evidence';
+import { evidenceKind, evidenceRows, KIND_LABEL, linkedDocumentsForClause } from './evidence';
 
-const file = (name: string): UploadedFile => ({
-  id: name,
-  name,
-  size: 1024,
-  uploadedAt: '2026-01-01T00:00:00.000Z',
+const doc = (id: string, name: string): ManagedDocument => ({
+  id,
+  name: { sv: name, en: name },
+  version: '1.0',
+  owner: '',
+  nextReview: '',
+  kind: 'soft',
+  state: { sv: 'Utkast', en: 'Draft' },
+  tabId: 'templates',
+  metadata: {},
+  fileName: null,
+  fileSize: null,
 });
 
 describe('evidenceKind', () => {
@@ -87,47 +95,57 @@ describe('evidenceRows', () => {
     expect(rows.every((r) => r.stateLabel === 'Saknas')).toBe(true);
   });
 
-  it('marks an evidence item on file once a file is attached, regardless of clause status', () => {
-    const rows = evidenceRows(clause, undefined, 'sv', { 0: [file('policy.pdf')] });
+  it('marks an evidence item on file once a document is linked, regardless of clause status', () => {
+    const policy = doc('D001', 'policy.pdf');
+    const rows = evidenceRows(clause, undefined, 'sv', { 0: [policy] });
     expect(rows[0].onFile).toBe(true);
     expect(rows[0].stateLabel).toBe('Finns');
-    expect(rows[0].files).toEqual([file('policy.pdf')]);
+    expect(rows[0].linkedDocuments).toEqual([policy]);
   });
 
-  it('leaves evidence items with no attachment untouched', () => {
-    const rows = evidenceRows(clause, undefined, 'sv', { 0: [file('policy.pdf')] });
+  it('leaves evidence items with no link untouched', () => {
+    const rows = evidenceRows(clause, undefined, 'sv', { 0: [doc('D001', 'policy.pdf')] });
     for (const row of rows.slice(1)) {
       expect(row.onFile).toBe(false);
-      expect(row.files).toEqual([]);
+      expect(row.linkedDocuments).toEqual([]);
     }
   });
 });
 
-describe('uploadsForClause', () => {
-  it('narrows the global upload map to one clause, re-keyed by evidence index', () => {
-    const uploads = {
-      '4.1:0': [file('a.pdf')],
-      '4.1:2': [file('b.pdf'), file('c.pdf')],
-      '4.2:0': [file('other-clause.pdf')],
+describe('linkedDocumentsForClause', () => {
+  const registry = [doc('D001', 'a.pdf'), doc('D002', 'b.pdf'), doc('D003', 'c.pdf')];
+
+  it('narrows the global link map to one clause, re-keyed by evidence index', () => {
+    const links = {
+      '4.1:0': ['D001'],
+      '4.1:2': ['D002', 'D003'],
+      '4.2:0': ['D001'],
     };
-    expect(uploadsForClause(uploads, '4.1')).toEqual({
-      0: [file('a.pdf')],
-      2: [file('b.pdf'), file('c.pdf')],
+    expect(linkedDocumentsForClause(links, registry, '4.1')).toEqual({
+      0: [doc('D001', 'a.pdf')],
+      2: [doc('D002', 'b.pdf'), doc('D003', 'c.pdf')],
     });
   });
 
   it('does not confuse a clause id that is a prefix of another', () => {
-    // "6.1" must not pick up files stored under "6.1.2".
-    const uploads = { '6.1.2:0': [file('aspects.pdf')] };
-    expect(uploadsForClause(uploads, '6.1')).toEqual({});
-    expect(uploadsForClause(uploads, '6.1.2')).toEqual({ 0: [file('aspects.pdf')] });
+    // "6.1" must not pick up links stored under "6.1.2".
+    const links = { '6.1.2:0': ['D001'] };
+    expect(linkedDocumentsForClause(links, registry, '6.1')).toEqual({});
+    expect(linkedDocumentsForClause(links, registry, '6.1.2')).toEqual({
+      0: [doc('D001', 'a.pdf')],
+    });
   });
 
-  it('is empty for a clause with nothing uploaded', () => {
-    expect(uploadsForClause({}, '4.1')).toEqual({});
+  it('is empty for a clause with nothing linked', () => {
+    expect(linkedDocumentsForClause({}, registry, '4.1')).toEqual({});
   });
 
   it('drops an entry that has been emptied out rather than keeping an empty array', () => {
-    expect(uploadsForClause({ '4.1:0': [] }, '4.1')).toEqual({});
+    expect(linkedDocumentsForClause({ '4.1:0': [] }, registry, '4.1')).toEqual({});
+  });
+
+  it('drops a link whose document no longer exists in the register', () => {
+    const links = { '4.1:0': ['D999'] };
+    expect(linkedDocumentsForClause(links, registry, '4.1')).toEqual({});
   });
 });

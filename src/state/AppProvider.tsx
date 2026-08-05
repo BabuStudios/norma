@@ -1,8 +1,18 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  addDocumentTab as addDocumentTabPure,
+  addTabMetadataField as addTabMetadataFieldPure,
+  createDocument,
+  removeDocument as removeDocumentPure,
+  removeTabMetadataField as removeTabMetadataFieldPure,
+  updateTabIdPrefix as updateTabIdPrefixPure,
+  type NewDocumentFields,
+} from '@/data/documents';
 import { ORGANIZATIONS } from '@/data/organizations';
 import type { SupplierFields } from '@/data/suppliers';
 import type { ClauseStatus, Lang } from '@/data/types';
-import type { UploadedFile } from '@/domain/evidence';
+import { registerFile, releaseFile } from '@/domain/fileStore';
+import type { PageBlock } from '@/domain/page';
 import { AppContext, INITIAL_STATE, dictionaryFor, type AppState } from './store';
 
 const STORAGE_KEY = 'norma.state.v1';
@@ -90,46 +100,90 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const addEvidenceFiles = useCallback(
-    (clauseId: string, evidenceIndex: number, files: File[]) => {
-      if (files.length === 0) return;
+  const toggleEvidenceDocumentLink = useCallback(
+    (clauseId: string, evidenceIndex: number, documentId: string) => {
       const key = `${clauseId}:${evidenceIndex}`;
-      const uploadedAt = new Date().toISOString();
-      // Not crypto.randomUUID(): this only has to be unique within one evidence
-      // row's list, and the app already runs without other UUID needs.
-      const added: UploadedFile[] = files.map((file, index) => ({
-        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`,
-        name: file.name,
-        size: file.size,
-        uploadedAt,
-      }));
+      setState((prev) => {
+        const linked = prev.evidenceDocumentLinks[key] ?? [];
+        const next = linked.includes(documentId)
+          ? linked.filter((id) => id !== documentId)
+          : [...linked, documentId];
+        const evidenceDocumentLinks = { ...prev.evidenceDocumentLinks };
+        if (next.length === 0) {
+          delete evidenceDocumentLinks[key];
+        } else {
+          evidenceDocumentLinks[key] = next;
+        }
+        return { ...prev, evidenceDocumentLinks };
+      });
+    },
+    [],
+  );
+
+  const updateManagementSystemBlocks = useCallback(
+    (updater: (blocks: PageBlock[]) => PageBlock[]) => {
       setState((prev) => ({
         ...prev,
-        evidenceUploads: {
-          ...prev.evidenceUploads,
-          [key]: [...(prev.evidenceUploads[key] ?? []), ...added],
+        managementSystemBlocks: updater(prev.managementSystemBlocks),
+      }));
+    },
+    [],
+  );
+
+  const updateProcessPageBlocks = useCallback(
+    (pageId: string, updater: (blocks: PageBlock[]) => PageBlock[]) => {
+      setState((prev) => ({
+        ...prev,
+        processPages: {
+          ...prev.processPages,
+          [pageId]: updater(prev.processPages[pageId] ?? []),
         },
       }));
     },
     [],
   );
 
-  const removeEvidenceFile = useCallback(
-    (clauseId: string, evidenceIndex: number, fileId: string) => {
-      const key = `${clauseId}:${evidenceIndex}`;
-      setState((prev) => {
-        const remaining = (prev.evidenceUploads[key] ?? []).filter((file) => file.id !== fileId);
-        const evidenceUploads = { ...prev.evidenceUploads };
-        if (remaining.length === 0) {
-          delete evidenceUploads[key];
-        } else {
-          evidenceUploads[key] = remaining;
-        }
-        return { ...prev, evidenceUploads };
-      });
-    },
-    [],
-  );
+  const addDocument = useCallback((fields: NewDocumentFields, file?: File) => {
+    setState((prev) => {
+      const tab = prev.documentTabs.find((candidate) => candidate.id === fields.tabId);
+      const indexInTab = prev.documents.filter(
+        (candidate) => candidate.tabId === fields.tabId,
+      ).length;
+      const document = createDocument(fields, indexInTab, tab?.idPrefix ?? 'D');
+      if (file) registerFile(document.id, file);
+      return { ...prev, documents: [...prev.documents, document] };
+    });
+  }, []);
+
+  const removeDocument = useCallback((id: string) => {
+    releaseFile(id);
+    setState((prev) => ({ ...prev, documents: removeDocumentPure(prev.documents, id) }));
+  }, []);
+
+  const setTabIdPrefix = useCallback((tabId: string, idPrefix: string) => {
+    setState((prev) => ({
+      ...prev,
+      documentTabs: updateTabIdPrefixPure(prev.documentTabs, tabId, idPrefix),
+    }));
+  }, []);
+
+  const addDocumentTab = useCallback((name: string) => {
+    setState((prev) => ({ ...prev, documentTabs: addDocumentTabPure(prev.documentTabs, name) }));
+  }, []);
+
+  const addTabMetadataField = useCallback((tabId: string, field: string) => {
+    setState((prev) => ({
+      ...prev,
+      documentTabs: addTabMetadataFieldPure(prev.documentTabs, tabId, field),
+    }));
+  }, []);
+
+  const removeTabMetadataField = useCallback((tabId: string, field: string) => {
+    setState((prev) => ({
+      ...prev,
+      documentTabs: removeTabMetadataFieldPure(prev.documentTabs, tabId, field),
+    }));
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -143,8 +197,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleReviewCheck,
       toggleSupplierColumn,
       saveSupplier,
-      addEvidenceFiles,
-      removeEvidenceFile,
+      toggleEvidenceDocumentLink,
+      updateManagementSystemBlocks,
+      updateProcessPageBlocks,
+      addDocument,
+      removeDocument,
+      addDocumentTab,
+      addTabMetadataField,
+      removeTabMetadataField,
+      setTabIdPrefix,
     }),
     [
       state,
@@ -156,8 +217,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleReviewCheck,
       toggleSupplierColumn,
       saveSupplier,
-      addEvidenceFiles,
-      removeEvidenceFile,
+      toggleEvidenceDocumentLink,
+      updateManagementSystemBlocks,
+      updateProcessPageBlocks,
+      addDocument,
+      removeDocument,
+      addDocumentTab,
+      addTabMetadataField,
+      removeTabMetadataField,
+      setTabIdPrefix,
     ],
   );
 

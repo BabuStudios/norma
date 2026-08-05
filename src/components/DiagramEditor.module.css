@@ -1,0 +1,366 @@
+.wrap {
+  margin-top: 12px;
+}
+
+.titleRow {
+  margin-bottom: 10px;
+}
+.titleInput {
+  max-width: 320px;
+}
+.titleStatic {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* — shape palette: the Visio-style stencil for adding a new box — */
+.shapePalette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.shapeButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 6px;
+  border: 1px solid var(--color-divider);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.shapeButton:hover {
+  background: var(--ink-7);
+}
+.shapeSwatch {
+  flex: none;
+  display: block;
+}
+
+/* — native color pickers: the arrow/background pickers in the toolbar, and
+   the per-box fill/text swatches anchored above a selected box — */
+.colorField {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.colorField input[type='color'] {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--color-divider);
+  background: none;
+  cursor: pointer;
+}
+
+.nodeColorControls {
+  position: absolute;
+  z-index: 2;
+  top: -24px;
+  left: 0;
+  display: flex;
+  gap: 4px;
+}
+.colorSwatch input[type='color'] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1px solid var(--color-divider);
+  background: none;
+  cursor: pointer;
+}
+
+.empty {
+  padding: 16px 0;
+  font-size: 13px;
+  color: var(--ink-60);
+}
+
+/* — canvas: a fixed 900×420 surface that scrolls under a narrower pane — */
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  overflow: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+}
+.edges {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 900px;
+  height: 420px;
+  pointer-events: none;
+}
+.edgeHit {
+  cursor: pointer;
+  pointer-events: stroke;
+}
+
+/* — alignment guides: shown only while dragging a box near another one — */
+.guide {
+  stroke: var(--color-accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+/* — a node: sized per-box (DiagramNode.width/height), resizable from its
+   corner handle. The shape (process/decision/terminator/data) is a separate
+   layer behind the content so text stays in a plain readable rectangle
+   regardless of how pointed or rounded the box outline is. Content
+   (input/button/label) is inset from the bounding box rather than filling
+   it, so a frame around it stays part of `.node` itself — that frame is
+   what makes the box draggable from any shape without fighting the text
+   field for pointer events. — */
+.node {
+  position: absolute;
+  touch-action: none;
+}
+.nodeShape {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.nodeInput {
+  position: absolute;
+  inset: 10px;
+  z-index: 1;
+  border: 0;
+  padding: 0 4px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  background: transparent;
+  color: inherit;
+  cursor: text;
+}
+.nodeInput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.nodeLabel {
+  position: absolute;
+  inset: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  word-break: break-word;
+  cursor: pointer;
+}
+.nodeLabel:hover {
+  background: var(--ink-6);
+}
+
+/* — the per-box "Koppla" / "Mer info" menu, shown once a diagram is done — */
+.nodeMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 168px;
+  max-width: 260px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.nodeMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.nodeMenuItem:hover {
+  background: var(--ink-6);
+}
+.nodeMenuCheck {
+  flex: none;
+  width: 12px;
+  color: var(--color-accent-700);
+  font-weight: 800;
+}
+.nodeMenuEmpty {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--ink-60);
+}
+.nodeMenuBack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 6px 10px 8px;
+  border: 0;
+  border-bottom: 1px solid var(--ink-12);
+  background: none;
+  color: var(--ink-55);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.nodeMenuBack:hover {
+  color: var(--color-text);
+}
+.nodeButton {
+  position: absolute;
+  inset: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  word-break: break-word;
+  cursor: pointer;
+}
+.nodeButton:hover {
+  background: var(--ink-6);
+}
+
+/* — a box's label while an arrow is being drawn: plain, non-interactive text
+   so it doesn't compete with the connection-point dots for clicks — */
+.nodeStatic {
+  position: absolute;
+  inset: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  word-break: break-word;
+  pointer-events: none;
+}
+
+/* — the eight fixed connection-point dots shown around a box's border while
+   an arrow is being drawn, one per compass position — */
+.connectionPoint {
+  position: absolute;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-bg);
+  transform: translate(-50%, -50%);
+  cursor: crosshair;
+}
+.connectionPoint:hover {
+  background: var(--color-accent);
+}
+.connectionPointActive {
+  background: var(--color-accent);
+}
+
+/* — line-style / line-shape pickers shown in the toolbar while drawing — */
+.arrowStylePanel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.edgeLine {
+  fill: none;
+}
+
+.resizeHandle {
+  position: absolute;
+  z-index: 2;
+  right: -3px;
+  bottom: -3px;
+  width: 11px;
+  height: 11px;
+  background: var(--color-text);
+  border: 1.5px solid var(--color-bg);
+  cursor: nwse-resize;
+  touch-action: none;
+}
+
+/* — documents linked to whichever box was last clicked on a finished
+   diagram, shown below the canvas — */
+.linkedDocuments {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-divider);
+}
+.linkedDocumentsEmpty {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--ink-60);
+}
+.linkedDocumentList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.linkedDocument {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
+}
+.linkedDocumentId {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}

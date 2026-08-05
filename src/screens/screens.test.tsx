@@ -9,6 +9,7 @@ import { DocumentsScreen } from './DocumentsScreen';
 import { FieldModeScreen } from './FieldModeScreen';
 import { ManagementReviewScreen } from './ManagementReviewScreen';
 import { OverviewScreen } from './OverviewScreen';
+import { ProcessScreen } from './ProcessScreen';
 import { RequirementsScreen } from './RequirementsScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { SuppliersScreen } from './SuppliersScreen';
@@ -31,21 +32,36 @@ const SCREENS: {
     element: <OverviewScreen />,
     route: '/overview',
     path: '/overview',
-    marker: { sv: 'Uppfyllnad per kapitel', en: 'Conformity by chapter' },
+    marker: { sv: 'Ändringslogg (spårbar)', en: 'Change log (traceable)' },
   },
   {
     name: 'requirements',
     element: <RequirementsScreen />,
     route: '/requirements/6.1.2',
     path: '/requirements/:clauseId',
-    marker: { sv: 'Bevis som revisorn vill se', en: 'Evidence the auditor wants' },
+    marker: {
+      sv: 'Bevis som revisorn vill se',
+      en: 'Evidence the auditor wants',
+    },
+  },
+  {
+    name: 'process page',
+    element: <ProcessScreen />,
+    route: '/processes/context',
+    path: '/processes/:pageId',
+    marker: {
+      sv: 'Verksamhetens förutsättningar',
+      en: 'Context & interested parties',
+    },
   },
   {
     name: 'documents',
     element: <DocumentsScreen />,
     route: '/documents',
     path: '/documents',
-    marker: { sv: /Använd mall/, en: /Use template/ },
+    // Tab names are the company's own data, not translated catalogue
+    // content, so "Mallar" shows in both languages.
+    marker: { sv: 'Mallar', en: 'Mallar' },
   },
   {
     name: 'aspects',
@@ -66,7 +82,10 @@ const SCREENS: {
     element: <SuppliersScreen />,
     route: '/suppliers',
     path: '/suppliers/:supplierId?',
-    marker: { sv: /Inga leverantörer registrerade/, en: /No suppliers registered/ },
+    marker: {
+      sv: /Inga leverantörer registrerade/,
+      en: /No suppliers registered/,
+    },
   },
   {
     name: 'management review',
@@ -80,7 +99,10 @@ const SCREENS: {
     element: <FieldModeScreen />,
     route: '/field-mode',
     path: '/field-mode',
-    marker: { sv: /Ingen revisionsrunda pågår/, en: /No audit walk in progress/ },
+    marker: {
+      sv: /Ingen revisionsrunda pågår/,
+      en: /No audit walk in progress/,
+    },
   },
   {
     name: 'settings',
@@ -96,8 +118,6 @@ describe.each(['sv', 'en'] as const)('every screen in %s', (lang) => {
 
   it.each(SCREENS)('renders $name', ({ element, route, path, marker }) => {
     renderScreen(element, { route, path });
-    // getAllByText: some markers legitimately repeat, such as the "use
-    // template" link on each of the four template cards.
     expect(screen.getAllByText(marker[lang]).length).toBeGreaterThan(0);
   });
 });
@@ -114,7 +134,7 @@ describe('screens that present tabular data', () => {
   });
 
   it.each([
-    ['documents', <DocumentsScreen key="d" />, '/documents', /Inga dokument ännu/],
+    ['documents', <DocumentsScreen key="d" />, '/documents', /Inga dokument i den här fliken ännu/],
     ['aspects', <AspectsScreen key="a" />, '/aspects', /Miljöaspektregistret är tomt/],
     ['audits', <AuditsScreen key="au" />, '/audits', /Inget revisionsprogram lagt/],
   ])('shows an empty state on %s rather than an empty table', (_n, element, route, marker) => {

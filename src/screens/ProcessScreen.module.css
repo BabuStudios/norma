@@ -1,0 +1,25 @@
+.screen {
+  padding: 0 0 48px;
+}
+
+.intro {
+  padding: 28px 28px 0;
+}
+.introText {
+  max-width: 640px;
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-70);
+}
+
+.blocks {
+  padding: 28px 28px 0;
+}
+
+@media (max-width: 720px) {
+  .intro,
+  .blocks {
+    padding-inline: 20px;
+  }
+}
