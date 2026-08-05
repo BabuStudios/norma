@@ -155,6 +155,7 @@ export const CLAUSES: Clause[] = [
       ],
       evidence: [
         { label: 'Omfattningsdokument, godkänt av ledningen', ask: 'Omfattningsdokumentet skriver ut platserna, processerna, produkterna och tjänsterna som omfattas — och en motivering för allt som lämnats utanför — godkänt och daterat av ledningen.' },
+        { label: 'Publicerad omfattning', ask: 'Den publicerade omfattningen visar att den faktiskt gjorts tillgänglig för intressenter, till exempel ett utdrag från webbplatsen — inte bara att dokumentet finns internt.' },
       ],
     },
     en: {
@@ -168,6 +169,7 @@ export const CLAUSES: Clause[] = [
       ],
       evidence: [
         { label: 'Scope statement, approved by management', ask: 'The scope statement writes out the sites, processes, products and services covered — and a justification for anything left out — approved and dated by management.' },
+        { label: 'Published scope', ask: 'The published scope shows the statement was actually made available to interested parties, for example an excerpt from the website — not just that the document exists internally.' },
       ],
     },
   },
@@ -468,6 +470,7 @@ export const CLAUSES: Clause[] = [
       ],
       evidence: [
         { label: 'Ändringsbeslut med konsekvensbedömning', ask: 'Ändringsbeslutet med konsekvensbedömning är det ifyllda underlaget — vad, varför, konsekvens, resurser, ansvarig — beslutat i ledningsgruppen, inte bara en muntlig överenskommelse.' },
+        { label: 'Utvärdering av genomförd ändring', ask: 'Utvärderingen av den genomförda ändringen visar att ni kontrollerade i efterhand att den gav den effekt ni väntade er — inte bara att beslutet en gång fattades.' },
       ],
     },
     en: {
@@ -481,6 +484,7 @@ export const CLAUSES: Clause[] = [
       ],
       evidence: [
         { label: 'Change decision with impact assessment', ask: 'The change decision with impact assessment is the filled-in form — what, why, consequence, resources, owner — decided in the leadership team, not just a verbal agreement.' },
+        { label: 'Evaluation of the completed change', ask: 'The evaluation of the completed change shows you checked afterwards that it had the effect you expected — not just that the decision was made once.' },
       ],
     },
   },
@@ -500,7 +504,8 @@ export const CLAUSES: Clause[] = [
         'Bestäm vad ni gör med tidigare resultat om utrustning visar sig felaktig.',
       ],
       evidence: [
-        { label: 'Utrustningsregister med kalibreringsintyg', ask: 'Utrustningsregistret listar mät- och kontrollutrustningen med kalibreringsintervall, och kalibreringsintygen visar att den faktiskt kalibrerats mot en spårbar standard.' },
+        { label: 'Utrustningsregister med kalibreringsintervall', ask: 'Utrustningsregistret listar mät- och kontrollutrustningen med kalibreringsintervall för varje instrument — den samlade bilden av vad som ska kalibreras och när.' },
+        { label: 'Kalibreringsintyg', ask: 'Kalibreringsintygen visar att utrustningen faktiskt kalibrerats mot en spårbar standard, med resultat och datum — inte bara att ett intervall är satt.' },
       ],
     },
     en: {
@@ -513,7 +518,8 @@ export const CLAUSES: Clause[] = [
         'Decide what you do with earlier results if equipment turns out to be faulty.',
       ],
       evidence: [
-        { label: 'Equipment register with calibration certificates', ask: 'The equipment register lists the measuring and monitoring equipment with calibration intervals, and the calibration certificates show it was actually calibrated against a traceable standard.' },
+        { label: 'Equipment register with calibration intervals', ask: 'The equipment register lists the measuring and monitoring equipment with a calibration interval for each instrument — the single view of what needs calibrating and when.' },
+        { label: 'Calibration certificates', ask: 'The calibration certificates show the equipment was actually calibrated against a traceable standard, with a result and a date — not just that an interval was set.' },
       ],
     },
   },
@@ -815,6 +821,7 @@ export const CLAUSES: Clause[] = [
       evidence: [
         { label: 'Tillverkningsunderlag med spårbarhet', ask: 'Tillverkningsunderlaget med spårbarhet visar vilken instruktion som gällde, vad som märktes och spårades, och hur långt bakåt — per order eller sats.' },
         { label: 'Ändringsloggar', ask: 'Ändringsloggarna dokumenterar de ändringar som gjordes under en pågående leverans — vad som ändrades, av vem och varför.' },
+        { label: 'Register över kundägd egendom', ask: 'Registret över kundägd egendom visar vad som togs emot, i vilket skick, och att det lämnades tillbaka eller redovisades — inte bara att en rutin för det finns.' },
       ],
     },
     en: {
@@ -829,6 +836,7 @@ export const CLAUSES: Clause[] = [
       evidence: [
         { label: 'Production records with traceability', ask: 'Production records with traceability show which instruction applied, what was marked and traced, and how far back — per order or batch.' },
         { label: 'Change logs', ask: 'The change logs document the changes made during an ongoing delivery — what changed, by whom and why.' },
+        { label: 'Customer property register', ask: 'The customer property register shows what was received, in what condition, and that it was returned or accounted for — not just that a routine for it exists.' },
       ],
     },
   },
@@ -1022,6 +1030,7 @@ export const CLAUSES: Clause[] = [
       ],
       evidence: [
         { label: 'Protokoll från ledningens genomgång med beslutslista', ask: 'Protokollet är mötesanteckningarna från ledningens genomgång själva — datum, deltagare, vad som gicks igenom enligt agendan, och besluten med ansvarig och datum.' },
+        { label: 'Sammanställt underlag inför mötet', ask: 'Det sammanställda underlaget är det som förberetts inför mötet enligt agendan — status på tidigare beslut, prestation, revisioner, avvikelser, kundnöjdhet — inte protokollet i efterhand utan det som låg på bordet.' },
       ],
     },
     en: {
@@ -1035,6 +1044,7 @@ export const CLAUSES: Clause[] = [
       ],
       evidence: [
         { label: 'Management review minutes with a decision list', ask: 'The minutes are the management review meeting record itself — date, attendees, what was covered against the agenda, and the decisions with an owner and a date.' },
+        { label: 'Compiled inputs prepared for the meeting', ask: 'The compiled inputs are what was prepared ahead of the meeting against the agenda — status of previous actions, performance, audits, deviations, customer satisfaction — not the minutes afterwards but what was on the table.' },
       ],
     },
   },
