@@ -37,6 +37,15 @@ export const PROCESS_PAGES: ProcessPageDef[] = [
     standardRefs: 'ISO 9001 §6.2 · ISO 14001 §6.2',
   },
   {
+    id: 'change',
+    title: { sv: 'Planerad förändring', en: 'Planned change' },
+    intro: {
+      sv: 'Hur ni planerar förändringar av ledningssystemet — syfte, konsekvenser, resurser, ansvar och roller — innan förändringen genomförs, så att inget faller mellan stolarna.',
+      en: 'How you plan changes to the management system — purpose, consequences, resources, responsibilities and roles — before the change is carried out, so nothing falls through the cracks.',
+    },
+    standardRefs: 'ISO 9001 §6.3 · ISO 14001 §8.1',
+  },
+  {
     id: 'communication',
     title: { sv: 'Kommunikation', en: 'Communication' },
     intro: {

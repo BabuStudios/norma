@@ -4,6 +4,7 @@ export type ScreenId =
   | 'dash'
   | 'context'
   | 'objectives'
+  | 'change'
   | 'communication'
   | 'competence'
   | 'compliance'
@@ -44,6 +45,11 @@ export const NAV: NavGroup[] = [
         id: 'objectives',
         path: '/processes/objectives',
         label: { sv: 'Mål och handlingsplaner', en: 'Objectives & action plans' },
+      },
+      {
+        id: 'change',
+        path: '/processes/change',
+        label: { sv: 'Planerad förändring', en: 'Planned change' },
       },
       {
         id: 'communication',
