@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { DocumentFileLink } from '@/components/DocumentFileLink';
 import { Pill } from '@/components/Pill';
 import { Tick } from '@/components/Tick';
 import { CHAPTERS, CLAUSES, DEFAULT_CLAUSE_ID, type Clause } from '@/data/clauses';
@@ -15,7 +16,6 @@ import {
   statusOf,
 } from '@/domain/conformity';
 import { evidenceRows, linkedDocumentsForClause } from '@/domain/evidence';
-import { getFileUrl } from '@/domain/fileStore';
 import { useDismissable } from '@/hooks/useDismissable';
 import { useApp } from '@/state/store';
 import styles from './RequirementsScreen.module.css';
@@ -344,20 +344,14 @@ export function RequirementsScreen() {
                           <ul className={styles.evidenceFiles}>
                             {row.linkedDocuments.map((document) => (
                               <li key={document.id} className={styles.evidenceFile}>
-                                {getFileUrl(document.id) ? (
-                                  <a
-                                    className={styles.evidenceFileName}
-                                    href={getFileUrl(document.id)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {document.name[lang]}
-                                  </a>
-                                ) : (
-                                  <span className={styles.evidenceFileName}>
-                                    {document.name[lang]}
-                                  </span>
-                                )}
+                                <DocumentFileLink
+                                  documentId={document.id}
+                                  fileName={document.fileName}
+                                  className={styles.evidenceFileName}
+                                  t={t}
+                                >
+                                  {document.name[lang]}
+                                </DocumentFileLink>
                                 <button
                                   type="button"
                                   className={styles.evidenceFileRemove}

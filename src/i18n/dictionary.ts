@@ -259,6 +259,12 @@ const sv = {
   closeMetadataEditor: 'Stäng',
   noMetadataFields: 'Inga metadatafält ännu.',
   noDocumentsToLink: 'Inga dokument att koppla.',
+
+  // — in-app preview of an uploaded .docx file —
+  previewLoading: 'Öppnar dokumentet …',
+  previewError: 'Dokumentet kunde inte öppnas. Ladda ned det istället.',
+  downloadInstead: 'Ladda ned',
+  closePreview: 'Stäng förhandsgranskning',
 } as const;
 
 export type Dictionary = { [K in keyof typeof sv]: string };
@@ -503,6 +509,11 @@ const en: Dictionary = {
   closeMetadataEditor: 'Close',
   noMetadataFields: 'No metadata fields yet.',
   noDocumentsToLink: 'No documents to link.',
+
+  previewLoading: 'Opening the document …',
+  previewError: 'The document could not be opened. Download it instead.',
+  downloadInstead: 'Download',
+  closePreview: 'Close preview',
 };
 
 export const DICTIONARY: Record<Lang, Dictionary> = { sv, en };
