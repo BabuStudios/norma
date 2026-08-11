@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { CLAUSES } from '@/data/clauses';
 import type { ManagedDocument } from '@/data/documents';
 import { findClause } from './conformity';
-import { evidenceKind, evidenceRows, KIND_LABEL, linkedDocumentsForClause } from './evidence';
+import {
+  commentsForClause,
+  evidenceKind,
+  evidenceRows,
+  KIND_LABEL,
+  linkedDocumentsForClause,
+} from './evidence';
 
 const doc = (id: string, name: string): ManagedDocument => ({
   id,
@@ -110,6 +116,12 @@ describe('evidenceRows', () => {
       expect(row.linkedDocuments).toEqual([]);
     }
   });
+
+  it('carries a comment through when one is given, and defaults to empty', () => {
+    const rows = evidenceRows(clause, undefined, 'sv', {}, { 0: 'Ligger hos VD.' });
+    expect(rows[0].comment).toBe('Ligger hos VD.');
+    expect(rows[1].comment).toBe('');
+  });
 });
 
 describe('linkedDocumentsForClause', () => {
@@ -147,5 +159,33 @@ describe('linkedDocumentsForClause', () => {
   it('drops a link whose document no longer exists in the register', () => {
     const links = { '4.1:0': ['D999'] };
     expect(linkedDocumentsForClause(links, registry, '4.1')).toEqual({});
+  });
+});
+
+describe('commentsForClause', () => {
+  it('narrows the global comment map to one clause, re-keyed by evidence index', () => {
+    const comments = {
+      '4.1:0': 'Se pärmen på kontoret.',
+      '4.1:1': 'Uppdateras varje kvartal.',
+      '4.2:0': 'Fel klausul.',
+    };
+    expect(commentsForClause(comments, '4.1')).toEqual({
+      0: 'Se pärmen på kontoret.',
+      1: 'Uppdateras varje kvartal.',
+    });
+  });
+
+  it('does not confuse a clause id that is a prefix of another', () => {
+    const comments = { '6.1.2:0': 'Miljöaspekter.' };
+    expect(commentsForClause(comments, '6.1')).toEqual({});
+    expect(commentsForClause(comments, '6.1.2')).toEqual({ 0: 'Miljöaspekter.' });
+  });
+
+  it('is empty for a clause with nothing commented', () => {
+    expect(commentsForClause({}, '4.1')).toEqual({});
+  });
+
+  it('drops an entry that has been emptied out to whitespace', () => {
+    expect(commentsForClause({ '4.1:0': '   ' }, '4.1')).toEqual({});
   });
 });

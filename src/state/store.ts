@@ -42,6 +42,11 @@ export interface AppState {
    * `${clauseId}:${evidenceIndex}`.
    */
   evidenceDocumentLinks: Record<string, string[]>;
+  /**
+   * The company's own note on an evidence item, keyed the same way as
+   * evidenceDocumentLinks — `${clauseId}:${evidenceIndex}`.
+   */
+  evidenceComments: Record<string, string>;
   /** Editable content on Ledningssystem: text blocks and process diagrams. */
   managementSystemBlocks: PageBlock[];
   /** Editable content on each of the mandatory-process pages (§4.1, §6.2,
@@ -66,6 +71,7 @@ export interface AppActions {
   toggleSupplierColumn: (key: string) => void;
   saveSupplier: (supplierId: string, fields: Partial<SupplierFields>) => void;
   toggleEvidenceDocumentLink: (clauseId: string, evidenceIndex: number, documentId: string) => void;
+  setEvidenceComment: (clauseId: string, evidenceIndex: number, comment: string) => void;
   /** Applies a pure update from `domain/page.ts` to the Ledningssystem blocks. */
   updateManagementSystemBlocks: (updater: (blocks: PageBlock[]) => PageBlock[]) => void;
   /** Applies a pure update from `domain/page.ts` to one process page's blocks. */
@@ -88,6 +94,7 @@ export const INITIAL_STATE: AppState = {
   supplierColumns: { nextEvaluation: true },
   supplierOverrides: {},
   evidenceDocumentLinks: {},
+  evidenceComments: {},
   managementSystemBlocks: [],
   processPages: {},
   documents: DOCUMENTS,

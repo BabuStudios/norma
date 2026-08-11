@@ -260,6 +260,12 @@ const sv = {
   noMetadataFields: 'Inga metadatafält ännu.',
   noDocumentsToLink: 'Inga dokument att koppla.',
 
+  // — comment on an evidence item, next to "Koppla dokument" —
+  evidenceCommentAction: 'Kommentar',
+  evidenceCommentLabel: 'Kommentar till bevispunkten',
+  evidenceCommentPlaceholder: 'Skriv en kommentar …',
+  removeComment: 'Ta bort kommentar',
+
   // — in-app preview of an uploaded .docx file —
   previewLoading: 'Öppnar dokumentet …',
   previewError: 'Dokumentet kunde inte öppnas. Ladda ned det istället.',
@@ -509,6 +515,11 @@ const en: Dictionary = {
   closeMetadataEditor: 'Close',
   noMetadataFields: 'No metadata fields yet.',
   noDocumentsToLink: 'No documents to link.',
+
+  evidenceCommentAction: 'Comment',
+  evidenceCommentLabel: 'Comment on the evidence item',
+  evidenceCommentPlaceholder: 'Write a comment …',
+  removeComment: 'Remove comment',
 
   previewLoading: 'Opening the document …',
   previewError: 'The document could not be opened. Download it instead.',

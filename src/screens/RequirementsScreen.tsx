@@ -15,7 +15,7 @@ import {
   standardLabel,
   statusOf,
 } from '@/domain/conformity';
-import { evidenceRows, linkedDocumentsForClause } from '@/domain/evidence';
+import { commentsForClause, evidenceRows, linkedDocumentsForClause } from '@/domain/evidence';
 import { useDismissable } from '@/hooks/useDismissable';
 import { useApp } from '@/state/store';
 import styles from './RequirementsScreen.module.css';
@@ -30,7 +30,8 @@ type NotMetPanel = '9001' | '14001' | null;
 const lastChanged: string | null = null;
 
 export function RequirementsScreen() {
-  const { state, t, setStatus, toggleStep, toggleEvidenceDocumentLink } = useApp();
+  const { state, t, setStatus, toggleStep, toggleEvidenceDocumentLink, setEvidenceComment } =
+    useApp();
   const navigate = useNavigate();
   const { clauseId } = useParams();
 
@@ -45,6 +46,13 @@ export function RequirementsScreen() {
 
   const closeLinkPicker = useCallback(() => setOpenLinkPicker(null), []);
   const linkPickerRef = useDismissable<HTMLDivElement>(openLinkPicker !== null, closeLinkPicker);
+
+  const [openCommentEditor, setOpenCommentEditor] = useState<number | null>(null);
+  const closeCommentEditor = useCallback(() => setOpenCommentEditor(null), []);
+  const commentEditorRef = useDismissable<HTMLDivElement>(
+    openCommentEditor !== null,
+    closeCommentEditor,
+  );
 
   const clause = findClause(clauseId) ?? findClause(DEFAULT_CLAUSE_ID) ?? CLAUSES[0];
   const lang = state.lang;
@@ -75,7 +83,8 @@ export function RequirementsScreen() {
   ];
 
   const linked = linkedDocumentsForClause(state.evidenceDocumentLinks, state.documents, clause.id);
-  const evidence = evidenceRows(clause, status, lang, linked);
+  const comments = commentsForClause(state.evidenceComments, clause.id);
+  const evidence = evidenceRows(clause, status, lang, linked, comments);
   const doneSteps = text.steps.filter((_, i) => state.steps[`${clause.id}:${i}`]).length;
 
   const openChapter = (chapterId: string) => {
@@ -368,6 +377,19 @@ export function RequirementsScreen() {
                             ))}
                           </ul>
                         ) : null}
+                        {row.comment ? (
+                          <p className={styles.evidenceComment}>
+                            {row.comment}
+                            <button
+                              type="button"
+                              className={styles.evidenceFileRemove}
+                              onClick={() => setEvidenceComment(clause.id, index, '')}
+                            >
+                              <span aria-hidden="true">×</span>
+                              <span className="visuallyHidden">{t.removeComment}</span>
+                            </button>
+                          </p>
+                        ) : null}
                       </span>
                       <span className={styles.evidencePill}>
                         <Pill kind={row.onFile ? 'met' : 'gap'}>{row.stateLabel}</Pill>
@@ -416,6 +438,33 @@ export function RequirementsScreen() {
                                 );
                               })
                             )}
+                          </div>
+                        ) : null}
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          aria-expanded={openCommentEditor === index}
+                          onClick={() =>
+                            setOpenCommentEditor((current) => (current === index ? null : index))
+                          }
+                        >
+                          {t.evidenceCommentAction}
+                        </button>
+                        {openCommentEditor === index ? (
+                          <div
+                            ref={commentEditorRef}
+                            className={`dropdown ${styles.commentEditor}`}
+                          >
+                            <textarea
+                              className="input"
+                              value={row.comment}
+                              placeholder={t.evidenceCommentPlaceholder}
+                              aria-label={t.evidenceCommentLabel}
+                              autoFocus
+                              onChange={(event) =>
+                                setEvidenceComment(clause.id, index, event.target.value)
+                              }
+                            />
                           </div>
                         ) : null}
                       </div>
