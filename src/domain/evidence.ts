@@ -49,6 +49,9 @@ export interface EvidenceRow {
   stateLabel: string;
   actionLabel: string;
   linkedDocuments: ManagedDocument[];
+  /** The company's own note on this evidence item — where to find it, who
+   *  owns it, what's still missing. Empty until someone writes one. */
+  comment: string;
 }
 
 /**
@@ -64,6 +67,7 @@ export function evidenceRows(
   status: ClauseStatus | undefined,
   lang: Lang,
   linkedByIndex: Record<number, ManagedDocument[]> = {},
+  commentsByIndex: Record<number, string> = {},
 ): EvidenceRow[] {
   return clause[lang].evidence.map((item, index) => {
     const kind = evidenceKind(clause.sv.evidence[index]?.label ?? item.label);
@@ -78,6 +82,7 @@ export function evidenceRows(
       stateLabel: onFile ? ON_FILE[lang] : MISSING[lang],
       actionLabel: LINK_DOCUMENT[lang],
       linkedDocuments,
+      comment: commentsByIndex[index] ?? '',
     };
   });
 }
@@ -102,6 +107,24 @@ export function linkedDocumentsForClause(
       .map((id) => documents.find((document) => document.id === id))
       .filter((document): document is ManagedDocument => document !== undefined);
     if (linked.length > 0) result[Number(key.slice(prefix.length))] = linked;
+  }
+  return result;
+}
+
+/**
+ * Evidence comments are stored globally keyed by `${clauseId}:${evidenceIndex}`
+ * (see AppState.evidenceComments), same as the document links; this narrows
+ * that map to one clause and re-keys it by evidence index for evidenceRows.
+ */
+export function commentsForClause(
+  evidenceComments: Record<string, string>,
+  clauseId: string,
+): Record<number, string> {
+  const prefix = `${clauseId}:`;
+  const result: Record<number, string> = {};
+  for (const [key, comment] of Object.entries(evidenceComments)) {
+    if (!key.startsWith(prefix) || comment.trim() === '') continue;
+    result[Number(key.slice(prefix.length))] = comment;
   }
   return result;
 }

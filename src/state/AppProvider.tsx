@@ -120,6 +120,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const setEvidenceComment = useCallback(
+    (clauseId: string, evidenceIndex: number, comment: string) => {
+      const key = `${clauseId}:${evidenceIndex}`;
+      setState((prev) => {
+        const evidenceComments = { ...prev.evidenceComments };
+        if (comment.trim() === '') {
+          delete evidenceComments[key];
+        } else {
+          evidenceComments[key] = comment;
+        }
+        return { ...prev, evidenceComments };
+      });
+    },
+    [],
+  );
+
   const updateManagementSystemBlocks = useCallback(
     (updater: (blocks: PageBlock[]) => PageBlock[]) => {
       setState((prev) => ({
@@ -198,6 +214,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleSupplierColumn,
       saveSupplier,
       toggleEvidenceDocumentLink,
+      setEvidenceComment,
       updateManagementSystemBlocks,
       updateProcessPageBlocks,
       addDocument,
@@ -218,6 +235,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleSupplierColumn,
       saveSupplier,
       toggleEvidenceDocumentLink,
+      setEvidenceComment,
       updateManagementSystemBlocks,
       updateProcessPageBlocks,
       addDocument,

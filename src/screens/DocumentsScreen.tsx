@@ -1,8 +1,8 @@
 import { useState } from 'react';
+import { DocumentFileLink } from '@/components/DocumentFileLink';
 import { EmptyState } from '@/components/EmptyState';
 import { Pill } from '@/components/Pill';
 import { REVIEW_DUE_BEFORE, type NewDocumentFields } from '@/data/documents';
-import { getFileUrl } from '@/domain/fileStore';
 import { formatFileSize } from '@/domain/format';
 import { useApp } from '@/state/store';
 import styles from './DocumentsScreen.module.css';
@@ -320,17 +320,13 @@ export function DocumentsScreen() {
                       {document.name[lang]}
                       {document.fileName ? (
                         <span className={styles.docFile}>
-                          {getFileUrl(document.id) ? (
-                            <a
-                              href={getFileUrl(document.id)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {document.fileName}
-                            </a>
-                          ) : (
-                            document.fileName
-                          )}
+                          <DocumentFileLink
+                            documentId={document.id}
+                            fileName={document.fileName}
+                            t={t}
+                          >
+                            {document.fileName}
+                          </DocumentFileLink>
                           {document.fileSize != null
                             ? ` · ${formatFileSize(document.fileSize)}`
                             : ''}

@@ -417,3 +417,56 @@ describe('linking evidence to documents', () => {
     expect(screen.getAllByText('On file').length).toBeGreaterThan(0);
   });
 });
+
+describe('commenting on evidence', () => {
+  it('opens a comment editor next to Koppla dokument and shows what was written', async () => {
+    const { user } = render('6.1.2');
+    const [commentButton] = screen.getAllByRole('button', { name: 'Kommentar' });
+    await user.click(commentButton);
+
+    const editor = screen.getByLabelText('Kommentar till bevispunkten');
+    await user.type(editor, 'Ligger hos VD.');
+    await user.keyboard('{Escape}');
+
+    expect(screen.getByText('Ligger hos VD.')).toBeInTheDocument();
+  });
+
+  it('removes a comment with its own remove button', async () => {
+    const { user } = render('6.1.2');
+    const [commentButton] = screen.getAllByRole('button', { name: 'Kommentar' });
+    await user.click(commentButton);
+    await user.type(screen.getByLabelText('Kommentar till bevispunkten'), 'Se pärmen.');
+    await user.keyboard('{Escape}');
+    expect(screen.getByText('Se pärmen.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Ta bort kommentar' }));
+    expect(screen.queryByText('Se pärmen.')).not.toBeInTheDocument();
+  });
+
+  it('keeps comments scoped to their own evidence item', async () => {
+    const { user } = render('6.1.2');
+    const [firstButton, secondButton] = screen.getAllByRole('button', { name: 'Kommentar' });
+
+    await user.click(firstButton);
+    await user.type(screen.getByLabelText('Kommentar till bevispunkten'), 'Första bevispunkten.');
+    await user.keyboard('{Escape}');
+
+    await user.click(secondButton);
+    await user.type(screen.getByLabelText('Kommentar till bevispunkten'), 'Andra bevispunkten.');
+    await user.keyboard('{Escape}');
+
+    expect(screen.getByText('Första bevispunkten.')).toBeInTheDocument();
+    expect(screen.getByText('Andra bevispunkten.')).toBeInTheDocument();
+  });
+
+  it('works the same way in English', async () => {
+    window.localStorage.setItem('norma.state.v1', JSON.stringify({ lang: 'en' }));
+    const { user } = render('6.1.2');
+    const [commentButton] = screen.getAllByRole('button', { name: 'Comment' });
+    await user.click(commentButton);
+
+    await user.type(screen.getByLabelText('Comment on the evidence item'), 'With the CEO.');
+    await user.keyboard('{Escape}');
+    expect(screen.getByText('With the CEO.')).toBeInTheDocument();
+  });
+});
